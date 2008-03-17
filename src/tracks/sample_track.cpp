@@ -402,6 +402,7 @@ sampleTrack::sampleTrack( trackContainer * _tc ) :
 
 sampleTrack::~sampleTrack()
 {
+	delete m_trackLabel;
 	engine::getMixer()->removePlayHandles( this );
 	delete m_audioPort;
 }
