@@ -1,5 +1,67 @@
 2008-03-30	Tobias Doerffel	<tobydox/at/users/dot/sourceforge/dot/net>
 
+	* plugins/ladspa_effect/caps/Compress.cc:
+	* plugins/ladspa_effect/caps/ToneStack.cc:
+	* plugins/ladspa_effect/caps/Compress.h:
+	* plugins/ladspa_effect/caps/ToneStack.h:
+	* plugins/ladspa_effect/caps/Roessler.h:
+	* plugins/ladspa_effect/caps/HRTF.cc:
+	* plugins/ladspa_effect/caps/HRTF.h:
+	* plugins/ladspa_effect/caps/basics.h:
+	* plugins/ladspa_effect/caps/Lorenz.cc:
+	* plugins/ladspa_effect/caps/Lorenz.h:
+	* plugins/ladspa_effect/caps/Amp.cc:
+	* plugins/ladspa_effect/caps/Amp.h:
+	* plugins/ladspa_effect/caps/Pan.h:
+	* plugins/ladspa_effect/caps/Phaser.cc:
+	* plugins/ladspa_effect/caps/White.h:
+	* plugins/ladspa_effect/caps/Preamp.cc:
+	* plugins/ladspa_effect/caps/Click.cc:
+	* plugins/ladspa_effect/caps/VCO.cc:
+	* plugins/ladspa_effect/caps/Clip.cc:
+	* plugins/ladspa_effect/caps/Click.h:
+	* plugins/ladspa_effect/caps/VCO.h:
+	* plugins/ladspa_effect/caps/ToneControls.cc:
+	* plugins/ladspa_effect/caps/Sin.cc:
+	* plugins/ladspa_effect/caps/Clip.h:
+	* plugins/ladspa_effect/caps/Sin.h:
+	* plugins/ladspa_effect/caps/Scape.cc:
+	* plugins/ladspa_effect/caps/Scape.h:
+	* plugins/ladspa_effect/caps/Roessler.cc:
+	* plugins/ladspa_effect/caps/interface.cc:
+	* plugins/ladspa_effect/caps/waves/click.h:
+	* plugins/ladspa_effect/caps/waves/money.h:
+	* plugins/ladspa_effect/caps/dsp/ToneStack.h:
+	* plugins/ladspa_effect/caps/dsp/LatFilt.h:
+	* plugins/ladspa_effect/caps/dsp/TDFII.h:
+	* plugins/ladspa_effect/caps/dsp/RMS.h:
+	* plugins/ladspa_effect/caps/dsp/OnePole.h:
+	* plugins/ladspa_effect/caps/dsp/tonestack/tables.h:
+	* plugins/ladspa_effect/caps/dsp/tonestack/vs_tab.h:
+	* plugins/ladspa_effect/caps/dsp/tonestack/ks_tab.h:
+	* plugins/ladspa_effect/caps/dsp/Eq.h:
+	* plugins/ladspa_effect/caps/dsp/BiQuad.h:
+	* plugins/ladspa_effect/caps/dsp/util.h:
+	* plugins/ladspa_effect/caps/dsp/FPTruncateMode.h:
+	* plugins/ladspa_effect/caps/dsp/TwelveAX7.h:
+	* plugins/ladspa_effect/caps/Chorus.cc:
+	* plugins/ladspa_effect/caps/Cabinet.cc:
+	* plugins/ladspa_effect/caps/Chorus.h:
+	* plugins/ladspa_effect/caps/Eq.cc:
+	* plugins/ladspa_effect/caps/Cabinet.h:
+	* plugins/ladspa_effect/caps/Eq.h:
+	* plugins/ladspa_effect/caps/README:
+	* plugins/ladspa_effect/caps/Pan.cc:
+	* plugins/ladspa_effect/caps/SweepVF.cc:
+	* plugins/ladspa_effect/caps/Descriptor.h:
+	* plugins/ladspa_effect/caps/White.cc:
+	* plugins/ladspa_effect/caps/SweepVF.h:
+	* plugins/ladspa_effect/caps/Phaser.h:
+	* plugins/ladspa_effect/caps/Reverb.cc:
+	* plugins/ladspa_effect/caps/Makefile.am:
+	* plugins/ladspa_effect/caps/Reverb.h:
+	integrated new version of CAPS and fixed miscompilation with GCC 4.3
+
 	* plugins/bass_booster/bass_booster.cpp:
 	* plugins/ladspa_effect/ladspa_effect.cpp:
 	compare out_sum against getGate()+0.0001f as getGate() might be 0

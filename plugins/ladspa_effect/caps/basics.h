@@ -46,19 +46,11 @@
 #include <assert.h>
 #include <stdio.h>
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#ifdef HAVE_LADSPA_H
-#include <ladspa.h>
-#else
-#include "ladspa-1.1.h"
-#endif
+#include "ladspa.h"
 
 #define BOUNDED (LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE)
 #define INTEGER LADSPA_HINT_INTEGER
-#define FS LADSPA_HINT_SAMPLE_RATE
+/* #define FS LADSPA_HINT_SAMPLE_RATE *//* deprecated */
 #define LOG LADSPA_HINT_LOGARITHMIC
 #define TOGGLE LADSPA_HINT_TOGGLED
 
@@ -133,11 +125,73 @@ X max (X x, Y y)
 }
 
 #endif /* ! max */
-	
+
+template <class T>
+T clamp (T value, T lower, T upper)
+{
+	if (value < lower) return lower;
+	if (value > upper) return upper;
+	return value;
+}
+
 static inline float
 frandom()
 {
 	return (float) random() / (float) RAND_MAX;
 }
+
+/* for testing only. */
+inline bool 
+is_denormal (float & f)
+{
+	int32 i = *((int32 *) &f);
+	return ((i & 0x7f800000) == 0);
+}
+
+/* not sure if this double version is correct, actually ... */
+inline bool 
+is_denormal (double & f)
+{
+	int64 i = *((int64 *) &f);
+	return ((i & 0x7fe0000000000000ll) == 0);
+}
+
+#ifdef __i386__
+	#define TRAP asm ("int $3;")
+#else
+	#define TRAP
+#endif
+
+/* //////////////////////////////////////////////////////////////////////// */
+
+#define CAPS "C* "
+
+class Plugin {
+	public:
+		double fs; /* sample rate */
+		double adding_gain; /* for run_adding() */
+
+		int first_run; /* 1st block after activate(), do no parameter smoothing */
+		d_sample normal; /* renormal constant */
+
+		d_sample ** ports;
+		LADSPA_PortRangeHint * ranges; /* for getport() below */
+
+	public:
+		/* get port value, mapping inf or nan to 0 */
+		inline d_sample getport_unclamped (int i)
+			{
+				d_sample v = *ports[i];
+				return (isinf (v) || isnan(v)) ? 0 : v;
+			}
+
+		/* get port value and clamp to port range */
+		inline d_sample getport (int i)
+			{
+				LADSPA_PortRangeHint & r = ranges[i];
+				d_sample v = getport_unclamped (i);
+				return clamp (v, r.LowerBound, r.UpperBound);
+			}
+};
 
 #endif /* _BASICS_H_ */
