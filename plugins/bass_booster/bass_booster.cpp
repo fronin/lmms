@@ -90,7 +90,7 @@ bool FASTCALL bassBoosterEffect::processAudioBuffer( surroundSampleFrame * _buf,
 		}
 	}
 
-	if( out_sum <= getGate() )
+	if( out_sum <= getGate()+0.0001f )
 	{
 		incrementBufferCount();
 		if( getBufferCount() > getTimeout() )
