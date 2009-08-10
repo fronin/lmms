@@ -40,10 +40,18 @@ typedef unsigned int	Uint32;
 typedef signed int	Sint32;
 
 
+// TODO: Obsolete stuff to remove
+typedef Sint32 tact_t;
+// END Obsolete stuff
+
+typedef Sint32 bar_t;
+typedef Sint16 beat_t;
+typedef Sint16 tick_t;
+
+typedef float note_type_t;
+
 typedef Uint32 minute_t;
 typedef Sint8 second_t;
-typedef Sint32 tact_t;
-typedef Sint32 tick_t;
 typedef Uint8 volume_t;
 typedef Sint8 panning_t;
 
@@ -56,7 +64,7 @@ typedef Uint32 sample_rate_t;		// sample-rate
 typedef Sint16 fpp_t;			// frames per period (0-16384)
 typedef Sint32 f_cnt_t;			// standard frame-count
 typedef Uint8 ch_cnt_t;			// channel-count (0-SURROUND_CHANNELS)
-typedef Uint16 bpm_t;			// tempo (MIN_BPM to MAX_BPM)
+typedef float bpm_t;			// tempo (MIN_BPM to MAX_BPM)
 typedef Uint16 bitrate_t;		// bitrate in kbps
 typedef Sint8 fx_ch_t;			// FX-channel (0 to MAX_EFFECT_CHANNEL)
 
