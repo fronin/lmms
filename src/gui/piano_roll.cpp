@@ -1453,6 +1453,7 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 				it = notes.begin();
 				while( it != notes.end() )
 				{
+					int ticksInt = ( *it )->pos().getTicks();
 					
 					// remember note starting positions
 					( *it )->setOldKey( ( *it )->key() );
@@ -1465,7 +1466,7 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 						// figure out the bounding box of all the selected notes
 						if( first )
 						{
-							m_moveBoundaryLeft = ( *it )->pos().getTicks();
+							m_moveBoundaryLeft = ticksInt;
 							m_moveBoundaryRight = ( *it )->pos() + ( *it )->length();
 							m_moveBoundaryBottom = ( *it )->key();
 							m_moveBoundaryTop = ( *it )->key();	
@@ -1474,16 +1475,18 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 						}
 						else
 						{
-							m_moveBoundaryLeft = qMin( 
-												( *it )->pos().getTicks(), 
-												m_moveBoundaryLeft );
-							m_moveBoundaryRight = qMax( ( *it )->pos() + 
-												   ( *it )->length(),
-													m_moveBoundaryRight );
-							m_moveBoundaryBottom = qMin( ( *it )->key(), 
-											   m_moveBoundaryBottom );
-							m_moveBoundaryTop = qMax( ( *it )->key(),
-														m_moveBoundaryTop );
+							m_moveBoundaryLeft = qMin(
+									ticksInt,
+									m_moveBoundaryLeft );
+							m_moveBoundaryRight = qMax(
+									( *it )->pos() + ( *it )->length(),
+									m_moveBoundaryRight );
+							m_moveBoundaryBottom = qMin(
+									( *it )->key(),
+									m_moveBoundaryBottom );
+							m_moveBoundaryTop = qMax(
+									( *it )->key(),
+									m_moveBoundaryTop );
 						}
 					}
 					

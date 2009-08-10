@@ -718,7 +718,7 @@ void trackContentObjectView::mouseMoveEvent( QMouseEvent * _me )
 	else if( m_action == Resize )
 	{
 		midiTime t = qMax( midiTime::ticksPerTact(),
-				static_cast<int>( _me->x() *
+				static_cast<tick_t>( _me->x() *
 					midiTime::ticksPerTact() / ppt ) );
 		if( ! ( _me->modifiers() & Qt::ControlModifier )
 		   && _me->button() == Qt::NoButton )

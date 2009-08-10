@@ -5,7 +5,7 @@
 
 #include "track_container.h"
 #include "automatable_model.h"
-#include "controller.h"
+#include "Controller.h"
 #include "meter_model.h"
 
 
@@ -73,11 +73,11 @@ public:
 		return false;
 	}
 
-	void addController( controller * _c );
-	void removeController( controller * _c );
+	void addController( Controller * _c );
+	void removeController( Controller * _c );
 	
 
-	const controllerVector & controllers( void ) const
+	const ControllerVector & controllers( void ) const
 	{
 		return m_controllers;
 	}
@@ -143,7 +143,7 @@ private:
 	//intModel m_masterVolumeModel;
 	//intModel m_masterPitchModel;
 
-	controllerVector m_controllers;
+	ControllerVector m_controllers;
 
 	QString m_fileName;
 	QString m_oldFileName;
@@ -163,13 +163,13 @@ private:
 	friend class engine;
 	friend class songEditor;
 	friend class mainWindow;
-	friend class controllerRackView;
+	friend class ControllerRackView;
 
 signals:
 	void lengthChanged( int _tacts );
 	void tempoChanged( bpm_t _new_bpm );
-	void timeSignatureChanged( int _old_ticks_per_tact,
-							int _ticks_per_tact );
+/*	void timeSignatureChanged( int _old_ticks_per_tact,
+							int _ticks_per_tact );*/
 
 } ;
 

@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-#include "song_tng.h"
+#include "Song.h"
 #include "automation_track.h"
 #include "automation_editor.h"
 #include "automation_recorder.h"
@@ -772,6 +772,6 @@ void Song::removeController( Controller * _controller )
 
 
 
-#include "moc_song_tng.cxx"
+#include "moc_Song.cxx"
 
 
