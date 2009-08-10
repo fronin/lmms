@@ -30,6 +30,7 @@
 #include "lmms_basics.h"
 #include "export.h"
 
+/* TODO! Remove this stuff, or at least relocate */
 const int DefaultTicksPerTact = 192;
 const int DefaultStepsPerTact = 16;
 const int DefaultBeatsPerTact = DefaultTicksPerTact / DefaultStepsPerTact;

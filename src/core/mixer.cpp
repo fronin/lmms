@@ -527,6 +527,7 @@ sampleFrameA * mixer::renderNextBuffer( void )
 	microTimer timer;
 	static song::playPos last_metro_pos = -1;
 
+	// TODO: PRG: Replace with tempo-map lookup.
 	song::playPos p = engine::getSong()->getPlayPos(
 						song::Mode_PlayPattern );
 	if( engine::getSong()->playMode() == song::Mode_PlayPattern &&

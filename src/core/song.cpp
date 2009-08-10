@@ -358,6 +358,7 @@ void song::processNextBuffer( void )
 	f_cnt_t total_frames_played = 0;
 	const float frames_per_tick = engine::framesPerTick();
 
+	// TODO: PRG: Rework this whole block for tempo-mapping
 	while( total_frames_played
 				< engine::getMixer()->framesPerPeriod() )
 	{

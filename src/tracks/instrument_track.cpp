@@ -622,6 +622,7 @@ bool instrumentTrack::play( const midiTime & _start,
 			continue;
 		}
 		midiTime cur_start = _start;
+        // Make cur_start the offset within the pattern
 		if( _tco_num < 0 )
 		{
 			cur_start -= p->startPosition();
@@ -651,7 +652,7 @@ bool instrumentTrack::play( const midiTime & _start,
 #endif
 
 		// very effective algorithm for playing notes that are
-		// posated within the current sample-frame
+		// positioned within the current sample-frame
 
 
 		if( cur_start > 0 )
@@ -1553,5 +1554,4 @@ void instrumentTrackWindow::loadSettings( const QDomElement & _this )
 
 
 #include "moc_instrument_track.cxx"
-
 
