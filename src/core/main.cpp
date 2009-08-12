@@ -58,7 +58,7 @@
 #include "engine.h"
 #include "import_filter.h"
 #include "main_window.h"
-#include "project_renderer.h"
+#include "ProjectRenderer.h"
 #include "song.h"
 #include "Cpu.h"
 
@@ -127,9 +127,9 @@ int main( int argc, char * * argv )
 
 
 	mixer::qualitySettings qs( mixer::qualitySettings::Mode_HighQuality );
-	projectRenderer::outputSettings os( 44100, false, 160,
-						projectRenderer::Depth_16Bit );
-	projectRenderer::ExportFileFormats eff = projectRenderer::WaveFile;
+	ProjectRenderer::OutputSettings os( 44100, false, 160,
+						ProjectRenderer::Depth_16Bit );
+	ProjectRenderer::ExportFileFormats eff = ProjectRenderer::WaveFile;
 
 
 	for( int i = 1; i < argc; ++i )
@@ -160,7 +160,7 @@ int main( int argc, char * * argv )
 	"-r, --render <project file>	render given project file\n"
 	"-o, --output <file>		render into <file>\n"
 	"-f, --output-format <format>	specify format of render-output where\n"
-	"				format is either 'wav', 'ogg', or 'mp3'.\n"
+	"				format is either 'wav', 'ogg', 'mp3', or 'flac'.\n"
 	"-s, --samplerate <samplerate>	specify output samplerate in Hz\n"
 	"				range: 44100 (default) to 192000\n"
 	"-b, --bitrate <bitrate>		specify output bitrate in kHz\n"
@@ -217,18 +217,24 @@ int main( int argc, char * * argv )
 			const QString ext = QString( argv[i + 1] );
 			if( ext == "wav" )
 			{
-				eff = projectRenderer::WaveFile;
+				eff = ProjectRenderer::WaveFile;
 			}
 #ifdef LMMS_HAVE_OGGVORBIS
 			else if( ext == "ogg" )
 			{
-				eff = projectRenderer::OggFile;
+				eff = ProjectRenderer::OggFile;
 			}
 #endif
 			else if( ext == "mp3" )
 			{
-				eff = projectRenderer::Mp3File;
+				eff = ProjectRenderer::Mp3File;
 			}
+#ifdef LMMS_HAVE_FLAC
+			else if( ext == "flac" )
+			{
+				eff = ProjectRenderer::FlacFile;
+			}
+#endif
 			else
 			{
 				printf( "\nInvalid output format %s.\n\n"
@@ -492,13 +498,14 @@ int main( int argc, char * * argv )
 		if( !render_out.isEmpty() )
 		{
 			// create renderer
-			projectRenderer * r = new projectRenderer( qs, os, eff,
-				render_out + QString(projectRenderer::EFF_ext[eff]));
+			ProjectRenderer * r = new ProjectRenderer( qs, os, eff,
+				render_out + QString( ProjectRenderer::EFF_ext[eff] ) );
 			QCoreApplication::instance()->connect( r,
 					SIGNAL( finished() ), SLOT( quit() ) );
 
 			// timer for progress-updates
 			QTimer * t = new QTimer( r );
+			r->setConsoleUpdateTimer(t);
 			r->connect( t, SIGNAL( timeout() ),
 					SLOT( updateConsoleProgress() ) );
 			t->start( 200 );
