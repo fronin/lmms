@@ -48,14 +48,13 @@
 #include "import_filter.h"
 #include "instrument_track.h"
 #include "main_window.h"
-#include "midi_client.h"
 #include "mmp.h"
 #include "note_play_handle.h"
 #include "pattern.h"
 #include "piano_roll.h"
 #include "project_journal.h"
 #include "project_notes.h"
-#include "project_renderer.h"
+#include "ProjectRenderer.h"
 #include "rename_dialog.h"
 #include "song_editor.h"
 #include "templates.h"
@@ -692,7 +691,7 @@ void Song::exportProject( void )
 	int idx = 0;
 	QStringList types;
 	while( __fileEncodeDevices[idx].m_fileFormat !=
-					projectRenderer::NumFileFormats )
+					ProjectRenderer::NumFileFormats )
 	{
 		types << tr( __fileEncodeDevices[idx].m_description );
 		++idx;
