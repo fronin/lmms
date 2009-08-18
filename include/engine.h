@@ -46,6 +46,8 @@ class mixer;
 class pianoRoll;
 class projectNotes;
 class UnifiedResourceProvider;
+class Sequencer;
+class Song;
 class song;
 class songEditor;
 class ladspa2LMMS;
@@ -86,7 +88,17 @@ public:
 		return s_fxMixer;
 	}
 
-	static song * getSong( void )
+	static Song * song( void )
+	{
+		return s_songTng;
+	}
+
+	static Sequencer * sequencer( void )
+	{
+		return s_sequencer;
+	}
+
+	static ::song * getSong( void )
 	{
 		return s_song;
 	}
@@ -200,7 +212,9 @@ private:
 	// core
 	static mixer * s_mixer;
 	static fxMixer * s_fxMixer;
-	static song * s_song;
+	static Sequencer * s_sequencer;
+	static ::song * s_song;
+	static Song * s_songTng;
 	static UnifiedResourceProvider * s_resourceProvider;
 	static bbTrackContainer * s_bbTrackContainer;
 	static projectJournal * s_projectJournal;

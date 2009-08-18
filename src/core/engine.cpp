@@ -45,6 +45,8 @@
 #include "plugin.h"
 #include "song_editor.h"
 #include "song.h"
+#include "Song.h"
+#include "Sequencer.h"
 #include "MidiControlListener.h"
 
 #include "ResourceDB.h"
@@ -61,7 +63,9 @@ fxMixer * engine::s_fxMixer = NULL;
 fxMixerView * engine::s_fxMixerView = NULL;
 mainWindow * engine::s_mainWindow = NULL;
 bbTrackContainer * engine::s_bbTrackContainer = NULL;
+Sequencer * engine::s_sequencer = NULL;
 song * engine::s_song = NULL;
+Song * engine::s_songTng = NULL;
 UnifiedResourceProvider * engine::s_resourceProvider = NULL;
 songEditor * engine::s_songEditor = NULL;
 automationEditor * engine::s_automationEditor = NULL;
@@ -88,7 +92,9 @@ void engine::init( const bool _has_gui )
 
 	s_projectJournal = new projectJournal;
 	s_mixer = new mixer;
-	s_song = new song;
+	s_sequencer = new Sequencer();
+	s_song = new ::song();
+	s_songTng = new Song();
 
 
 	// init resource framework

@@ -31,7 +31,7 @@
 
 #include "track_container.h"
 #include "automatable_model.h"
-#include "controller.h"
+#include "Controller.h"
 
 class automationTrack;
 class pattern;
@@ -59,8 +59,8 @@ public:
 	public:
 		playPos( const int _abs = 0 ) :
 			midiTime( _abs ),
-//			m_timeLine( NULL ),
-//			m_timeLineUpdate( true ),
+			m_timeLine( NULL ),
+			m_timeLineUpdate( true ),
 			m_currentFrame( 0.0f )
 		{
 		}
@@ -75,8 +75,8 @@ public:
 			return m_currentFrame;
 		}
 		
-//		timeLine * m_timeLine;
-//		bool m_timeLineUpdate;
+		timeLine * m_timeLine;
+		bool m_timeLineUpdate;
 
 	private:
 		float m_currentFrame;
@@ -89,8 +89,8 @@ public:
 	 *
 	 * @param song The new Song to play
 	 * @return false if Song couldn't be set due to playing state
-	 *
-	inline void setSong( Song song )
+	 **/
+	inline bool setSong( Song * song )
 	{
 		if( isPlaying() )
 		{
@@ -103,15 +103,15 @@ public:
 	}
 
 
-	**
+	/**
 	 * Retreive the Song assigned to this Sequencer
 	 *
 	 * @return the current Song.
-	 *
-	inline Song song( void ) const
+	 */
+	inline Song * song( void ) const
 	{
 		return m_song;
-	}*/
+	}
 
 
 	/**
@@ -182,7 +182,7 @@ public slots:
 	/* TODO! Instead of setSong maybe just make a play( Song * ) ?? */
 	void play( Song * _song );
 	void record( void );
-	void playAndRecord( void );
+	void playAndRecord( Song * _song );
 	void stop( void );
 	void playTrack( track * _trackToPlay );
 	void playBB( void );
@@ -190,10 +190,10 @@ public slots:
 	void pause( void );
 	void resumeFromPause( void );
 
-	void importProject( void );
-	void exportProject( void );
+	//void importProject( void );
+	//void exportProject( void );
 
-	void startExport( void );
+	void startExport( Song * _song );
 	void stopExport( void );
 
 
@@ -258,7 +258,7 @@ private:
 
 	track * m_trackToPlay;
 	pattern * m_patternToPlay;
-	Song * m_sontToPlay;
+	Song * m_song;
 	bool m_loopPattern;
 
 	enum Actions

@@ -50,14 +50,17 @@ public:
 	void loadProject( const QString & _file_name );
 	bool saveProject( void );
 	bool saveProjectAs( const QString & _file_name );
+
 	inline const QString & projectFileName( void ) const
 	{
 		return m_fileName;
 	}
+
 	inline bool isLoadingProject( void ) const
 	{
 		return m_loadingProject;
 	}
+
 	inline bool isModified( void ) const
 	{
 		return m_modified;
@@ -140,8 +143,8 @@ private:
 	//intModel m_tempoModel;
 	//meterModel m_timeSigModel;
 	//int m_oldTicksPerTact;
-	//intModel m_masterVolumeModel;
-	//intModel m_masterPitchModel;
+	intModel m_masterVolumeModel;
+	intModel m_masterPitchModel;
 
 	ControllerVector m_controllers;
 
@@ -161,14 +164,14 @@ private:
 
 	/* TODO! Remove as many friends as possible */
 	friend class engine;
-	friend class songEditor;
 	friend class mainWindow;
 	friend class ControllerRackView;
+	friend class Sequencer;
 
 signals:
 	void lengthChanged( int _tacts );
-	void tempoChanged( bpm_t _new_bpm );
-/*	void timeSignatureChanged( int _old_ticks_per_tact,
+/*	void tempoChanged( bpm_t _new_bpm );
+	void timeSignatureChanged( int _old_ticks_per_tact,
 							int _ticks_per_tact );*/
 
 } ;
