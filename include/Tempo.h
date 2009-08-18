@@ -4,6 +4,8 @@
 #include "lmms_basics.h"
 #include "MidiTime.h"
 
+class Meter;
+
 class Tempo
 {
 public:
@@ -36,7 +38,8 @@ public:
 		return m_note;
 	}
 
-	double framesPerBeat (sample_rate_t sr, const Meter & meter) const;
+	double framesPerBeat (const Meter & meter, sample_rate_t sr) const;
+	double framesPerBar (const Meter & meter, sample_rate_t sr) const;
 
 protected:
     bpm_t m_bpm;
@@ -63,7 +66,7 @@ public:
 	Meter & operator=( const Meter & _m )
 	{
 		m_beatsPerBar = _m.m_beatsPerBar;
-		m_note( _m.m_note )
+		m_note = _m.m_note;
 		return *this;
 	}
 
@@ -72,14 +75,20 @@ public:
 		return m_beatsPerBar;
 	}
 
-	note_type_t noteType() const { return m_note; }
+	note_type_t noteType() const
+	{
+		return m_note;
+	}
 
-	double framesPerBar( const Tempo &, nframes_t sr) const;
+	/*
+	double framesPerBeat( const Tempo &, sample_rate_t sr ) const;
+	double framesPerBar( const Tempo &, sample_rate_t sr ) const;
+	*/
 
 protected:
 	float m_beatsPerBar;
 	note_type_t m_note;
-}
+};
 
 
 #endif

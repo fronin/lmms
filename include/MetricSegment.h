@@ -15,17 +15,36 @@ public:
 
 
 
-	inline const MidiTime & startTime() const
+	inline const MidiTime & time() const
 	{
 		return m_startTime;
 	}
 
 
 
-	inline frame_t startFrame() cons
+	inline frame_t frame() const
 	{
 		return m_startFrame;
 	}
+
+
+
+	void setFrame( frame_t _frame )
+	{
+		m_startFrame = frame;
+	}
+
+
+
+	void setTime( const & MidiTime )
+	{
+		m_startTime = _time;
+	}
+
+
+protected:
+	frame_t m_startFrame;
+	MidiTime m_startTime;
 };
 
 
@@ -58,6 +77,10 @@ public:
 	{
 		m_meter = _meter;
 	}
+
+
+protected:
+	Meter m_meter;
 };
 
 
@@ -98,5 +121,9 @@ public:
 	{
 		m_tempo = _tempo
 	}
+
+
+protected:
+	Tempo m_tempo;
 };
 
