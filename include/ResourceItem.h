@@ -27,16 +27,18 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
+#include <QtCore/QHash>
 #include <QtCore/QList>
 
 #include "ResourceProvider.h"
-
-class ResourceTreeItem;
+#include "TreeRelation.h"
 
 
 class ResourceItem
 {
 public:
+	typedef TreeRelation<ResourceItem> Relation;
+
 	enum BaseDirectories
 	{
 		BaseRoot,
@@ -76,6 +78,17 @@ public:
 			const QDateTime & _last_mod = QDateTime() );
 	// copy constructor
 	ResourceItem( const ResourceItem & _item );
+
+	inline void setHidden( bool _h, const QAbstractItemModel * _model )
+	{
+		m_hidden[_model] = _h;
+	}
+
+	inline bool isHidden( const QAbstractItemModel * _model ) const
+	{
+		return m_hidden[_model];
+	}
+
 
 	const ResourceProvider * provider() const
 	{
@@ -162,19 +175,19 @@ public:
 		return m_type != TypeUnknown && !m_name.isEmpty();
 	}
 
-	void setTreeItem( ResourceTreeItem * _ti )
+	void setRelation( Relation * _relation )
 	{
-		m_treeItem = _ti;
+		m_relation = _relation;
 	}
 
-	ResourceTreeItem * treeItem()
+	Relation * relation()
 	{
-		return m_treeItem;
+		return m_relation;
 	}
 
-	const ResourceTreeItem * treeItem() const
+	const Relation * relation() const
 	{
-		return m_treeItem;
+		return m_relation;
 	}
 
 	const QDateTime & lastMod() const
@@ -199,6 +212,10 @@ public:
 
 	void reload();
 
+	// returns true if all given keywords match name, tags etc.
+	bool keywordMatch( const QStringList & _keywords );
+
+	// return true, if given ResourceItem is equal
 	bool operator==( const ResourceItem & _other ) const;
 
 	// rates equality with given item
@@ -230,12 +247,22 @@ private:
 	QDateTime m_lastMod;
 	QString m_tags;
 
-	ResourceTreeItem * m_treeItem;
+	QHash<const QAbstractItemModel *, bool> m_hidden;
+
+	Relation * m_relation;
 
 } ;
 
 
 typedef QList<ResourceItem *> ResourceItemList;
 
+
+#define foreachResourceItemRelation(list)								\
+		for(ResourceItem::Relation::List::Iterator it=list.begin();		\
+					it!=list.end();++it)
+
+#define foreachConstResourceItemRelation(list)							\
+		for(ResourceItem::Relation::List::ConstIterator it=list.begin();\
+						it!=list.end();++it)
 
 #endif

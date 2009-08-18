@@ -1,8 +1,7 @@
 /*
- * MidiPortMenu.h - a menu for subscribing a MidiPort to several external
- *                  MIDI ports
+ * QuickLoadDialog.h - header file for QuickLoadDialog
  *
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -23,40 +22,27 @@
  *
  */
 
-#ifndef _MIDI_PORT_MENU_H
-#define _MIDI_PORT_MENU_H
+#ifndef _QUICK_LOAD_DIALOG_H
+#define _QUICK_LOAD_DIALOG_H
 
-#include <QtGui/QMenu>
-
-#include "mv_base.h"
-#include "MidiPort.h"
+#include <QtGui/QDialog>
 
 
-class QAction;
+namespace Ui { class QuickLoadDialog; }
+class ResourceListModel;
 
-
-class MidiPortMenu : public QMenu, public modelView
+class QuickLoadDialog : public QDialog
 {
-	Q_OBJECT
 public:
-	MidiPortMenu( MidiPort::Modes _mode );
-	virtual ~MidiPortMenu();
-
-
-public slots:
-	void updateMenu();
-
-
-protected slots:
-	void activatedPort( QAction * _item );
+	QuickLoadDialog( QWidget * _parent );
+	~QuickLoadDialog();
 
 
 private:
-	virtual void modelChanged();
-
-	MidiPort::Modes m_mode;
+	Ui::QuickLoadDialog * ui;
+	ResourceListModel * m_listModel;
 
 } ;
 
-
 #endif
+

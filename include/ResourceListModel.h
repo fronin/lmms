@@ -1,8 +1,7 @@
 /*
- * MidiPortMenu.h - a menu for subscribing a MidiPort to several external
- *                  MIDI ports
+ * ResourceListModel.h - a tree model implementation for resources
  *
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -23,40 +22,44 @@
  *
  */
 
-#ifndef _MIDI_PORT_MENU_H
-#define _MIDI_PORT_MENU_H
+#ifndef _RESOURCE_LIST_MODEL_H
+#define _RESOURCE_LIST_MODEL_H
 
-#include <QtGui/QMenu>
+#include <QtCore/QVector>
 
-#include "mv_base.h"
-#include "MidiPort.h"
-
-
-class QAction;
+#include "ResourceModel.h"
 
 
-class MidiPortMenu : public QMenu, public modelView
+class ResourceListModel : public ResourceModel
 {
 	Q_OBJECT
 public:
-	MidiPortMenu( MidiPort::Modes _mode );
-	virtual ~MidiPortMenu();
+	ResourceListModel( ResourceDB * _db, QObject * _parent = NULL );
+	virtual ~ResourceListModel()
+	{
+	}
+
+	int rowCount( const QModelIndex & _parent = QModelIndex() ) const;
+
+	virtual QModelIndex index( int _row, int _col,
+			const QModelIndex & _parent = QModelIndex() ) const;
+
+	virtual QModelIndex parent( const QModelIndex & ) const
+	{
+		return QModelIndex();
+	}
+
+	virtual void setFilter( const QString & _s );
 
 
-public slots:
-	void updateMenu();
-
-
-protected slots:
-	void activatedPort( QAction * _item );
+private slots:
+	void updateLookupTable();
 
 
 private:
-	virtual void modelChanged();
-
-	MidiPort::Modes m_mode;
+	QStringList m_filterKeywords;
+	QVector<ResourceItem *> m_lookupTable;
 
 } ;
-
 
 #endif

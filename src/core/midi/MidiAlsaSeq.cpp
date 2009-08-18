@@ -36,6 +36,40 @@
 
 #ifdef LMMS_HAVE_ALSA
 
+const int EventPollTimeOut = 250;
+
+
+// static helper functions
+static QString __portName( snd_seq_client_info_t * _cinfo,
+								snd_seq_port_info_t * _pinfo )
+{
+	return QString( "%1:%2 %3:%4" ).
+					arg( snd_seq_port_info_get_client( _pinfo ) ).
+					arg( snd_seq_port_info_get_port( _pinfo ) ).
+					arg( snd_seq_client_info_get_name( _cinfo ) ).
+					arg( snd_seq_port_info_get_name( _pinfo ) );
+}
+
+static QString __portName( snd_seq_t * _seq, const snd_seq_addr_t * _addr )
+{
+	snd_seq_client_info_t * cinfo;
+	snd_seq_port_info_t * pinfo;
+
+	snd_seq_client_info_malloc( &cinfo );
+	snd_seq_port_info_malloc( &pinfo );
+
+	snd_seq_get_any_port_info( _seq, _addr->client, _addr->port, pinfo );
+	snd_seq_get_any_client_info( _seq, _addr->client, cinfo );
+
+	const QString name = __portName( cinfo, pinfo );
+
+	snd_seq_client_info_free( cinfo );
+	snd_seq_port_info_free( pinfo );
+
+	return name;
+}
+
+
 
 MidiAlsaSeq::MidiAlsaSeq() :
 	MidiClient(),
@@ -95,10 +129,7 @@ MidiAlsaSeq::~MidiAlsaSeq()
 	if( isRunning() )
 	{
 		m_quit = true;
-		// wake up input queue
-		if( write( m_pipe[1], "\n", 1 ) )
-			/* fix warning */;
-		wait( 1000 );
+		wait( EventPollTimeOut*2 );
 
 		snd_seq_stop_queue( m_seqHandle, m_queueID, NULL );
 		snd_seq_free_queue( m_seqHandle, m_queueID );
@@ -112,7 +143,7 @@ MidiAlsaSeq::~MidiAlsaSeq()
 QString MidiAlsaSeq::probeDevice()
 {
 	QString dev = configManager::inst()->value( "Midialsaseq", "device" );
-	if( dev == "" )
+	if( dev.isEmpty() )
 	{
 		if( getenv( "MIDIDEV" ) != NULL )
 		{
@@ -241,7 +272,7 @@ void MidiAlsaSeq::applyPortMode( MidiPort * _port )
 				m_portIDs[_port][i] =
 						snd_seq_create_simple_port(
 							m_seqHandle,
-				_port->displayName().toAscii().constData(),
+				_port->displayName().toUtf8().constData(),
 							caps[i],
 						SND_SEQ_PORT_TYPE_MIDI_GENERIC |
 						SND_SEQ_PORT_TYPE_APPLICATION );
@@ -284,7 +315,7 @@ void MidiAlsaSeq::applyPortName( MidiPort * _port )
 		snd_seq_get_port_info( m_seqHandle, m_portIDs[_port][i],
 							port_info );
 		snd_seq_port_info_set_name( port_info,
-				_port->displayName().toAscii().constData() );
+				_port->displayName().toUtf8().constData() );
 		snd_seq_set_port_info( m_seqHandle, m_portIDs[_port][i],
 							port_info );
 		snd_seq_port_info_free( port_info );
@@ -303,6 +334,20 @@ void MidiAlsaSeq::removePort( MidiPort * _port )
 		m_portIDs.remove( _port );
 	}
 	MidiClient::removePort( _port );
+}
+
+
+
+
+QString MidiAlsaSeq::sourcePortName( const midiEvent & _event ) const
+{
+	if( _event.sourcePort() )
+	{
+		const snd_seq_addr_t * addr =
+			static_cast<const snd_seq_addr_t *>( _event.sourcePort() );
+		return __portName( m_seqHandle, addr );
+	}
+	return MidiClient::sourcePortName( _event );
 }
 
 
@@ -405,33 +450,50 @@ void MidiAlsaSeq::run()
 
 	while( m_quit == false )
 	{
-		if( poll( pollfd_set, pollfd_count, -1 ) == -1 )
+		int pollRet = poll( pollfd_set, pollfd_count, EventPollTimeOut );
+		if( pollRet == 0 )
+		{
+			continue;
+		}
+		else if( pollRet == -1 )
 		{
 			// gdb may interrupt the poll
 			if( errno == EINTR )
 			{
 				continue;
 			}
-			perror( __FILE__ ": poll" );
+			qCritical( "error while polling ALSA sequencer handle" );
+			break;
 		}
 		// shutdown?
-		if( pollfd_set[0].revents )
+		if( m_quit )
 		{
 			break;
 		}
 
-		do	// while event queue is not empty
+		// while event queue is not empty
+		while( snd_seq_event_input_pending( m_seqHandle, true ) > 0 )
 		{
-
 		snd_seq_event_t * ev;
-		snd_seq_event_input( m_seqHandle, &ev );
+		if( snd_seq_event_input( m_seqHandle, &ev ) < 0 )
+		{
+			qCritical( "error while fetching MIDI event from sequencer" );
+			break;
+		}
 
+		snd_seq_addr_t * source = NULL;
 		MidiPort * dest = NULL;
 		for( int i = 0; i < m_portIDs.size(); ++i )
 		{
 			if( m_portIDs.values()[i][0] == ev->dest.port )
 			{
 				dest = m_portIDs.keys()[i];
+			}
+			if( ( m_portIDs.values()[i][1] != -1 &&
+					m_portIDs.values()[i][1] == ev->source.port ) ||
+						m_portIDs.values()[i][0] == ev->source.port )
+			{
+				source = &ev->source;
 			}
 		}
 
@@ -447,7 +509,8 @@ void MidiAlsaSeq::run()
 							ev->data.note.channel,
 							ev->data.note.note -
 							KeysPerOctave,
-							ev->data.note.velocity
+							ev->data.note.velocity,
+							source
 							),
 						midiTime( ev->time.tick ) );
 				break;
@@ -457,7 +520,8 @@ void MidiAlsaSeq::run()
 							ev->data.note.channel,
 							ev->data.note.note -
 							KeysPerOctave,
-							ev->data.note.velocity
+							ev->data.note.velocity,
+							source
 							),
 						midiTime( ev->time.tick) );
 				break;
@@ -468,7 +532,8 @@ void MidiAlsaSeq::run()
 							ev->data.note.channel,
 							ev->data.note.note -
 							KeysPerOctave,
-							ev->data.note.velocity
+							ev->data.note.velocity,
+							source
 							), midiTime() );
 				break;
 
@@ -477,7 +542,7 @@ void MidiAlsaSeq::run()
 							MidiControlChange,
 						ev->data.control.channel,
 						ev->data.control.param,
-						ev->data.control.value ),
+						ev->data.control.value, source ),
 								midiTime() );
 				break;
 
@@ -486,7 +551,7 @@ void MidiAlsaSeq::run()
 							MidiProgramChange,
 						ev->data.control.channel,
 						ev->data.control.param,
-						ev->data.control.value ),
+						ev->data.control.value, source ),
 								midiTime() );
 				break;
 
@@ -495,15 +560,15 @@ void MidiAlsaSeq::run()
 							MidiChannelPressure,
 						ev->data.control.channel,
 						ev->data.control.param,
-						ev->data.control.value ),
+						ev->data.control.value, source ),
 								midiTime() );
 				break;
 
 			case SND_SEQ_EVENT_PITCHBEND:
 				dest->processInEvent( midiEvent( MidiPitchBend,
 						ev->data.control.channel,
-						ev->data.control.value + 8192,
-							0 ), midiTime() );
+						ev->data.control.value + 8192, 0, source ),
+								midiTime() );
 				break;
 
 			case SND_SEQ_EVENT_SENSING:
@@ -515,9 +580,9 @@ void MidiAlsaSeq::run()
 					"ALSA-sequencer: unhandled input "
 						"event %d\n", ev->type );
 				break;
-		}
+		}	// end switch
 
-		} while( snd_seq_event_input_pending( m_seqHandle, 0 ) > 0 );
+		}	// end while
 
 	}
 
@@ -539,8 +604,8 @@ void MidiAlsaSeq::changeQueueTempo( bpm_t _bpm )
 
 void MidiAlsaSeq::updatePortList()
 {
-	QStringList readable_ports;
-	QStringList writable_ports;
+	QStringList readablePorts;
+	QStringList writablePorts;
 
 	// get input- and output-ports
 	snd_seq_client_info_t * cinfo;
@@ -565,16 +630,7 @@ void MidiAlsaSeq::updatePortList()
 					( SND_SEQ_PORT_CAP_READ |
 					  	SND_SEQ_PORT_CAP_SUBS_READ ) )
 			{
-				readable_ports.push_back( 
-					QString( "%1:%2 %3:%4" ).
-					arg( snd_seq_port_info_get_client(
-								pinfo ) ).
-					arg( snd_seq_port_info_get_port(
-								pinfo ) ).
-					arg( snd_seq_client_info_get_name(
-								cinfo ) ).
-					arg( snd_seq_port_info_get_name(
-								pinfo ) ) );
+				readablePorts.push_back( __portName( cinfo, pinfo ) );
 			}
 			if( ( snd_seq_port_info_get_capability( pinfo )
 			     & ( SND_SEQ_PORT_CAP_WRITE |
@@ -582,16 +638,7 @@ void MidiAlsaSeq::updatePortList()
 					( SND_SEQ_PORT_CAP_WRITE |
 					  	SND_SEQ_PORT_CAP_SUBS_WRITE ) )
 			{
-				writable_ports.push_back( 
-					QString( "%1:%2 %3:%4" ).
-					arg( snd_seq_port_info_get_client(
-								pinfo ) ).
-					arg( snd_seq_port_info_get_port(
-								pinfo ) ).
-					arg( snd_seq_client_info_get_name(
-								cinfo ) ).
-					arg( snd_seq_port_info_get_name(
-								pinfo ) ) );
+				writablePorts.push_back( __portName( cinfo, pinfo ) );
 			}
 		}
 	}
@@ -599,15 +646,15 @@ void MidiAlsaSeq::updatePortList()
 	snd_seq_client_info_free( cinfo );
 	snd_seq_port_info_free( pinfo );
 
-	if( m_readablePorts != readable_ports )
+	if( m_readablePorts != readablePorts )
 	{
-		m_readablePorts = readable_ports;
+		m_readablePorts = readablePorts;
 		emit readablePortsChanged();
 	}
 
-	if( m_writablePorts != writable_ports )
+	if( m_writablePorts != writablePorts )
 	{
-		m_writablePorts = writable_ports;
+		m_writablePorts = writablePorts;
 		emit writablePortsChanged();
 	}
 }
