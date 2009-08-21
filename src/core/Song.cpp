@@ -22,7 +22,7 @@
  *
  */
 
-
+#include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QFileDialog>
@@ -42,12 +42,12 @@
 #include "ControllerConnection.h"
 #include "embed.h"
 #include "envelope_and_lfo_parameters.h"
-#include "export_project_dialog.h"
+#include "ExportProjectDialog.h"
 #include "fx_mixer.h"
 #include "fx_mixer_view.h"
 #include "import_filter.h"
 #include "instrument_track.h"
-#include "main_window.h"
+#include "MainWindow.h"
 #include "mmp.h"
 #include "note_play_handle.h"
 #include "pattern.h"
@@ -383,9 +383,9 @@ void Song::createNewProject( void )
 
 	m_modified = false;
 
-	if( engine::getMainWindow() )
+	if( engine::mainWindow() )
 	{
-		engine::getMainWindow()->resetWindowTitle();
+		engine::mainWindow()->resetWindowTitle();
 	}
 }
 
@@ -424,9 +424,9 @@ void Song::loadProject( const QString & _file_name )
 		return;
 	}
 
-	if( engine::getMainWindow() )
+	if( engine::mainWindow() )
 	{
-		engine::getMainWindow()->resetWindowTitle();
+		engine::mainWindow()->resetWindowTitle();
 	}
 
 	engine::getMixer()->lock();
@@ -534,9 +534,9 @@ void Song::loadProject( const QString & _file_name )
 	m_loadingProject = false;
 	m_modified = false;
 
-	if( engine::getMainWindow() )
+	if( engine::mainWindow() )
 	{
-		engine::getMainWindow()->resetWindowTitle();
+		engine::mainWindow()->resetWindowTitle();
 	}
 	if( engine::getSongEditor() )
 	{
@@ -588,7 +588,7 @@ bool Song::saveProject( void )
 									2000 );
 		configManager::inst()->addRecentlyOpenedProject( m_fileName );
 		m_modified = false;
-		engine::getMainWindow()->resetWindowTitle();
+		engine::mainWindow()->resetWindowTitle();
 	}
 	else if( engine::hasGUI() )
 	{
@@ -677,7 +677,7 @@ void Song::exportProject( void )
 {
 	if( isEmpty() )
 	{
-		QMessageBox::information( engine::getMainWindow(),
+		QMessageBox::information( engine::mainWindow(),
 				tr( "Empty project" ),
 				tr( "This project is empty so exporting makes "
 					"no sense. Please put some items into "
@@ -685,7 +685,7 @@ void Song::exportProject( void )
 		return;
 	}
 
-	QFileDialog efd( engine::getMainWindow() );
+	QFileDialog efd( engine::mainWindow() );
 	efd.setFileMode( QFileDialog::AnyFile );
 	efd.setAcceptMode( QFileDialog::AcceptSave );
 	int idx = 0;
@@ -716,8 +716,8 @@ void Song::exportProject( void )
 		!efd.selectedFiles().isEmpty() && efd.selectedFiles()[0] != "" )
 	{
 		const QString export_file_name = efd.selectedFiles()[0];
-		exportProjectDialog epd( export_file_name,
-						engine::getMainWindow() );
+		ExportProjectDialog epd( export_file_name,
+						engine::mainWindow() );
 		epd.exec();
 	}
 }
@@ -730,11 +730,11 @@ void Song::setModified( void )
 	if( !m_loadingProject )
 	{
 		m_modified = true;
-		if( engine::getMainWindow() &&
+		if( engine::mainWindow() &&
 			QThread::currentThread() ==
-					engine::getMainWindow()->thread() )
+					engine::mainWindow()->thread() )
 		{
-			engine::getMainWindow()->resetWindowTitle();
+			engine::mainWindow()->resetWindowTitle();
 		}
 	}
 }

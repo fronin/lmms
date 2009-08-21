@@ -1,5 +1,5 @@
 /*
- * QuickLoadDialog.cpp - implementation of QuickLoadDialog
+ * RecentResourceListModel.cpp - implementation of RecentResourceListModel
  *
  * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
@@ -22,38 +22,40 @@
  *
  */
 
-#include "QuickLoadDialog.h"
-#include "ResourceListModel.h"
-#include "engine.h"
-
-#include "ui_QuickLoadDialog.h"
+#include "RecentResourceListModel.h"
 
 
-
-QuickLoadDialog::QuickLoadDialog( QWidget * _parent ) :
-	QDialog( _parent ),
-	ui( new Ui::QuickLoadDialog ),
-	m_listModel( new ResourceListModel( engine::mergedResourceDB(), this ) )
+RecentResourceListModel::RecentResourceListModel( ResourceDB * _db,
+													int _numRows,
+													QObject * _parent ) :
+	QSortFilterProxyModel( _parent ),
+	m_model( new ResourceListModel( _db, _parent ) ),
+	m_numRows( _numRows )
 {
-	ui->setupUi( this );
-
-	// setup list view to display our model
-	ui->resourceListView->setModel( m_listModel );
-	ui->resourceListView->selectionModel()->select(
-										m_listModel->index( 0, 0 ),
-										QItemSelectionModel::SelectCurrent );
-
-	// connect filter edit with model
-	connect( ui->filterEdit, SIGNAL( textChanged( const QString & ) ),
-				m_listModel, SLOT( setKeywordFilter( const QString & ) ) );
+	setSourceModel( m_model );
+	setDynamicSortFilter( true );
+	sort( 0, Qt::DescendingOrder );
 }
 
 
 
 
-QuickLoadDialog::~QuickLoadDialog()
+ResourceItem * RecentResourceListModel::item( const QModelIndex & _idx )
 {
-	delete m_listModel;
+	return m_model->item( mapToSource( _idx ) );
 }
 
 
+
+
+bool RecentResourceListModel::lessThan( const QModelIndex & _left,
+											const QModelIndex & _right ) const
+{
+	return m_model->item( _left )->lastMod() < m_model->item( _right )->lastMod();
+}
+
+
+
+#include "moc_RecentResourceListModel.cxx"
+
+/* vim: set tw=0 noexpandtab: */

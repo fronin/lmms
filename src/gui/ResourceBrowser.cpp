@@ -33,10 +33,9 @@
 #include "ResourceFileMapper.h"
 #include "ResourceTreeModel.h"
 #include "ResourceTreeView.h"
-#include "UnifiedResourceProvider.h"
 #include "engine.h"
 #include "embed.h"
-#include "main_window.h"
+#include "MainWindow.h"
 #include "piano.h"
 #include "song.h"
 
@@ -79,7 +78,7 @@ ResourceBrowser::ResourceBrowser( QWidget * _parent ) :
 			_parent ),
 	m_previewer(),
 	m_filterEdit( NULL ),
-	m_treeModel( engine::resourceProvider()->database() )
+	m_treeModel( engine::mergedResourceDB() )
 {
 	// create a model which represents our database as a tree
 
@@ -368,7 +367,7 @@ void ResourceBrowser::triggerAction( Actions _action, ResourceItem * _item )
 	switch( _action )
 	{
 		case LoadProject:
-			if( engine::getMainWindow()->mayChangeProject() )
+			if( engine::mainWindow()->mayChangeProject() )
 			{
 				ResourceFileMapper mapper( _item );
 				if( _item->isLocalResource() )

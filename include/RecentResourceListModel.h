@@ -1,5 +1,5 @@
 /*
- * ResourceListModel.h - a list model implementation for resources
+ * RecentResourceListModel.h - a model providing list of recent resources
  *
  * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
@@ -22,37 +22,45 @@
  *
  */
 
-#ifndef _RESOURCE_LIST_MODEL_H
-#define _RESOURCE_LIST_MODEL_H
+#ifndef _RECENT_RESOURCE_LIST_MODEL_H
+#define _RECENT_RESOURCE_LIST_MODEL_H
 
-#include <QtCore/QVector>
+#include <QtGui/QSortFilterProxyModel>
 
-#include "ResourceModel.h"
+#include "ResourceListModel.h"
 
 
-class ResourceListModel : public ResourceModel
+class RecentResourceListModel : public QSortFilterProxyModel
 {
 public:
-	ResourceListModel( ResourceDB * _db, QObject * _parent = NULL );
-	virtual ~ResourceListModel()
+	RecentResourceListModel( ResourceDB * _db, int _numRows = -1,
+								QObject * _parent = NULL );
+	virtual ~RecentResourceListModel()
 	{
 	}
 
-	virtual int rowCount( const QModelIndex & _parent = QModelIndex() ) const;
-
-	virtual QModelIndex index( int _row, int _col,
-			const QModelIndex & _parent = QModelIndex() ) const;
-
-	virtual QModelIndex parent( const QModelIndex & ) const
+	virtual int rowCount( const QModelIndex & = QModelIndex() ) const
 	{
-		return QModelIndex();
+		return m_numRows > 0 ? m_numRows : m_model->rowCount();
 	}
 
-	virtual void updateFilters();
+	// return ResourceListModel, this proxy-model is operating on
+	ResourceListModel * resourceListModel()
+	{
+		return m_model;
+	}
+
+	ResourceItem * item( const QModelIndex & _idx );
+
+
+protected:
+	// compares items at two indices by date-property
+	virtual bool lessThan( const QModelIndex &, const QModelIndex & ) const;
 
 
 private:
-	QVector<ResourceItem *> m_lookupTable;
+	ResourceListModel * m_model;
+	int m_numRows;
 
 } ;
 

@@ -1,7 +1,8 @@
 /*
- * vst_effect_control_dialog.cpp - dialog for displaying VST-effect GUI
+ * ExportProjectDialog.h - declaration of class ExportProjectDialog which
+ *                         offers options for exporting project
  *
- * Copyright (c) 2006-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -22,35 +23,37 @@
  *
  */
 
-#include <QtGui/QLayout>
-#include <QtGui/QMdiArea>
+#ifndef _EXPORT_PROJECT_DIALOG_H
+#define _EXPORT_PROJECT_DIALOG_H
 
-#include "vst_effect_control_dialog.h"
-#include "vst_effect.h"
+#include <QtGui/QDialog>
 
+namespace Ui { class ExportProjectDialog; }
+class ProjectRenderer;
 
-
-vstEffectControlDialog::vstEffectControlDialog( vstEffectControls * _ctl ) :
-	effectControlDialog( _ctl )
+class ExportProjectDialog : public QDialog
 {
-	QVBoxLayout * l = new QVBoxLayout( this );
-	l->setMargin( 0 );
-	l->setSpacing( 0 );
-
-	_ctl->m_effect->m_plugin->showEditor( this );
-	QWidget * w = _ctl->m_effect->m_plugin->pluginWidget( false );
-	if( w )
-	{
-		setWindowTitle( w->windowTitle() );
-		l->addWidget( w );
-	}
-}
+	Q_OBJECT
+public:
+	ExportProjectDialog( const QString & _file_name, QWidget * _parent );
+	virtual ~ExportProjectDialog();
 
 
+protected:
+	virtual void reject();
+	virtual void closeEvent( QCloseEvent * _ce );
 
 
-vstEffectControlDialog::~vstEffectControlDialog()
-{
-}
+private slots:
+	void startBtnClicked();
+	void updateTitleBar( int );
 
 
+private:
+	Ui::ExportProjectDialog * ui;
+	QString m_fileName;
+	ProjectRenderer * m_renderer;
+
+} ;
+
+#endif
