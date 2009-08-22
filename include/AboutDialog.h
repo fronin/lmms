@@ -1,8 +1,8 @@
 /*
- * about_dialog.h - declaration of class aboutDialog
+ * AboutDialog.h - declaration of class AboutDialog
  *
- * Copyright (c) 2004-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -22,22 +22,22 @@
  *
  */
 
-
 #ifndef _ABOUT_DIALOG_H
 #define _ABOUT_DIALOG_H
 
 #include <QtGui/QDialog>
 
-#include "ui_about_dialog.h"
+namespace Ui { class AboutDialog; }
 
-
-class aboutDialog : public QDialog, public Ui::AboutDialog
+class AboutDialog : public QDialog
 {
 public:
-	aboutDialog( void );
+	AboutDialog();
+
+private:
+	Ui::AboutDialog * ui;
 
 } ;
-
 
 #endif
 

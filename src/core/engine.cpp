@@ -2,7 +2,7 @@
  * engine.cpp - implementation of LMMS' engine-system
  *
  * Copyright (c) 2006-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
 #include "fx_mixer_view.h"
 #include "instrument_track.h"
 #include "ladspa_2_lmms.h"
-#include "main_window.h"
+#include "MainWindow.h"
 #include "mixer.h"
 #include "pattern.h"
 #include "piano_roll.h"
@@ -61,12 +61,14 @@ float engine::s_framesPerTick;
 mixer * engine::s_mixer = NULL;
 fxMixer * engine::s_fxMixer = NULL;
 fxMixerView * engine::s_fxMixerView = NULL;
-mainWindow * engine::s_mainWindow = NULL;
+MainWindow * engine::s_mainWindow = NULL;
 bbTrackContainer * engine::s_bbTrackContainer = NULL;
 Sequencer * engine::s_sequencer = NULL;
 song * engine::s_song = NULL;
 Song * engine::s_songTng = NULL;
-UnifiedResourceProvider * engine::s_resourceProvider = NULL;
+ResourceDB * engine::s_workingDirResourceDB = NULL;
+ResourceDB * engine::s_webResourceDB = NULL;
+ResourceDB * engine::s_mergedResourceDB = NULL;
 songEditor * engine::s_songEditor = NULL;
 automationEditor * engine::s_automationEditor = NULL;
 AutomationRecorder * engine::s_automationRecorder = NULL;
@@ -98,22 +100,22 @@ void engine::init( const bool _has_gui )
 
 
 	// init resource framework
-	LocalResourceProvider * workingDirResource =
-		new LocalResourceProvider( ResourceItem::BaseWorkingDir,
-								QString() );
-	LocalResourceProvider * shippedResource =
-		new LocalResourceProvider( ResourceItem::BaseDataDir,
-								QString() );
-	WebResourceProvider * webResource =
-		new WebResourceProvider( "http://lmms.sourceforge.net" );
+	s_workingDirResourceDB =
+		( new LocalResourceProvider( ResourceItem::BaseWorkingDir,
+													QString() ) )->database();
+	ResourceDB * shippedResourceDB =
+		( new LocalResourceProvider( ResourceItem::BaseDataDir,
+													QString() ) )->database();
+	s_webResourceDB =
+		( new WebResourceProvider( "http://lmms.sourceforge.net" ) )
+																->database();
 
-	UnifiedResourceProvider * unifiedResource =
-						new UnifiedResourceProvider;
-	unifiedResource->addDatabase( workingDirResource->database() );
-	unifiedResource->addDatabase( shippedResource->database() );
-	unifiedResource->addDatabase( webResource->database() );
+	UnifiedResourceProvider * unifiedResource = new UnifiedResourceProvider;
+	unifiedResource->addDatabase( s_workingDirResourceDB );
+	unifiedResource->addDatabase( shippedResourceDB );
+	unifiedResource->addDatabase( s_webResourceDB );
 
-	s_resourceProvider = unifiedResource;
+	s_mergedResourceDB = unifiedResource->database();
 
 
 	s_fxMixer = new fxMixer;
@@ -131,7 +133,7 @@ void engine::init( const bool _has_gui )
 
 	if( s_hasGUI )
 	{
-		s_mainWindow = new mainWindow;
+		s_mainWindow = new MainWindow;
 		s_songEditor = new songEditor( s_song, s_songEditor );
 		s_fxMixerView = new fxMixerView;
 		s_controllerRackView = new ControllerRackView;
@@ -197,8 +199,8 @@ void engine::destroy( void )
 	delete s_automationRecorder;
 	s_automationRecorder = NULL;
 
-	delete s_resourceProvider;
-	s_resourceProvider = NULL;
+	delete s_mergedResourceDB->provider();
+	s_mergedResourceDB = NULL;
 
 	delete configManager::inst();
 }

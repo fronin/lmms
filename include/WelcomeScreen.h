@@ -1,9 +1,8 @@
 /*
- * export_project_dialog.h - declaration of class exportProjectDialog which is
- *                           responsible for exporting project
+ * WelcomeScreen.h - header file for WelcomeScreen
  *
- * Copyright (c) 2004-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -23,39 +22,44 @@
  *
  */
 
+#ifndef _WELCOME_SCREEN_H
+#define _WELCOME_SCREEN_H
 
-#ifndef _EXPORT_PROJECT_DIALOG_H
-#define _EXPORT_PROJECT_DIALOG_H
-
-#include <QtGui/QDialog>
-
-#include "ui_export_project.h"
-
-class ProjectRenderer;
+#include <QtCore/QModelIndex>
+#include <QtGui/QWidget>
 
 
-class exportProjectDialog : public QDialog, public Ui::ExportProjectDialog
+namespace Ui { class WelcomeScreen; }
+class QListWidgetItem;
+class RecentResourceListModel;
+
+
+class WelcomeScreen : public QWidget
 {
 	Q_OBJECT
 public:
-	exportProjectDialog( const QString & _file_name, QWidget * _parent );
-	virtual ~exportProjectDialog();
-
-
-protected:
-	virtual void reject( void );
-	virtual void closeEvent( QCloseEvent * _ce );
+	WelcomeScreen( QWidget * _parent );
+	~WelcomeScreen();
 
 
 private slots:
-	void startBtnClicked( void );
-	void updateTitleBar( int );
+	void createNewProject();
+	void importProject();
+	void openTutorial();
+	void instantMidiAction();
+	void openRecentProject( const QModelIndex & );
+	void openCommunityResource( const QModelIndex & );
+	void openOnlineResource( QListWidgetItem * _item );
 
 
 private:
-	QString m_fileName;
-	ProjectRenderer * m_renderer;
+	void switchView();
+
+	Ui::WelcomeScreen * ui;
+	RecentResourceListModel * m_recentProjectsModel;
+	RecentResourceListModel * m_communityResourcesModel;
 
 } ;
 
 #endif
+

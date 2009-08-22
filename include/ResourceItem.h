@@ -213,7 +213,7 @@ public:
 	void reload();
 
 	// returns true if all given keywords match name, tags etc.
-	bool keywordMatch( const QStringList & _keywords );
+	bool keywordMatch( const QStringList & _keywords ) const;
 
 	// return true, if given ResourceItem is equal
 	bool operator==( const ResourceItem & _other ) const;
@@ -230,6 +230,8 @@ public:
 
 	static QString getBaseDirectory( BaseDirectory _bd,
 					const ResourceItem * _item = NULL );
+
+	static QString descriptiveTypeName( Type _type );
 
 
 private:

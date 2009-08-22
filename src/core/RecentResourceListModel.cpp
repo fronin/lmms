@@ -1,5 +1,5 @@
 /*
- * ResourceListModel.h - a list model implementation for resources
+ * RecentResourceListModel.cpp - implementation of RecentResourceListModel
  *
  * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
@@ -22,38 +22,40 @@
  *
  */
 
-#ifndef _RESOURCE_LIST_MODEL_H
-#define _RESOURCE_LIST_MODEL_H
-
-#include <QtCore/QVector>
-
-#include "ResourceModel.h"
+#include "RecentResourceListModel.h"
 
 
-class ResourceListModel : public ResourceModel
+RecentResourceListModel::RecentResourceListModel( ResourceDB * _db,
+													int _numRows,
+													QObject * _parent ) :
+	QSortFilterProxyModel( _parent ),
+	m_model( new ResourceListModel( _db, _parent ) ),
+	m_numRows( _numRows )
 {
-public:
-	ResourceListModel( ResourceDB * _db, QObject * _parent = NULL );
-	virtual ~ResourceListModel()
-	{
-	}
-
-	virtual int rowCount( const QModelIndex & _parent = QModelIndex() ) const;
-
-	virtual QModelIndex index( int _row, int _col,
-			const QModelIndex & _parent = QModelIndex() ) const;
-
-	virtual QModelIndex parent( const QModelIndex & ) const
-	{
-		return QModelIndex();
-	}
-
-	virtual void updateFilters();
+	setSourceModel( m_model );
+	setDynamicSortFilter( true );
+	sort( 0, Qt::DescendingOrder );
+}
 
 
-private:
-	QVector<ResourceItem *> m_lookupTable;
 
-} ;
 
-#endif
+ResourceItem * RecentResourceListModel::item( const QModelIndex & _idx )
+{
+	return m_model->item( mapToSource( _idx ) );
+}
+
+
+
+
+bool RecentResourceListModel::lessThan( const QModelIndex & _left,
+											const QModelIndex & _right ) const
+{
+	return m_model->item( _left )->lastMod() < m_model->item( _right )->lastMod();
+}
+
+
+
+#include "moc_RecentResourceListModel.cxx"
+
+/* vim: set tw=0 noexpandtab: */
