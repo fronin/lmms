@@ -1,18 +1,29 @@
-
 #ifndef _METRIC_SEGMENT_H
 #define _METRIC_SEGMENT_H
 
 #include "MidiTime.h"
+#include "lmms_basics.h"
 
 class EXPORT MetricSegment
 {
 public:
-	MetricSegment( const MidiTime & _startTime, const frame_t _startFrame ) :
+	MetricSegment( const MidiTime & _startTime ) :
 		m_startTime( _startTime ),
+		m_startFrame( 0 )
+	{
+	}
+
+
+	MetricSegment( const f_cnt_t _startFrame ) :
+		m_startTime( MidiTime( 0, 0, 0 ) ),
 		m_startFrame( _startFrame )
 	{
 	}
 
+
+	virtual ~MetricSegment()
+	{
+	}
 
 
 	inline const MidiTime & time() const
@@ -22,29 +33,29 @@ public:
 
 
 
-	inline frame_t frame() const
+	inline f_cnt_t frame() const
 	{
 		return m_startFrame;
 	}
 
 
 
-	void setFrame( frame_t _frame )
+	void setFrame( f_cnt_t _frame )
 	{
-		m_startFrame = frame;
+		m_startFrame = _frame;
 	}
 
 
 
-	void setTime( const & MidiTime )
+	void setTime( const MidiTime & _time)
 	{
 		m_startTime = _time;
 	}
 
 
 protected:
-	frame_t m_startFrame;
 	MidiTime m_startTime;
+	f_cnt_t m_startFrame;
 };
 
 
@@ -53,19 +64,21 @@ protected:
 class EXPORT MeterSegment: public MetricSegment
 {
 public:
-	MeterSegment( const MidiTime & _startTime, const frame_t _startFrame ) :
-		MetricSegment( _startTime, _startFrame )
-	{
-	}
-
-
 	MeterSegment( const MidiTime & _startTime,
-			const frame_t _startFrame,
 			const Meter & _meter ) :
-		MetricSegment( _startTime, _startFrame ),
+		MetricSegment( _startTime ),
 		m_meter( _meter )
 	{
 	}
+
+
+	MeterSegment( const f_cnt_t _startFrame,
+			const Meter & _meter ) :
+		MetricSegment( _startFrame ),
+		m_meter( _meter )
+	{
+	}
+
 
 	inline const Meter & meter() const
 	{
@@ -86,7 +99,7 @@ protected:
 
 
 
-class TempoSegment : public MetricSegment
+class EXPORT TempoSegment : public MetricSegment
 {
 public:
 	enum Interpolation
@@ -97,16 +110,17 @@ public:
 	};
 
 
-	TempoSegment( const MidiTime & _startTime, const frame_t _startFrame ) :
-		MetricSegment( _startTime, _startFrame )
+	TempoSegment( const MidiTime & _startTime,
+			const Tempo & _tempo ) :
+		MetricSegment( _startTime ),
+		m_tempo( _tempo )
 	{
 	}
 
 
-	TempoSegment( const MidiTime & _startTime,
-			const frame_t _startFrame,
+	TempoSegment( const f_cnt_t _startFrame,
 			const Tempo & _tempo ) :
-		MetricSegment( _startTime, _startFrame ),
+		MetricSegment( _startFrame ),
 		m_tempo( _tempo )
 	{
 	}
@@ -119,7 +133,7 @@ public:
 
 	inline void setTempo( const Tempo & _tempo )
 	{
-		m_tempo = _tempo
+		m_tempo = _tempo;
 	}
 
 
@@ -127,3 +141,4 @@ protected:
 	Tempo m_tempo;
 };
 
+#endif

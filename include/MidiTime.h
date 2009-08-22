@@ -9,6 +9,12 @@ const int TicksPerBeat = 192;
 class EXPORT MidiTime
 {
 public:
+	inline MidiTime() :
+		m_bar( 0 ),
+		m_beat( 0 ),
+		m_ticks( 0 )
+	{
+	}
 	inline MidiTime( const bar_t _bar, const beat_t _beat, const tick_t _ticks ) :
 		m_bar( _bar ),
 		m_beat( _beat),
@@ -31,12 +37,12 @@ public:
 		return *this;
 	}
 
-	inline bar_t getBar( void ) const
+	inline bar_t bar( void ) const
 	{
 		return m_bar;
 	}
 
-	inline beat_t getBeat( void ) const
+	inline beat_t beat( void ) const
 	{
 		return m_beat;
 	}
@@ -46,17 +52,24 @@ public:
 		m_ticks = _t;
 	}
 
-	inline tick_t getTicks( void ) const
+	inline tick_t ticks( void ) const
 	{
 		return m_ticks;
 	}
+
+	bool operator< ( const MidiTime & _other ) const
+	{
+		return ( bar() < _other.bar() ) || ( bar() == _other.bar() &&
+			   ( beat() < _other.beat() || ( beat() == _other.beat() &&
+			   ( ticks() < _other.ticks() ) ) ) );
+	}
+
 
 private:
 	bar_t  m_bar;
 	beat_t m_beat;
 	tick_t m_ticks;
 } ;
-
 
 #endif
 

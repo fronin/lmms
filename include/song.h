@@ -42,6 +42,8 @@ class timeLine;
 const bpm_t MinTempo = 10;
 const bpm_t DefaultTempo = 140;
 const bpm_t MaxTempo = 999;
+
+// TODO: Change to bars
 const tick_t MaxSongLength = 9999 * DefaultTicksPerTact;
 
 

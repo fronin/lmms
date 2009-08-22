@@ -26,6 +26,7 @@ public:
 	{
 		m_bpm = _t.m_bpm;
 		m_note = _t.m_note;
+		return *this;
 	}
 
 	bpm_t bpm() const
