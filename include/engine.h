@@ -44,7 +44,7 @@ class MainWindow;
 class mixer;
 class pianoRoll;
 class projectNotes;
-class UnifiedResourceProvider;
+class ResourceDB;
 class Sequencer;
 class Song;
 class song;
@@ -224,7 +224,6 @@ private:
 	static Sequencer * s_sequencer;
 	static ::song * s_song;
 	static Song * s_songTng;
-	static UnifiedResourceProvider * s_resourceProvider;
 	static ResourceDB * s_workingDirResourceDB;
 	static ResourceDB * s_webResourceDB;
 	static ResourceDB * s_mergedResourceDB;
