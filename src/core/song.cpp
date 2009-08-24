@@ -41,19 +41,19 @@
 #include "ControllerRackView.h"
 #include "ControllerConnection.h"
 #include "embed.h"
-#include "envelope_and_lfo_parameters.h"
+#include "EnvelopeAndLfoParameters.h"
 #include "ExportProjectDialog.h"
-#include "fx_mixer.h"
-#include "fx_mixer_view.h"
-#include "import_filter.h"
-#include "instrument_track.h"
+#include "FxMixer.h"
+#include "FxMixerView.h"
+#include "ImportFilter.h"
+#include "InstrumentTrack.h"
 #include "MainWindow.h"
 #include "MidiClient.h"
 #include "mmp.h"
 #include "note_play_handle.h"
 #include "pattern.h"
 #include "piano_roll.h"
-#include "project_journal.h"
+#include "ProjectJournal.h"
 #include "project_notes.h"
 #include "ProjectRenderer.h"
 #include "rename_dialog.h"
@@ -301,7 +301,7 @@ void song::processNextBuffer()
 			// at song-start we have to reset the LFOs
 			if( m_playPos[Mode_PlaySong] == 0 )
 			{
-				envelopeAndLFOParameters::resetLFO();
+				EnvelopeAndLfoParameters::resetLfo();
 			}
 			break;
 
@@ -722,7 +722,7 @@ automationPattern * song::tempoAutomationPattern()
 
 void song::clearProject()
 {
-	engine::getProjectJournal()->setJournalling( false );
+	engine::projectJournal()->setJournalling( false );
 
 	if( m_playing )
 	{
@@ -738,15 +738,15 @@ void song::clearProject()
 	{
 		engine::getSongEditor()->clearAllTracks();
 	}
-	if( engine::getFxMixerView() )
+	if( engine::fxMixerView() )
 	{
-		engine::getFxMixerView()->clear();
+		engine::fxMixerView()->clear();
 	}
 	QCoreApplication::sendPostedEvents();
 	engine::getBBTrackContainer()->clearAllTracks();
 	clearAllTracks();
 
-	engine::getFxMixer()->clear();
+	engine::fxMixer()->clear();
 
 	if( engine::getAutomationEditor() )
 	{
@@ -773,9 +773,9 @@ void song::clearProject()
 
 	emit dataChanged();
 
-	engine::getProjectJournal()->clearJournal();
+	engine::projectJournal()->clearJournal();
 
-	engine::getProjectJournal()->setJournalling( true );
+	engine::projectJournal()->setJournalling( true );
 }
 
 
@@ -805,17 +805,17 @@ void song::createNewProject()
 
 	clearProject();
 
-	engine::getProjectJournal()->setJournalling( false );
+	engine::projectJournal()->setJournalling( false );
 
 	m_fileName = m_oldFileName = "";
 
 	track * t;
 	t = track::create( track::InstrumentTrack, this );
-	dynamic_cast<instrumentTrack * >( t )->loadInstrument(
+	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
 					"tripleoscillator" );
 	t = track::create( track::InstrumentTrack,
 						engine::getBBTrackContainer() );
-	dynamic_cast<instrumentTrack * >( t )->loadInstrument(
+	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
 						"tripleoscillator" );
 	track::create( track::SampleTrack, this );
 	track::create( track::BBTrack, this );
@@ -832,7 +832,7 @@ void song::createNewProject()
 
 	engine::getBBTrackContainer()->updateAfterTrackAdd();
 
-	engine::getProjectJournal()->setJournalling( true );
+	engine::projectJournal()->setJournalling( true );
 
 	QCoreApplication::sendPostedEvents();
 
@@ -871,7 +871,7 @@ void song::loadProject( const QString & _file_name )
 
 	clearProject();
 
-	engine::getProjectJournal()->setJournalling( false );
+	engine::projectJournal()->setJournalling( false );
 
 	m_fileName = _file_name;
 	m_oldFileName = _file_name;
@@ -911,18 +911,16 @@ void song::loadProject( const QString & _file_name )
 		{
 			if( node.nodeName() == "trackcontainer" )
 			{
-				( (journallingObject *)( this ) )->
+				( (JournallingObject *)( this ) )->
 					restoreState( node.toElement() );
 			}
 			else if( node.nodeName() == "controllers" )
 			{
 				restoreControllerStates( node.toElement() );
 			}
-			else if( node.nodeName() ==
-					engine::getFxMixer()->nodeName() )
+			else if( node.nodeName() == engine::fxMixer()->nodeName() )
 			{
-				engine::getFxMixer()->restoreState(
-							node.toElement() );
+				engine::fxMixer()->restoreState( node.toElement() );
 			}
 			else if( engine::hasGUI() )
 			{
@@ -950,7 +948,7 @@ void song::loadProject( const QString & _file_name )
 								nodeName() )
 				{
 					 engine::getProjectNotes()->
-			serializingObject::restoreState( node.toElement() );
+			SerializingObject::restoreState( node.toElement() );
 				}
 				else if( node.nodeName() ==
 						m_playPos[Mode_PlaySong].
@@ -981,7 +979,7 @@ void song::loadProject( const QString & _file_name )
 
 	configManager::inst()->addRecentlyOpenedProject( _file_name );
 
-	engine::getProjectJournal()->setJournalling( true );
+	engine::projectJournal()->setJournalling( true );
 
 	m_loadingProject = false;
 	m_modified = false;
@@ -1013,14 +1011,14 @@ bool song::saveProject()
 	saveState( mmp, mmp.content() );
 
 	m_globalAutomationTrack->saveState( mmp, mmp.content() );
-	engine::getFxMixer()->saveState( mmp, mmp.content() );
+	engine::fxMixer()->saveState( mmp, mmp.content() );
 	if( engine::hasGUI() )
 	{
 		engine::getControllerRackView()->saveState( mmp, mmp.content() );
 		engine::getPianoRoll()->saveState( mmp, mmp.content() );
 		engine::getAutomationEditor()->saveState( mmp, mmp.content() );
 		engine::getProjectNotes()->
-			serializingObject::saveState( mmp, mmp.content() );
+			SerializingObject::saveState( mmp, mmp.content() );
 		m_playPos[Mode_PlaySong].m_timeLine->saveState(
 							mmp, mmp.content() );
 	}
@@ -1087,7 +1085,7 @@ void song::importProject()
 	ofd.setFileMode( QFileDialog::ExistingFiles );
 	if( ofd.exec () == QDialog::Accepted && !ofd.selectedFiles().isEmpty() )
 	{
-		importFilter::import( ofd.selectedFiles()[0], this );
+		ImportFilter::import( ofd.selectedFiles()[0], this );
 	}
 }
 

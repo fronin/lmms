@@ -1,7 +1,8 @@
 /*
- * stereomatrix_controls.cpp - controls for stereoMatrix-effect
+ * peak_controller_effect_controls.cpp - controls for PeakController effect
  *
  * Copyright (c) 2008 Paul Giblock <drfaygo/at/gmail/dot/com>
+ * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -30,20 +31,21 @@
 #include "peak_controller_effect.h"
 
 
-peakControllerEffectControls::
-peakControllerEffectControls( peakControllerEffect * _eff ) :
-	effectControls( _eff ),
+PeakControllerEffectControls::
+PeakControllerEffectControls( PeakControllerEffect * _eff ) :
+	EffectControls( _eff ),
 	m_effect( _eff ),
 	m_baseModel( 0.5, 0.0, 1.0, 0.001, this, tr( "Base value" ) ),
 	m_amountModel( 1.0, -1.0, 1.0, 0.005, this, tr( "Modulation amount" ) ),
-	m_decayModel( 0.1, 0.01, 5.0, 0.0001, 20000.0, this, tr( "Release decay" ) ),
-	m_muteModel( FALSE, this, tr( "Mute output" ) )
+	m_attackModel( 0, 0, 0.999, 0.001, this, tr( "Attack" ) ),
+	m_decayModel( 0, 0, 0.999, 0.001, this, tr( "Release" ) ),
+	m_muteModel( false, this, tr( "Mute output" ) )
 {
 }
 
 
 
-void peakControllerEffectControls::loadSettings( const QDomElement & _this )
+void PeakControllerEffectControls::loadSettings( const QDomElement & _this )
 {
 	m_baseModel.setValue( _this.attribute( "base" ).toFloat() );
 	m_amountModel.setValue( _this.attribute( "amount" ).toFloat() );
@@ -66,7 +68,7 @@ void peakControllerEffectControls::loadSettings( const QDomElement & _this )
 
 
 
-void peakControllerEffectControls::saveSettings( QDomDocument & _doc, 
+void PeakControllerEffectControls::saveSettings( QDomDocument & _doc, 
 							QDomElement & _this )
 {
 	_this.setAttribute( "base", m_baseModel.value() );

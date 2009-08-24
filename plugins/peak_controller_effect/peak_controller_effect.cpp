@@ -2,7 +2,8 @@
  * peak_controller_effect.cpp - PeakController effect plugin
  *
  * Copyright (c) 2008 Paul Giblock <drfaygo/at/gmail/dot/com>
- * 
+ * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -34,34 +35,36 @@
 extern "C"
 {
 
-plugin::descriptor PLUGIN_EXPORT peakcontrollereffect_plugin_descriptor =
+Plugin::Descriptor PLUGIN_EXPORT peakcontrollereffect_plugin_descriptor =
 {
 	STRINGIFY( PLUGIN_NAME ),
 	"Peak Controller",
 	QT_TRANSLATE_NOOP( "pluginBrowser",
-				"Plugin for controlling knobs with sound peaks" ),
+			"Plugin for controlling knobs with sound peaks" ),
 	"Paul Giblock <drfaygo/at/gmail.com>",
 	0x0100,
-	plugin::Effect,
-	new pluginPixmapLoader( "logo" ),
+	Plugin::Effect,
+	new PluginPixmapLoader( "logo" ),
 	NULL,
 	NULL
 } ;
 
 }
 
-// We have to keep a list of all the peakController effects so that we can save
-// an peakEffect-ID to the project.  This ID is referenced in the peakController
-// settings and is used to set the peakControllerEffect pointer upon load
+// We have to keep a list of all the PeakController effects so that we can save
+// an peakEffect-ID to the project.  This ID is referenced in the PeakController
+// settings and is used to set the PeakControllerEffect pointer upon load
 
-//QVector<peakControllerEffect *> peakControllerEffect::s_effects;
+//QVector<PeakControllerEffect *> PeakControllerEffect::s_effects;
 
-peakControllerEffect::peakControllerEffect(
-			model * _parent,
-			const descriptor::subPluginFeatures::key * _key ) :
-	effect( &peakcontrollereffect_plugin_descriptor, _parent, _key ),
-	m_effectId( ++PeakController::s_lastEffectId ),
+PeakControllerEffect::PeakControllerEffect(
+			Model * _parent,
+			const Descriptor::SubPluginFeatures::Key * _key ) :
+	Effect( &peakcontrollereffect_plugin_descriptor, _parent, _key ),
 	m_peakControls( this ),
+	m_lastSample( 0 ),
+	m_lastRMS( -1 ),
+	m_effectId( ++PeakController::s_lastEffectId ),
 	m_autoController( NULL )
 {
 	m_autoController = new PeakController( engine::getSong(), this );
@@ -72,7 +75,7 @@ peakControllerEffect::peakControllerEffect(
 
 
 
-peakControllerEffect::~peakControllerEffect()
+PeakControllerEffect::~PeakControllerEffect()
 {
 	int idx = PeakController::s_effects.indexOf( this );
 	if( idx >= 0 )
@@ -83,18 +86,17 @@ peakControllerEffect::~peakControllerEffect()
 
 
 
-bool peakControllerEffect::processAudioBuffer( sampleFrame * _buf,
+bool PeakControllerEffect::processAudioBuffer( sampleFrame * _buf,
 							const fpp_t _frames )
 {
-	peakControllerEffectControls & c = m_peakControls;
-	
-	// This appears to be used for determining whether or not to continue processing
-	// audio with this effect	
+	PeakControllerEffectControls & c = m_peakControls;
+
+	// This appears to be used for determining whether or not to continue
+	// processing audio with this effect
 	if( !isEnabled() || !isRunning() )
 	{
-		return( FALSE );
+		return false;
 	}
-
 
 	// RMS:
 	double sum = 0;
@@ -111,12 +113,33 @@ bool peakControllerEffect::processAudioBuffer( sampleFrame * _buf,
 		}
 	}
 
-	m_lastSample = c.m_baseModel.value() + c.m_amountModel.value() *
-							sqrtf( sum / _frames );
+	float curRMS = sqrtf( sum / _frames );
+	const float origRMS = curRMS;
+	if( m_lastRMS < 0 )
+	{
+		m_lastRMS = curRMS;
+	}
+	const float v = ( curRMS >= m_lastRMS ) ?
+				c.m_attackModel.value() :
+					c.m_decayModel.value();
+	const float a = sqrtf( sqrtf( v ) );
+	curRMS = (1-a)*curRMS + a*m_lastRMS;
+
+	m_lastSample = c.m_baseModel.value() + c.m_amountModel.value()*curRMS;
+	m_lastRMS = curRMS;
+
+	// on greater buffer sizes our LP is updated less frequently, therfore
+	// replay a certain number of passes so the LP state is as if it was
+	// updated N times with buffer-size 1/N
+	const int timeOversamp = (4*_frames) / DEFAULT_BUFFER_SIZE-1;
+	for( int i = 0; i < timeOversamp; ++i )
+	{
+		m_lastRMS = (1-a)*origRMS + a*m_lastRMS;
+	}
 
 	//checkGate( out_sum / _frames );
 
-	return( isRunning() );
+	return isRunning();
 }
 
 
@@ -126,11 +149,11 @@ extern "C"
 {
 
 // neccessary for getting instance out of shared lib
-plugin * PLUGIN_EXPORT lmms_plugin_main( model * _parent, void * _data )
+Plugin * PLUGIN_EXPORT lmms_plugin_main( Model * _parent, void * _data )
 {
-	return( new peakControllerEffect( _parent,
-		static_cast<const plugin::descriptor::subPluginFeatures::key *>(
-								_data ) ) );
+	return new PeakControllerEffect( _parent,
+		static_cast<const Plugin::Descriptor::SubPluginFeatures::Key *>(
+								_data ) );
 }
 
 }
