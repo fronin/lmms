@@ -123,7 +123,7 @@ void engine::init( const bool _has_gui )
 
 	s_ladspaManager = new ladspa2LMMS;
 
-	s_projectJournal->setJournalling( TRUE );
+	s_projectJournal->setJournalling( true );
 
 	s_mixer->initDevices();
 
@@ -219,9 +219,9 @@ void engine::updateFramesPerTick()
 
 void engine::initPluginFileHandling()
 {
-	QVector<Plugin::Descriptor> pluginDescriptors;
+	Plugin::DescriptorList pluginDescriptors;
 	Plugin::getDescriptorsOfAvailPlugins( pluginDescriptors );
-	for( QVector<Plugin::Descriptor>::Iterator it = pluginDescriptors.begin();
+	for( Plugin::DescriptorList::ConstIterator it = pluginDescriptors.begin();
 										it != pluginDescriptors.end(); ++it )
 	{
 		if( it->type == Plugin::Instrument )

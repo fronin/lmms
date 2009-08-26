@@ -94,7 +94,7 @@ Plugin * Plugin::instantiate( const QString & _plugin_name, Model * _parent,
 {
 	QLibrary plugin_lib( configManager::inst()->pluginDir() +
 								_plugin_name );
-	if( plugin_lib.load() == FALSE )
+	if( plugin_lib.load() == false )
 	{
 		if( engine::hasGUI() )
 		{
@@ -131,7 +131,7 @@ Plugin * Plugin::instantiate( const QString & _plugin_name, Model * _parent,
 
 
 
-void Plugin::getDescriptorsOfAvailPlugins( QVector<Descriptor> & _plugin_descs )
+void Plugin::getDescriptorsOfAvailPlugins( DescriptorList & _plugin_descs )
 {
 	QDir directory( configManager::inst()->pluginDir() );
 #ifdef LMMS_BUILD_WIN32
@@ -149,7 +149,7 @@ void Plugin::getDescriptorsOfAvailPlugins( QVector<Descriptor> & _plugin_descs )
 	foreach( const QFileInfo & f, list )
 	{
 		QLibrary plugin_lib( f.absoluteFilePath() );
-		if( plugin_lib.load() == FALSE ||
+		if( plugin_lib.load() == false ||
 			plugin_lib.resolve( "lmms_plugin_main" ) == NULL )
 		{
 			continue;

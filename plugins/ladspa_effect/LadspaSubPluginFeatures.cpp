@@ -25,7 +25,6 @@
  *
  */
 
-
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
 
@@ -46,7 +45,7 @@ LadspaSubPluginFeatures::LadspaSubPluginFeatures( Plugin::PluginTypes _type ) :
 
 
 void LadspaSubPluginFeatures::fillDescriptionWidget( QWidget * _parent,
-														const Key * _key  )
+													const Key * _key  ) const
 {
 	const ladspa_key_t & lkey = subPluginKeyToLadspaKey( _key );
 	ladspa2LMMS * lm = engine::getLADSPAManager();
@@ -64,7 +63,7 @@ void LadspaSubPluginFeatures::fillDescriptionWidget( QWidget * _parent,
 	maker_label->setAlignment( Qt::AlignTop );
 	QLabel * maker_content = new QLabel( maker );
 	maker_content->setText( lm->getMaker( lkey ) );
-	maker_content->setWordWrap( TRUE );
+	maker_content->setWordWrap( true );
 	l->addWidget( maker_label );
 	l->addWidget( maker_content, 1 );
 
@@ -80,7 +79,7 @@ void LadspaSubPluginFeatures::fillDescriptionWidget( QWidget * _parent,
 
 	QLabel * copyright_content = new QLabel( copyright );
 	copyright_content->setText( lm->getCopyright( lkey ) );
-	copyright_content->setWordWrap( TRUE );
+	copyright_content->setWordWrap( true );
 	l->addWidget( copyright_label );
 	l->addWidget( copyright_content, 1 );
 
@@ -114,8 +113,8 @@ void LadspaSubPluginFeatures::fillDescriptionWidget( QWidget * _parent,
 
 
 
-void LadspaSubPluginFeatures::listSubPluginKeys( Plugin::Descriptor * _desc,
-																KeyList & _kl )
+void LadspaSubPluginFeatures::listSubPluginKeys(
+						const Plugin::Descriptor * _desc, KeyList & _kl ) const
 {
 	ladspa2LMMS * lm = engine::getLADSPAManager();
 
