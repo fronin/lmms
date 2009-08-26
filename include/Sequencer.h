@@ -30,7 +30,7 @@
 #include <QtCore/QVector>
 
 #include "track_container.h"
-#include "automatable_model.h"
+#include "AutomatableModel.h"
 #include "Controller.h"
 
 class automationTrack;

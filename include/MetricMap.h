@@ -3,14 +3,14 @@
 
 #include "Tempo.h"
 #include "lmms_basics.h"
-#include "serializing_object.h"
+#include "SerializingObject.h"
 
 class MetricSegment;
 class TempoSegment;
 class MeterSegment;
 
 
-class MetricMap : serializingObject
+class MetricMap : SerializingObject
 {
 public:
 	MetricMap( sample_rate_t _rate );

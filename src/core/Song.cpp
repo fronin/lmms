@@ -41,18 +41,18 @@
 #include "ControllerRackView.h"
 #include "ControllerConnection.h"
 #include "embed.h"
-#include "envelope_and_lfo_parameters.h"
+#include "EnvelopeAndLfoParameters.h"
 #include "ExportProjectDialog.h"
-#include "fx_mixer.h"
-#include "fx_mixer_view.h"
-#include "import_filter.h"
-#include "instrument_track.h"
+#include "FxMixer.h"
+#include "FxMixerView.h"
+#include "ImportFilter.h"
+#include "InstrumentTrack.h"
 #include "MainWindow.h"
 #include "mmp.h"
 #include "note_play_handle.h"
 #include "pattern.h"
 #include "piano_roll.h"
-#include "project_journal.h"
+#include "ProjectJournal.h"
 #include "project_notes.h"
 #include "ProjectRenderer.h"
 #include "rename_dialog.h"
@@ -348,17 +348,17 @@ void Song::createNewProject( void )
 
 	clearProject();
 
-	engine::getProjectJournal()->setJournalling( false );
+	engine::projectJournal()->setJournalling( false );
 
 	m_fileName = m_oldFileName = "";
 
 	track * t;
 	t = track::create( track::InstrumentTrack, this );
-	dynamic_cast<instrumentTrack * >( t )->loadInstrument(
+	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
 					"tripleoscillator" );
 	t = track::create( track::InstrumentTrack,
 						engine::getBBTrackContainer() );
-	dynamic_cast<instrumentTrack * >( t )->loadInstrument(
+	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
 						"tripleoscillator" );
 	track::create( track::SampleTrack, this );
 	track::create( track::BBTrack, this );
@@ -377,7 +377,7 @@ void Song::createNewProject( void )
 
 	engine::getBBTrackContainer()->updateAfterTrackAdd();
 
-	engine::getProjectJournal()->setJournalling( true );
+	engine::projectJournal()->setJournalling( true );
 
 	QCoreApplication::sendPostedEvents();
 
@@ -410,7 +410,7 @@ void Song::loadProject( const QString & _file_name )
 
 	clearProject();
 
-	engine::getProjectJournal()->setJournalling( false );
+	engine::projectJournal()->setJournalling( false );
 
 	m_fileName = _file_name;
 	m_oldFileName = _file_name;
@@ -457,7 +457,7 @@ void Song::loadProject( const QString & _file_name )
 		{
 			if( node.nodeName() == "trackcontainer" )
 			{
-				( (journallingObject *)( this ) )->
+				( (JournallingObject *)( this ) )->
 					restoreState( node.toElement() );
 			}
 			else if( node.nodeName() == "controllers" )
@@ -465,9 +465,9 @@ void Song::loadProject( const QString & _file_name )
 				restoreControllerStates( node.toElement() );
 			}
 			else if( node.nodeName() ==
-					engine::getFxMixer()->nodeName() )
+					engine::fxMixer()->nodeName() )
 			{
-				engine::getFxMixer()->restoreState(
+				engine::fxMixer()->restoreState(
 							node.toElement() );
 			}
 			else if( engine::hasGUI() )
@@ -496,7 +496,7 @@ void Song::loadProject( const QString & _file_name )
 								nodeName() )
 				{
 					 engine::getProjectNotes()->
-			serializingObject::restoreState( node.toElement() );
+			SerializingObject::restoreState( node.toElement() );
 				}
 				/* TODO! What was this doing??
 				else if( node.nodeName() ==
@@ -529,7 +529,7 @@ void Song::loadProject( const QString & _file_name )
 
 	configManager::inst()->addRecentlyOpenedProject( _file_name );
 
-	engine::getProjectJournal()->setJournalling( true );
+	engine::projectJournal()->setJournalling( true );
 
 	m_loadingProject = false;
 	m_modified = false;
@@ -562,14 +562,14 @@ bool Song::saveProject( void )
 	saveState( mmp, mmp.content() );
 
 	m_globalAutomationTrack->saveState( mmp, mmp.content() );
-	engine::getFxMixer()->saveState( mmp, mmp.content() );
+	engine::fxMixer()->saveState( mmp, mmp.content() );
 	if( engine::hasGUI() )
 	{
 		engine::getControllerRackView()->saveState( mmp, mmp.content() );
 		engine::getPianoRoll()->saveState( mmp, mmp.content() );
 		engine::getAutomationEditor()->saveState( mmp, mmp.content() );
 		engine::getProjectNotes()->
-			serializingObject::saveState( mmp, mmp.content() );
+			SerializingObject::saveState( mmp, mmp.content() );
 		/*
 		m_playPos[Mode_PlaySong].m_timeLine->saveState(
 							mmp, mmp.content() );
@@ -638,7 +638,7 @@ void Song::importProject( void )
 	ofd.setFileMode( QFileDialog::ExistingFiles );
 	if( ofd.exec () == QDialog::Accepted && !ofd.selectedFiles().isEmpty() )
 	{
-		importFilter::import( ofd.selectedFiles()[0], this );
+		ImportFilter::import( ofd.selectedFiles()[0], this );
 	}
 }
 

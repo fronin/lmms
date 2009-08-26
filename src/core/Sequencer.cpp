@@ -44,17 +44,17 @@
 #include "ControllerRackView.h"
 #include "ControllerConnection.h"
 #include "embed.h"
-#include "envelope_and_lfo_parameters.h"
-#include "fx_mixer.h"
-#include "fx_mixer_view.h"
-#include "import_filter.h"
-#include "instrument_track.h"
+#include "EnvelopeAndLfoParameters.h"
+#include "FxMixer.h"
+#include "FxMixerView.h"
+#include "ImportFilter.h"
+#include "InstrumentTrack.h"
 #include "MidiClient.h"
 #include "mmp.h"
 #include "note_play_handle.h"
 #include "pattern.h"
 #include "piano_roll.h"
-#include "project_journal.h"
+#include "ProjectJournal.h"
 #include "project_notes.h"
 #include "ProjectRenderer.h"
 #include "rename_dialog.h"
@@ -222,7 +222,7 @@ void Sequencer::processNextBuffer()
 			// at song-start we have to reset the LFOs
 			if( m_playPos[Mode_PlaySong] == 0 )
 			{
-				envelopeAndLFOParameters::resetLFO();
+				EnvelopeAndLfoParameters::resetLfo();
 			}
 			break;
 
