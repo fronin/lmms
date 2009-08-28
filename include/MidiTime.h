@@ -15,7 +15,7 @@ public:
 		m_ticks( 0 )
 	{
 	}
-	inline MidiTime( const bar_t _bar, const beat_t _beat, const tick_t _ticks ) :
+	inline MidiTime( const bar_t _bar, const beat_t _beat, const tick_t _ticks = 0 ) :
 		m_bar( _bar ),
 		m_beat( _beat),
 		m_ticks( _ticks )
@@ -62,6 +62,15 @@ public:
 		return ( bar() < _other.bar() ) || ( bar() == _other.bar() &&
 			   ( beat() < _other.beat() || ( beat() == _other.beat() &&
 			   ( ticks() < _other.ticks() ) ) ) );
+		/*
+		return ( bar() < _other.bar() ) ||
+			   ( bar() == _other.bar() && beat() < _other.beat() );
+		*/
+	}
+
+	bool operator== ( const MidiTime & _other ) const
+	{
+		return ( bar() == _other.bar() ) && ( beat() == _other.beat() );
 	}
 
 

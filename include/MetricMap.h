@@ -9,11 +9,19 @@ class MetricSegment;
 class TempoSegment;
 class MeterSegment;
 
+class MetricBeat;
+typedef QList<MetricBeat> MeatList;
+
 
 class MetricMap : SerializingObject
 {
 public:
 	MetricMap( sample_rate_t _rate );
+
+	QString nodeName() const
+	{
+		return "metricMap";
+	}
 
 	const Meter & meterAt( f_cnt_t _where );
 	const Tempo & tempoAt( f_cnt_t _where );
@@ -44,6 +52,8 @@ public:
 		return s_defaultMeter;
 	}
 
+	MeatList meats( f_cnt_t _begin, f_cnt_t _end ) const;
+
 private:
 	enum Calculation { FromFrame, FromMidiTime };
 
@@ -58,6 +68,25 @@ private:
 	QVector<MetricSegment *> m_segments;
 	TempoSegment * m_firstTempoSegment;
 	MeterSegment * m_firstMeterSegment;
+};
+
+
+class MetricBeat {
+public:
+	MetricBeat( bar_t _bar, beat_t _beat, f_cnt_t _frame,
+				const Tempo & _tempo, const Meter & _meter ) :
+		bar( _bar ),
+		beat( _beat ),
+		frame( _frame ),
+		tempo( _tempo ),
+		meter( _meter )
+	{}
+
+	Tempo tempo;
+	Meter meter;
+	bar_t bar;
+	beat_t beat;
+	f_cnt_t frame;
 };
 
 #endif

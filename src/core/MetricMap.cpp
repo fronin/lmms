@@ -45,22 +45,29 @@ void MetricMap::addTempo( const Tempo & _tempo, f_cnt_t _where )
 void MetricMap::add( MetricSegment * _segment, Calculation _from )
 {
 	QMutableVectorIterator<MetricSegment *> i( m_segments );
-	while( i.hasNext() )
-	{
-		MetricSegment * ms = i.next();
+	printf( "Adding Segment at: %d %d:\n",
+		   _segment->time().bar(),
+		   _segment->time().beat() );
 
-		if( _from == FromMidiTime )
+	if( _from == FromMidiTime )
+	{
+		while( i.hasNext() && i.peekNext()->time() < _segment->time() )
 		{
-			if( ms->time() < _segment->time() )
-				break;
+			printf( "  Skipping Segment at: %d %d:\n",
+				i.peekNext()->time().bar(),
+				i.peekNext()->time().beat() );
+			i.next();
 		}
-		else if( _from == FromFrame )
+	}
+	else if( _from == FromFrame )
+	{
+		while( i.hasNext() && _segment->frame() < i.peekNext()->frame() )
 		{
-			if( ms->frame() < _segment->frame() )
-				break;
+			i.next();
 		}
 	}
 
+	printf("  Inserting\n");
 	i.insert( _segment );
 	recalculate( _from );
 }
@@ -90,7 +97,7 @@ void MetricMap::recalculate( Calculation _from )
 			currentTime = ms->time();
 
 			// BEGIN Calculate frames for this segment
-			int beats, frames;
+			int beats = 0;
 			bar_t bar = prevTime.bar();
 			beat_t beat = prevTime.beat();
 
@@ -100,6 +107,7 @@ void MetricMap::recalculate( Calculation _from )
 					++beat;
 					++beats;
 				}
+				++bar;
 				beat = 0;
 			}
 			// Now sum up the possible incomplete bar at the end
@@ -162,6 +170,80 @@ void MetricMap::recalculate( Calculation _from )
 			}
 		}
 	}
+}
+
+
+
+MeatList MetricMap::meats( f_cnt_t _begin, f_cnt_t _end ) const
+{
+	//TODO: MUTEX LOCK
+	const Meter * meter = &m_firstMeterSegment->meter();
+	const Tempo * tempo = &m_firstTempoSegment->tempo();
+
+	f_cnt_t curFrame = 0;
+
+	// Now the fun
+	bar_t bar = 0;
+	beat_t beat = 0;
+
+
+	QVectorIterator<MetricSegment *> i( m_segments );
+	MetricSegment * nextSegment = i.next();
+	MeatList theMeats;
+
+	f_cnt_t framesPerBeat = tempo->framesPerBeat( *meter, m_sampleRate );
+	f_cnt_t thisFrames;
+	beat_t beatsPerBar = meter->beatsPerBar();
+
+	// Loop over bars
+	// TODO: Properly handle _begin
+	while( curFrame < _end )
+	{
+		// Loop over beats
+		for( beat = 0; beat < beatsPerBar; ++beat)
+		{
+			thisFrames = framesPerBeat;
+
+			// Update meter or tempo for any segments this time
+			while( nextSegment != NULL &&
+				   bar == nextSegment->time().bar() &&
+				   beat == nextSegment->time().beat() )
+			{
+				//Assign meter or tempo
+				TempoSegment * tempoSegment;
+				MeterSegment * meterSegment;
+				if( tempoSegment = dynamic_cast<TempoSegment *>( nextSegment ) )
+				{
+					tempo = &tempoSegment->tempo();
+					framesPerBeat = tempo->framesPerBeat( *meter, m_sampleRate );
+				}
+				else if( meterSegment = dynamic_cast<MeterSegment *>( nextSegment ) )
+				{
+					meter = &meterSegment->meter();
+					beatsPerBar = meter->beatsPerBar();
+				}
+
+				// Get next segment
+				if( i.hasNext() )
+				{
+					nextSegment = i.next();
+				}
+				else
+				{
+					nextSegment = NULL;
+				}
+			}
+
+
+			// Now save the beat
+			theMeats.append( MetricBeat( bar, beat, curFrame, *tempo, *meter ) );
+
+			curFrame += framesPerBeat;
+		}
+		++bar;
+	}
+
+	return theMeats;
 }
 
 

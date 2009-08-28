@@ -6,7 +6,8 @@
 #include "track_container.h"
 #include "AutomatableModel.h"
 #include "Controller.h"
-#include "MeterModel.h"
+#include "MeterModel.h"  // Remove?
+#include "MetricMap.h"
 
 
 class automationTrack;
@@ -44,13 +45,6 @@ public:
 		return m_globalAutomationTrack;
 	}
 
-	// file management
-	void createNewProject( void );
-	void createNewProjectFromTemplate( const QString & _template );
-	void loadProject( const QString & _file_name );
-	bool saveProject( void );
-	bool saveProjectAs( const QString & _file_name );
-
 	inline const QString & projectFileName( void ) const
 	{
 		return m_fileName;
@@ -86,6 +80,12 @@ public:
 	}
 
 
+	MetricMap & metricMap() const
+	{
+		return * m_metricMap;
+	}
+
+
 	/*
 	meterModel & getTimeSigModel( void )
 	{
@@ -95,6 +95,13 @@ public:
 
 
 public slots:
+	// file management
+	void createNewProjectFromTemplate( const QString & _template );
+	void loadProject( const QString & _file_name );
+	bool saveProject( void );
+	bool saveProjectAs( const QString & _file_name );
+
+	void createNewProject( void );
 	void importProject( void );
 	void exportProject( void );
 
@@ -139,6 +146,7 @@ private:
 	void restoreControllerStates( const QDomElement & _this );
 
 	automationTrack * m_globalAutomationTrack;
+	MetricMap * m_metricMap;
 
 	//intModel m_tempoModel;
 	//meterModel m_timeSigModel;
@@ -152,10 +160,11 @@ private:
 	QString m_oldFileName;
 	bool m_modified;
 
-	volatile bool m_recording;
-	volatile bool m_exporting;
-	volatile bool m_playing;
-	volatile bool m_paused;
+
+	//volatile bool m_recording;
+	//volatile bool m_exporting;
+	//volatile bool m_playing;
+	//volatile bool m_paused;
 
 	bool m_loadingProject;
 

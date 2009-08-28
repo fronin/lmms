@@ -67,6 +67,11 @@
 #include "cusis_style.h"
 #include "classic_style.h"
 
+// TODO: REmove, this is just for testing
+#include "MetricMap.h"
+#include <iostream>
+
+
 #warning TODO: move somewhere else
 static inline QString baseName( const QString & _file )
 {
@@ -101,6 +106,28 @@ int main( int argc, char * * argv )
 	bool fullscreen = true;
 	bool exit_after_import = false;
 	QString file_to_load, file_to_save, file_to_import, render_out;
+
+	MetricMap * mm = new MetricMap( 44100 );
+
+	mm->addMeter( Meter( 3, 4 ), MidiTime( 8, 0 ) );
+	mm->addMeter( Meter( 4, 4 ), MidiTime( 12, 0 ) );
+	mm->addTempo( Tempo( 240 ), MidiTime( 12, 0 ) );
+
+	MeatList meats = mm->meats( 0, 60 * 44100 );
+
+	std::cout << "Frame \tfdelta \tBar \tBeat \tTempo \tMeter" << std::endl;
+
+	QListIterator<MetricBeat> mi( meats );
+	f_cnt_t lastFrame = 0;
+	while( mi.hasNext() ) {
+		MetricBeat mb = mi.next();
+		std::cout << mb.frame << "\t" << (mb.frame - lastFrame) << "\t"
+				<< mb.bar << "\t" << mb.beat << "\t" << mb.tempo.bpm() << "\t"
+				<< mb.meter.beatsPerBar() << "/" << mb.meter.noteType()
+				<< std::endl;
+		lastFrame = mb.frame;
+	}
+	return -1;
 
 	for( int i = 1; i < argc; ++i )
 	{

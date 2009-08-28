@@ -110,7 +110,6 @@ Song::Song( void ) :
 
 Song::~Song()
 {
-	m_playing = false;
 	delete m_globalAutomationTrack;
 }
 
