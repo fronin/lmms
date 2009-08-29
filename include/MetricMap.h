@@ -39,6 +39,16 @@ public:
 	f_cnt_t toNearestBeat( f_cnt_t _frame );
 	f_cnt_t toNearestTick( f_cnt_t _frame );
 
+	f_cnt_t length() const
+	{
+		return m_length;
+	}
+
+	void setLength( f_cnt_t _length )
+	{
+		m_length = _length;
+	}
+
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _this );
 	virtual void loadSettings( const QDomElement & _this );
 
@@ -64,6 +74,7 @@ private:
 	static Meter s_defaultMeter;
 
 	sample_rate_t m_sampleRate;
+	f_cnt_t m_length;
 
 	QVector<MetricSegment *> m_segments;
 	TempoSegment * m_firstTempoSegment;

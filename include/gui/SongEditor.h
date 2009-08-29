@@ -1,5 +1,5 @@
 /*
- * Timeline.h - class TimeLine, representing a time-line with position marker
+ * SongEditor.h - The main interface for editing a song
  *
  * Copyright (c) 2009 Paul Giblock <pgib/at/users/sourceforge/net>
  *
@@ -22,39 +22,38 @@
  *
  */
 
-#ifndef _TIMELINE_H_TNG
-#define _TIMELINE_H_TNG
+#ifndef _SONGEDITOR_H
+#define _SONGEDITOR_H
 
-#include <QtGui/QWidget>
+#include <QtGui/QGraphicsView>
+
+#include "gui/SongEditor.h"
+#include "gui/tracks/track_container_scene.h"
+
+class Song;
+class TrackContainerScene;
+class TimeLine;
+class QLabel;
 
 
-
-class QPixmap;
-class MetricMap;
-
-
-class TimeLine : public QWidget
+class SongEditor : public QGraphicsView
 {
 	Q_OBJECT
 public:
+	SongEditor( Song * _song, QWidget * _parent = 0 );
 
-	TimeLine( QWidget * _parent, MetricMap & _metric );
-	virtual ~TimeLine();
-	void scroll( int _dx, int _dy );
-
-public slots:
 
 protected:
-	virtual void paintEvent( QPaintEvent * _pe );
-	virtual void mousePressEvent( QMouseEvent * _me );
-	virtual void mouseMoveEvent( QMouseEvent * _me );
-	virtual void mouseReleaseEvent( QMouseEvent * _me );
+	void resizeEvent( QResizeEvent * _re );
+	void scrollContentsBy( int _dx, int _dy );
 
+	Song * m_song;
+	TrackContainerScene * m_scene;
 
-	MetricMap & m_metricMap;
-	int m_x;
+	QLabel * m_corner;
+	QLabel * m_left;
+	TimeLine * m_timeLine;
 
-} ;
-
+};
 
 #endif

@@ -107,6 +107,7 @@ int main( int argc, char * * argv )
 	bool exit_after_import = false;
 	QString file_to_load, file_to_save, file_to_import, render_out;
 
+	/*
 	MetricMap * mm = new MetricMap( 44100 );
 
 	mm->addMeter( Meter( 3, 4 ), MidiTime( 8, 0 ) );
@@ -128,6 +129,7 @@ int main( int argc, char * * argv )
 		lastFrame = mb.frame;
 	}
 	return -1;
+	*/
 
 	for( int i = 1; i < argc; ++i )
 	{

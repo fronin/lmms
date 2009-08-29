@@ -37,7 +37,6 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QRadioButton>
 #include <QtGui/QShortcut>
-#include <QtGui/QGraphicsView>
 #include <QtGui/QPixmapCache>
 
 #include "lmmsversion.h"
@@ -76,8 +75,8 @@
 #include "QuickLoadDialog.h"
 #include "WelcomeScreen.h"
 
-#include "gui/tracks/track_container_scene.h"
-
+#include "Song.h"
+#include "gui/SongEditor.h"
 
 MainWindow::MainWindow() :
 	m_workspace( NULL ),
@@ -155,6 +154,11 @@ MainWindow::MainWindow() :
 	vbox->addWidget( m_toolBar );
 	vbox->addWidget( w );
 
+	// Temporary code to expose new song-editor
+	QPixmapCache::setCacheLimit( 10240 );
+	SongEditor * editor = new SongEditor( engine::song() );
+	editor->show();
+	QMdiSubWindow * subWin = workspace()->addSubWindow( editor );
 
 	m_welcomeScreen = new WelcomeScreen( this );
 
