@@ -1,6 +1,8 @@
 #ifndef _METRIC_MAP_H
 #define _METRIC_MAP_H
 
+#include <QObject>
+
 #include "Tempo.h"
 #include "lmms_basics.h"
 #include "SerializingObject.h"
@@ -13,8 +15,9 @@ class MetricBeat;
 typedef QList<MetricBeat> MeatList;
 
 
-class MetricMap : SerializingObject
+class MetricMap : public QObject, SerializingObject
 {
+	Q_OBJECT
 public:
 	MetricMap( sample_rate_t _rate );
 
@@ -63,6 +66,10 @@ public:
 	}
 
 	MeatList meats( f_cnt_t _begin, f_cnt_t _end ) const;
+
+signals:
+	void dataChanged( f_cnt_t _begin, f_cnt_t _end );
+
 
 private:
 	enum Calculation { FromFrame, FromMidiTime };

@@ -27,10 +27,10 @@
 
 #include <QtGui/QWidget>
 
-
+#include "lmms_basics.h"
+#include "MetricMap.h"  // For MeatList
 
 class QPixmap;
-class MetricMap;
 
 
 class TimeLine : public QWidget
@@ -43,15 +43,24 @@ public:
 	void scroll( int _dx, int _dy );
 
 public slots:
+	// TODO: use MV instead?
+	void updateView( f_cnt_t _begin, f_cnt_t _end );
 
 protected:
 	virtual void paintEvent( QPaintEvent * _pe );
 	virtual void mousePressEvent( QMouseEvent * _me );
 	virtual void mouseMoveEvent( QMouseEvent * _me );
 	virtual void mouseReleaseEvent( QMouseEvent * _me );
+/*
+	void paintTempoLine( QPaintEvent * _pe, int _height );
+	void paintLine( QPaintEvent * _pe, int _height );
+	void paintTempoLine( QPaintEvent * _pe, int _height );
+	void paintTempoLine( QPaintEvent * _pe, int _height );
+*/
 
 
 	MetricMap & m_metricMap;
+	MeatList m_meats;
 	int m_x;
 
 } ;

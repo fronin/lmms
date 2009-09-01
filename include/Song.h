@@ -86,14 +86,6 @@ public:
 	}
 
 
-	/*
-	meterModel & getTimeSigModel( void )
-	{
-		return m_timeSigModel;
-	}
-	*/
-
-
 public slots:
 	// file management
 	void createNewProjectFromTemplate( const QString & _template );
@@ -131,16 +123,6 @@ private:
 	Song( const Song & );
 	virtual ~Song();
 
-
-	/*
-	inline int ticksPerTact( void ) const
-	{
-		return DefaultTicksPerTact *
-				m_timeSigModel.getNumerator() /
-					 m_timeSigModel.getDenominator();
-	}
-	*/
-
 	/* TODO! ???? */
 	void saveControllerStates( QDomDocument & _doc, QDomElement & _this );
 	void restoreControllerStates( const QDomElement & _this );
@@ -148,9 +130,6 @@ private:
 	automationTrack * m_globalAutomationTrack;
 	MetricMap * m_metricMap;
 
-	//intModel m_tempoModel;
-	//meterModel m_timeSigModel;
-	//int m_oldTicksPerTact;
 	IntModel m_masterVolumeModel;
 	IntModel m_masterPitchModel;
 
@@ -159,12 +138,6 @@ private:
 	QString m_fileName;
 	QString m_oldFileName;
 	bool m_modified;
-
-
-	//volatile bool m_recording;
-	//volatile bool m_exporting;
-	//volatile bool m_playing;
-	//volatile bool m_paused;
 
 	bool m_loadingProject;
 

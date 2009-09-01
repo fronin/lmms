@@ -116,6 +116,7 @@ void MetricMap::recalculate( Calculation _from )
 				++beats;
 			}
 
+			//currentFrame += tempo->framesPerBeat( *meter, m_sampleRate ) * beats;
 			currentFrame += tempo->framesPerBeat( *meter, m_sampleRate ) * beats;
 
 			// Now assign frames, and get ready for next segment
@@ -170,6 +171,9 @@ void MetricMap::recalculate( Calculation _from )
 			}
 		}
 	}
+
+	// TODO: Don't be so lazy. Signal the actual range changed
+	emit dataChanged( 0, length() );
 }
 
 
@@ -202,7 +206,7 @@ MeatList MetricMap::meats( f_cnt_t _begin, f_cnt_t _end ) const
 		// Loop over beats
 		for( beat = 0; beat < beatsPerBar; ++beat)
 		{
-			thisFrames = framesPerBeat;
+			//thisFrames = framesPerBeat;
 
 			// Update meter or tempo for any segments this time
 			while( nextSegment != NULL &&
@@ -221,6 +225,7 @@ MeatList MetricMap::meats( f_cnt_t _begin, f_cnt_t _end ) const
 				{
 					meter = &meterSegment->meter();
 					beatsPerBar = meter->beatsPerBar();
+					framesPerBeat = tempo->framesPerBeat( *meter, m_sampleRate );
 				}
 
 				// Get next segment
@@ -233,7 +238,6 @@ MeatList MetricMap::meats( f_cnt_t _begin, f_cnt_t _end ) const
 					nextSegment = NULL;
 				}
 			}
-
 
 			// Now save the beat
 			theMeats.append( MetricBeat( bar, beat, curFrame, *tempo, *meter ) );
@@ -255,3 +259,6 @@ void MetricMap::saveSettings( QDomDocument & _doc, QDomElement & _this )
 void MetricMap::loadSettings( const QDomElement & _this )
 {
 }
+
+
+#include "moc_MetricMap.cxx"

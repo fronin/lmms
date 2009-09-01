@@ -3,11 +3,11 @@
 
 double Tempo::framesPerBeat( const Meter & _meter, sample_rate_t _rate ) const
 {
-	// frames    minutes   noteType
-    // ------- * ------- * ------------
-	// minutes   beats     noteDivisor
+	// frames    seconds   minutes   tempo.noteType
+	// ------- * --------* ------- * --------------
+	// second    minute    beats     meter.noteType
 	
-	return  (60.0 * _rate) / (m_bpm * _meter.noteType() / m_note);
+	return ( _rate * 60.0 * noteType() ) / ( m_bpm * _meter.noteType() );
 }
 
 

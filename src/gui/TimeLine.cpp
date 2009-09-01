@@ -45,7 +45,14 @@ TimeLine::TimeLine( QWidget * _parent, MetricMap & _metric ) :
 	m_x( 0 )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent, true );
-	//setAutoFillBackground();
+	//setAutoFillBackground();//setAutoFillBackground();
+	updateView( 0, m_metricMap.length() );
+}
+
+
+
+TimeLine::~TimeLine()
+{
 }
 
 
@@ -57,29 +64,79 @@ void TimeLine::scroll ( int dx, int dy )
 }
 
 
-
-
-TimeLine::~TimeLine()
-{
+void TimeLine::updateView( f_cnt_t _begin, f_cnt_t _end )
+{	
+	// TODO: Perhaps optimize
+	m_meats = m_metricMap.meats(0, m_metricMap.length());
+	update();
 }
 
 
-
-void TimeLine::paintEvent ( QPaintEvent * event )
+bool meatPredicate(const MetricBeat & _l, const MetricBeat & _r)
 {
-	printf( "Redrawing in [%d, %d, %d, %d]  (%d)\n",
-			event->rect().x(),
-			event->rect().y(),
-			event->rect().width(),
-			event->rect().height(),
-			m_x);
-	int color = rand();
-	QBrush brush = QBrush( QColor(
-			color & 0xFF,
-			(color >> 8) & 0xFF,
-			(color >> 16) & 0xFF ) );
+	return _l.frame < _r.frame;
+}
+
+void TimeLine::paintEvent ( QPaintEvent * _pe )
+{
+	const int PixelsPerBeat = 16;
+	const int FramesPerPixel = 800;
+
+	MetricBeat beatToFind = MetricBeat( 0, 0,
+			(- m_x) * FramesPerPixel,
+			Tempo(0), Meter(0,0) );
+
+	MeatList::iterator i = qLowerBound(
+			m_meats.begin(), m_meats.end(), beatToFind, meatPredicate );
+	MetricBeat fb = *i;
+	int x = 0;
+
 	QPainter p( this );
-	p.fillRect( event->rect(), brush );
+	QPen barPen( QColor(255, 0, 0), 2 );
+	QPen beatPen( QColor(0, 0, 255), 1 );
+	p.fillRect( _pe->rect(), QColor(255, 255, 255) );
+	p.setPen( beatPen );
+
+	if( i != m_meats.begin() )
+	{
+		i--;
+		if( i != m_meats.begin() )
+		{
+			i--;
+		}
+	}
+	Tempo lastTempo = i->tempo;
+	Meter lastMeter = i->meter;
+
+	while( i != m_meats.end() ) // && x <= _pe->rect().right() )
+	{
+		MetricBeat b = *i;
+		printf("%d:%d:  %d,  %.2f bpm, %d / %d \n", b.bar, b.beat, b.frame, b.tempo.bpm(), b.meter.beatsPerBar(), b.meter.noteType());
+		x = m_x + ( b.frame / FramesPerPixel );
+		if( b.beat == 0 )
+		{
+			p.setPen( barPen );
+			p.drawLine( x, 0, x, height() - 1 );
+			p.setPen( beatPen );
+		}
+		else
+		{
+			p.drawLine( x, 0, x, height() / 2 );
+		}
+		if( lastTempo.bpm() != i->tempo.bpm() )
+		{
+			p.drawText( x+1, 16, QString::number( i->tempo.bpm() ) );
+		}
+		if( lastMeter.beatsPerBar() != i->meter.beatsPerBar() ||
+			lastMeter.noteType() != i->meter.noteType() )
+		{
+			p.drawText( x+1, 32, QString::number( i->meter.beatsPerBar() ) + "/" + QString::number( i->meter.noteType() ) );
+		}
+
+		lastTempo = i->tempo;
+		lastMeter = i->meter;
+		++i;
+	}
 }
 
 
