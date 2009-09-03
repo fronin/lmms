@@ -46,11 +46,12 @@ public:
 protected:
 	void resizeEvent( QResizeEvent * _re );
 	void scrollContentsBy( int _dx, int _dy );
+	void drawBackground ( QPainter * painter, const QRectF & rect );
 
 	Song * m_song;
 	TrackContainerScene * m_scene;
 
-	QLabel * m_corner;
+	QWidget * m_corner;
 	QLabel * m_left;
 	TimeLine * m_timeLine;
 

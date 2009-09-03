@@ -25,7 +25,7 @@
 #ifndef _TIMELINE_H_TNG
 #define _TIMELINE_H_TNG
 
-#include <QtGui/QWidget>
+#include <QGraphicsView>
 
 #include "lmms_basics.h"
 #include "MetricMap.h"  // For MeatList
@@ -33,7 +33,7 @@
 class QPixmap;
 
 
-class TimeLine : public QWidget
+class TimeLine : public QGraphicsView
 {
 	Q_OBJECT
 public:
@@ -47,10 +47,13 @@ public slots:
 	void updateView( f_cnt_t _begin, f_cnt_t _end );
 
 protected:
+	virtual void drawBackground ( QPainter * painter, const QRectF & rect );
+	/*
 	virtual void paintEvent( QPaintEvent * _pe );
 	virtual void mousePressEvent( QMouseEvent * _me );
 	virtual void mouseMoveEvent( QMouseEvent * _me );
 	virtual void mouseReleaseEvent( QMouseEvent * _me );
+	*/
 /*
 	void paintTempoLine( QPaintEvent * _pe, int _height );
 	void paintLine( QPaintEvent * _pe, int _height );

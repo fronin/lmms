@@ -83,16 +83,13 @@ Song::Song( void ) :
 	m_length( 0 )
 {
 	m_metricMap = new MetricMap( 44100 );
-	m_metricMap->setLength( 4000000 );
+	m_metricMap->setLength( 2000000 );
 	//m_metricMap->addMeter( Meter( 3, 4 ), MidiTime( 4, 0 ) );
 	m_metricMap->addMeter( Meter( 2, 2 ), MidiTime( 4, 0 ) );
-	m_metricMap->addMeter( Meter( 2, 4 ), MidiTime( 6, 0 ) );
-	m_metricMap->addTempo( Tempo( 100 ), MidiTime( 7, 0 ) );
-	//m_metricMap->addTempo( Tempo( 90 ), MidiTime( 7, 2 ) );
-	m_metricMap->addMeter( Meter( 3, 4 ), MidiTime( 7, 2 ) );
-	m_metricMap->addTempo( Tempo( 80 ), MidiTime( 8, 0 ) );
+	m_metricMap->addTempo( Tempo( 200 ), MidiTime( 5, 1 ) );
 	m_metricMap->addMeter( Meter( 5, 8 ), MidiTime( 8, 0 ) );
-	//m_metricMap->addMeter( Meter( 4, 4 ), MidiTime( 10, 0 ) );
+	m_metricMap->addTempo( Tempo( 140 ), MidiTime( 8, 0 ) );
+
 
 	/*
 	connect( &m_tempoModel, SIGNAL( dataChanged() ),

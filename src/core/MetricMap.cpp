@@ -1,4 +1,5 @@
 #include <QVector>
+#include <QMutex>
 
 #include "MetricMap.h"
 #include "MetricSegment.h"
@@ -19,24 +20,28 @@ MetricMap::MetricMap( sample_rate_t _rate )
 
 void MetricMap::addMeter( const Meter & _meter, MidiTime _where )
 {
+	QWriteLocker locker( &m_lock );
 	add( new MeterSegment( _where, _meter ), FromMidiTime );
 }
 
 
 void MetricMap::addMeter( const Meter & _meter, f_cnt_t _where )
 {
+	QWriteLocker locker( &m_lock );
 	add( new MeterSegment( _where, _meter ), FromFrame );
 }
 
 
 void MetricMap::addTempo( const Tempo & _tempo, MidiTime _where )
 {
+	QWriteLocker locker( &m_lock );
 	add( new TempoSegment( _where, _tempo ), FromMidiTime );
 }
 
 
 void MetricMap::addTempo( const Tempo & _tempo, f_cnt_t _where )
 {
+	QWriteLocker locker( &m_lock );
 	add( new TempoSegment( _where, _tempo ), FromFrame );
 }
 
@@ -178,9 +183,28 @@ void MetricMap::recalculate( Calculation _from )
 
 
 
+f_cnt_t MetricMap::toNearestBar( f_cnt_t _frame )
+{
+	QReadLocker locker( &m_lock );
+
+	// Binary search instead?
+	//m_segments.
+}
+f_cnt_t MetricMap::toNearestBeat( f_cnt_t _frame )
+{
+	QReadLocker locker( &m_lock );
+}
+f_cnt_t MetricMap::toNearestTick( f_cnt_t _frame )
+{
+	QReadLocker locker( &m_lock );
+}
+
+
+
+
 MeatList MetricMap::meats( f_cnt_t _begin, f_cnt_t _end ) const
 {
-	//TODO: MUTEX LOCK
+	QReadLocker locker( &m_lock );
 	const Meter * meter = &m_firstMeterSegment->meter();
 	const Tempo * tempo = &m_firstTempoSegment->tempo();
 
@@ -253,11 +277,13 @@ MeatList MetricMap::meats( f_cnt_t _begin, f_cnt_t _end ) const
 
 void MetricMap::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
+	QReadLocker locker( &m_lock );
 }
 
 
 void MetricMap::loadSettings( const QDomElement & _this )
 {
+	QWriteLocker locker( &m_lock );
 }
 
 

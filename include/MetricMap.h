@@ -2,6 +2,7 @@
 #define _METRIC_MAP_H
 
 #include <QObject>
+#include <QReadWriteLock>
 
 #include "Tempo.h"
 #include "lmms_basics.h"
@@ -86,6 +87,8 @@ private:
 	QVector<MetricSegment *> m_segments;
 	TempoSegment * m_firstTempoSegment;
 	MeterSegment * m_firstMeterSegment;
+
+	mutable QReadWriteLock m_lock;
 };
 
 
