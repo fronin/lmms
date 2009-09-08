@@ -29,7 +29,7 @@
 #include "config_mgr.h"
 #include "engine.h"
 #include "gui_templates.h"
-#include "song.h"
+#include "Song.h"
 #include "MidiPort.h"
 #include "note.h"
 
@@ -91,18 +91,20 @@ MidiAlsaSeq::MidiAlsaSeq() :
 
 
 	m_queueID = snd_seq_alloc_queue( m_seqHandle );
+	/* TODO{TNG}: What is 6000000 about. Migrate to MetricMap
 	snd_seq_queue_tempo_t * tempo;
 	snd_seq_queue_tempo_malloc( &tempo );
 	snd_seq_queue_tempo_set_tempo( tempo, 6000000 /
-					engine::getSong()->getTempo() );
+					engine::song()->getTempo() );
 	snd_seq_queue_tempo_set_ppq( tempo, 16 );
 	snd_seq_set_queue_tempo( m_seqHandle, m_queueID, tempo );
 	snd_seq_queue_tempo_free( tempo );
 
 	snd_seq_start_queue( m_seqHandle, m_queueID, NULL );
-	changeQueueTempo( engine::getSong()->getTempo() );
-	connect( engine::getSong(), SIGNAL( tempoChanged( bpm_t ) ),
+	changeQueueTempo( engine::song()->getTempo() );
+	connect( engine::song(), SIGNAL( tempoChanged( bpm_t ) ),
 			this, SLOT( changeQueueTempo( bpm_t ) ) );
+	*/
 
 	// initial list-update
 	updatePortList();

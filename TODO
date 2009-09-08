@@ -1,3 +1,15 @@
+Short List
+==========
+- replace SampleSegment -> SampleTrackSegment
+- replace tco -> segment, TCO -> Segment, Tco -> Segment
+
+- Split code that generate BeatLists into a MetricMapWalker class that can have
+two subclasses.  One used directly by sequencer when synthesizing, The other
+used to generate BeatLists
+- Make TimeLine display
+- Add insert meter/tempo support to TimeLine
+- Start working on sequencer code
+
 Version 1
 =========
 

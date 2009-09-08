@@ -26,13 +26,14 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
 
+#include "MainWindow.h"
+#include "Song.h"
 #include "visualization_widget.h"
 #include "gui_templates.h"
-#include "MainWindow.h"
 #include "embed.h"
 #include "engine.h"
 #include "tooltip.h"
-#include "song.h"
+
 
 
 
@@ -70,7 +71,8 @@ visualizationWidget::~visualizationWidget()
 
 void visualizationWidget::updateAudioBuffer()
 {
-	if( !engine::getSong()->isExporting() )
+	/* TODO{TNG} Maybe try to push this data from mixer instead?
+	if( !engine::song()->isExporting() )
 	{
 		engine::getMixer()->lock();
 		const surroundSampleFrame * c = engine::getMixer()->
@@ -79,6 +81,7 @@ void visualizationWidget::updateAudioBuffer()
 		memcpy( m_buffer, c, sizeof( surroundSampleFrame ) * fpp );
 		engine::getMixer()->unlock();
 	}
+	*/
 }
 
 
@@ -119,7 +122,8 @@ void visualizationWidget::paintEvent( QPaintEvent * )
 
 	p.drawPixmap( 0, 0, s_background );
 
-	if( m_active && !engine::getSong()->isExporting() )
+	/* TODO{TNG}: What should we check instead of isExporting??
+	if( m_active && !engine::song()->isExporting() )
 	{
 		float master_output = engine::getMixer()->masterGain();
 		int w = width()-4;
@@ -173,6 +177,7 @@ void visualizationWidget::paintEvent( QPaintEvent * )
 		}
 	}
 	else
+	*/
 	{
 		p.setPen( QColor( 192, 192, 192 ) );
 		p.setFont( pointSize<7>( p.font() ) );

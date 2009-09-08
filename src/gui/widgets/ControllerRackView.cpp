@@ -31,7 +31,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMdiArea>
 
-#include "song.h"
+#include "Song.h"
 #include "embed.h"
 #include "MainWindow.h"
 #include "group_box.h"
@@ -66,7 +66,7 @@ ControllerRackView::ControllerRackView( ) :
 	connect( m_addButton, SIGNAL( clicked() ),
 			this, SLOT( addController() ) );
 
-	connect( engine::getSong(), SIGNAL( dataChanged() ),
+	connect( engine::song(), SIGNAL( dataChanged() ),
 			this, SLOT( update() ) );
 
 	QVBoxLayout * layout = new QVBoxLayout();
@@ -135,7 +135,7 @@ void ControllerRackView::deleteController( ControllerView * _view )
 void ControllerRackView::update()
 {
 	QWidget * w = m_scrollArea->widget();
-	song * s = engine::getSong();
+	Song * s = engine::song();
 
 	setUpdatesEnabled( false );
 
@@ -171,7 +171,7 @@ void ControllerRackView::addController()
 {
 	// TODO: Eventually let the user pick from available controller types
 
-	engine::getSong()->addController( new LfoController( engine::getSong() ) );
+	engine::song()->addController( new LfoController( engine::song() ) );
 	update();
 }
 

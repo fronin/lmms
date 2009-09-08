@@ -28,7 +28,7 @@
 #include <QtCore/QVector>
 
 
-#include "song.h"
+#include "Song.h"
 #include "engine.h"
 #include "mixer.h"
 #include "ControllerConnection.h"
@@ -147,9 +147,9 @@ void ControllerConnection::finalizeConnections()
 	{
 		ControllerConnection * c = s_connections[i];
 		if ( !c->isFinalized() && c->m_controllerId <
-				engine::getSong()->controllers().size() )
+				engine::song()->controllers().size() )
 		{
-			c->setController( engine::getSong()->
+			c->setController( engine::song()->
 					controllers().at( c->m_controllerId ) );
 		}
 	}
@@ -160,7 +160,7 @@ void ControllerConnection::finalizeConnections()
 
 void ControllerConnection::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
-	if( engine::getSong() )
+	if( engine::song() )
 	{
 		if( m_ownsController )
 		{
@@ -168,7 +168,7 @@ void ControllerConnection::saveSettings( QDomDocument & _doc, QDomElement & _thi
 		}
 		else
 		{
-			int id = engine::getSong()->controllers().indexOf( m_controller );
+			int id = engine::song()->controllers().indexOf( m_controller );
 			if( id >= 0 )
 			{
 				_this.setAttribute( "id", id );
@@ -185,7 +185,7 @@ void ControllerConnection::loadSettings( const QDomElement & _this )
 	QDomNode node = _this.firstChild();
 	if( !node.isNull() )
 	{
-		setController( Controller::create( node.toElement(), engine::getSong() ) );
+		setController( Controller::create( node.toElement(), engine::song() ) );
 	}
 	else
 	{

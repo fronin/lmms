@@ -26,7 +26,7 @@
 #ifndef _RESOURCE_PREVIEWER_H
 #define _RESOURCE_PREVIEWER_H
 
-#include "track_container.h"
+#include "TrackContainer.h"
 #include "mmp.h"
 
 class Piano;
@@ -47,7 +47,7 @@ public:
 
 
 private:
-	class PreviewTrackContainer : public trackContainer
+	class PreviewTrackContainer : public TrackContainer
 	{
 		virtual QString nodeName() const
 		{

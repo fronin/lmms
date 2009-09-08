@@ -24,16 +24,16 @@
 
 
 #include "bb_track_container.h"
-#include "bb_track.h"
+#include "BbTrack.h"
 #include "combobox.h"
 #include "embed.h"
 #include "engine.h"
-#include "song.h"
+#include "Song.h"
 
 
 
 bbTrackContainer::bbTrackContainer() :
-	trackContainer(),
+	TrackContainer(),
 	m_bbComboBoxModel( this )
 {
 	connect( &m_bbComboBoxModel, SIGNAL( dataChanged() ),
@@ -66,8 +66,8 @@ bool bbTrackContainer::play( midiTime _start, fpp_t _frames,
 
 	_start = _start % ( lengthOfBB( _tco_num ) * midiTime::ticksPerTact() );
 
-	trackList tl = tracks();
-	for( trackList::iterator it = tl.begin(); it != tl.end(); ++it )
+	TrackList tl = tracks();
+	for( TrackList::iterator it = tl.begin(); it != tl.end(); ++it )
 	{
 		if( ( *it )->play( _start, _frames, _offset, _tco_num ) )
 		{
@@ -96,14 +96,14 @@ void bbTrackContainer::updateAfterTrackAdd()
 tact_t bbTrackContainer::lengthOfBB( int _bb )
 {
 	midiTime max_length = midiTime::ticksPerTact();
-
-	const trackList & tl = tracks();
-	for( trackList::const_iterator it = tl.begin(); it != tl.end(); ++it )
+	/* TODO{TNG} Better BB length support
+	const TrackList & tl = tracks();
+	for( TrackList::const_iterator it = tl.begin(); it != tl.end(); ++it )
 	{
 		max_length = qMax( max_length,
 					( *it )->getTCO( _bb )->length() );
 	}
-
+	*/
 	return( max_length.nextFullTact() );
 }
 
@@ -112,7 +112,7 @@ tact_t bbTrackContainer::lengthOfBB( int _bb )
 
 int bbTrackContainer::numOfBBs() const
 {
-	return( engine::getSong()->countTracks( track::BBTrack ) );
+	return( engine::song()->countTracks( Track::BBTrack ) );
 }
 
 
@@ -120,16 +120,18 @@ int bbTrackContainer::numOfBBs() const
 
 void bbTrackContainer::removeBB( int _bb )
 {
-	trackList tl = tracks();
-	for( trackList::iterator it = tl.begin(); it != tl.end(); ++it )
+	/* TODO{TNG} Support removeBB
+	TrackList tl = tracks();
+	for( TrackList::iterator it = tl.begin(); it != tl.end(); ++it )
 	{
-		delete ( *it )->getTCO( _bb );
+		delete ( *it )->getSegment( _bb );
 		( *it )->removeTact( _bb * DefaultTicksPerTact );
 	}
 	if( _bb <= currentBB() )
 	{
 		setCurrentBB( qMax( currentBB() - 1, 0 ) );
 	}
+	*/
 }
 
 
@@ -137,20 +139,22 @@ void bbTrackContainer::removeBB( int _bb )
 
 void bbTrackContainer::swapBB( int _bb1, int _bb2 )
 {
+	/* TODO{TNG} Support/Remove removeBB
 	trackList tl = tracks();
 	for( trackList::iterator it = tl.begin(); it != tl.end(); ++it )
 	{
 		( *it )->swapPositionOfTCOs( _bb1, _bb2 );
 	}
+	*/
 	updateComboBox();
 }
 
 
 
 
-void bbTrackContainer::updateBBTrack( trackContentObject * _tco )
+void bbTrackContainer::updateBBTrack( TrackSegment * _tco )
 {
-	bbTrack * t = bbTrack::findBBTrack( _tco->startPosition() /
+	BbTrack * t = BbTrack::findBBTrack( _tco->startPosition() /
 							DefaultTicksPerTact );
 	if( t != NULL )
 	{
@@ -163,14 +167,16 @@ void bbTrackContainer::updateBBTrack( trackContentObject * _tco )
 
 void bbTrackContainer::fixIncorrectPositions()
 {
-	trackList tl = tracks();
-	for( trackList::iterator it = tl.begin(); it != tl.end(); ++it )
+	/* TODO{TNG} Better BB support
+	TrackList tl = tracks();
+	for( TrackList::iterator it = tl.begin(); it != tl.end(); ++it )
 	{
 		for( int i = 0; i < numOfBBs(); ++i )
 		{
 			( *it )->getTCO( i )->movePosition( midiTime( i, 0 ) );
 		}
 	}
+	*/
 }
 
 
@@ -178,27 +184,28 @@ void bbTrackContainer::fixIncorrectPositions()
 
 void bbTrackContainer::play()
 {
-	if( engine::getSong()->isPlaying() )
+	/* TODO{TNG} Implement Play or move to sequencer
+	if( engine::song()->isPlaying() )
 	{
-		if( engine::getSong()->playMode() != song::Mode_PlayBB )
+		if( engine::song()->playMode() != song::Mode_PlayBB )
 		{
-			engine::getSong()->stop();
-			engine::getSong()->playBB();
+			engine::song()->stop();
+			engine::song()->playBB();
 		}
 		else
 		{
-			engine::getSong()->pause();
+			engine::song()->pause();
 		}
 	}
-	else if( engine::getSong()->isPaused() )
+	else if( engine::song()->isPaused() )
 	{
-		engine::getSong()->resumeFromPause();
+		engine::song()->resumeFromPause();
 	}
 	else
 	{
-		engine::getSong()->playBB();
+		engine::song()->playBB();
 	}
-
+	*/
 }
 
 
@@ -206,7 +213,9 @@ void bbTrackContainer::play()
 
 void bbTrackContainer::stop()
 {
-	engine::getSong()->stop();
+	/* TODO{TNG} Implement Play or move to sequencer
+	engine::song()->stop();
+	*/
 }
 
 
@@ -220,7 +229,7 @@ void bbTrackContainer::updateComboBox()
 
 	for( int i = 0; i < numOfBBs(); ++i )
 	{
-		bbTrack * bbt = bbTrack::findBBTrack( i );
+		BbTrack * bbt = BbTrack::findBBTrack( i );
 		m_bbComboBoxModel.addItem( bbt->name() );
 	}
 	setCurrentBB( cur_bb );
@@ -236,10 +245,10 @@ void bbTrackContainer::currentBBChanged()
 
 	// now update all track-labels (the current one has to become white,
 	// the others gray)
-	trackList tl = engine::getSong()->tracks();
-	for( trackList::iterator it = tl.begin(); it != tl.end(); ++it )
+	TrackList tl = engine::song()->tracks();
+	for( TrackList::iterator it = tl.begin(); it != tl.end(); ++it )
 	{
-		if( ( *it )->type() == track::BBTrack )
+		if( ( *it )->type() == Track::BBTrack )
 		{
 			( *it )->dataChanged();
 		}
@@ -251,12 +260,13 @@ void bbTrackContainer::currentBBChanged()
 
 void bbTrackContainer::createTCOsForBB( int _bb )
 {
-	if( numOfBBs() == 0 || engine::getSong()->isLoadingProject() )
+	/* TODO{TNG} WHat is this even for???
+	if( numOfBBs() == 0 || engine::song()->isLoadingProject() )
 	{
 		return;
 	}
 
-	trackList tl = tracks();
+	TrackList tl = tracks();
 	for( int i = 0; i < tl.size(); ++i )
 	{
 		while( tl[i]->numOfTCOs() < _bb + 1 )
@@ -267,6 +277,7 @@ void bbTrackContainer::createTCOsForBB( int _bb )
 			tco->changeLength( midiTime( 1, 0 ) );
 		}
 	}
+	*/
 }
 
 

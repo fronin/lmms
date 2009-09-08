@@ -35,7 +35,6 @@
 #include "mixer.h"
 #include "EffectChain.h"
 #include "Cpu.h"
-#include "automation_pattern.h"
 #include "ControllerConnection.h"
 
 #include "embed.cpp"
@@ -122,7 +121,7 @@ void LadspaEffect::changeSampleRate()
 
 	// the IDs of re-created controls have been saved and now need to be
 	// resolved again
-	automationPattern::resolveAllIDs();
+	// TODO{TNG} automationPattern::resolveAllIDs();
 
 	// make sure, connections are ok
         ControllerConnection::finalizeConnections();

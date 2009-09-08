@@ -1,8 +1,9 @@
 /*
- * track_container.cpp - implementation of base-class for all track-containers
- *                       like Song-Editor, BB-Editor...
+ * TrackContainer.cpp - implementation of base-class for all track-containers
+ *                       like Song-Editor, BB...
  *
  * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009 Paul Giblock <pgib/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -23,21 +24,17 @@
  *
  */
 
-
-#include <QtGui/QApplication>
-#include <QtGui/QProgressDialog>
 #include <QtXml/QDomElement>
 
-#include "track_container.h"
-#include "InstrumentTrack.h"
+#include "TrackContainer.h"
 #include "engine.h"
-#include "MainWindow.h"
-#include "song.h"
+
+#include "InstrumentTrack.h"		// For DummyTrackContainer
 
 
-trackContainer::trackContainer() :
+TrackContainer::TrackContainer() :
 	Model( NULL ),
-	JournallingObject(),
+	SerializingObject(),
 	m_tracksMutex(),
 	m_tracks()
 {
@@ -46,7 +43,7 @@ trackContainer::trackContainer() :
 
 
 
-trackContainer::~trackContainer()
+TrackContainer::~TrackContainer()
 {
 	clearAllTracks();
 }
@@ -54,7 +51,7 @@ trackContainer::~trackContainer()
 
 
 
-void trackContainer::saveSettings( QDomDocument & _doc, QDomElement & _this )
+void TrackContainer::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
 	_this.setTagName( classNodeName() );
 	_this.setAttribute( "type", nodeName() );
@@ -71,74 +68,30 @@ void trackContainer::saveSettings( QDomDocument & _doc, QDomElement & _this )
 
 
 
-void trackContainer::loadSettings( const QDomElement & _this )
+void TrackContainer::loadSettings( const QDomElement & _this )
 {
-	static QProgressDialog * pd = NULL;
-	bool was_null = ( pd == NULL );
-	int start_val = 0;
-	if( engine::hasGUI() )
-	{
-		if( pd == NULL )
-		{
-			pd = new QProgressDialog( tr( "Loading project..." ),
-						tr( "Cancel" ), 0,
-						_this.childNodes().count(),
-						engine::mainWindow() );
-			pd->setWindowModality( Qt::ApplicationModal );
-			pd->setWindowTitle( tr( "Please wait..." ) );
-			pd->show();
-		}
-		else
-		{
-			start_val = pd->value();
-			pd->setMaximum( pd->maximum() +
-						_this.childNodes().count() );
-		}
-	}
-
 	QDomNode node = _this.firstChild();
 	while( !node.isNull() )
 	{
-		if( pd != NULL )
-		{
-			pd->setValue( pd->value() + 1 );
-			QCoreApplication::instance()->processEvents(
-						QEventLoop::AllEvents, 100 );
-			if( pd->wasCanceled() )
-			{
-				break;
-			}
-		}
-
 		if( node.isElement() &&
 			!node.toElement().attribute( "metadata" ).toInt() )
 		{
-			track::create( node.toElement(), this );
+			Track::create( node.toElement(), this );
 		}
 		node = node.nextSibling();
-	}
-
-	if( pd != NULL )
-	{
-		pd->setValue( start_val + _this.childNodes().count() );
-		if( was_null )
-		{
-			delete pd;
-			pd = NULL;
-		}
 	}
 }
 
 
 
 
-int trackContainer::countTracks( track::TrackTypes _tt ) const
+int TrackContainer::countTracks( Track::TrackTypes _tt ) const
 {
 	int cnt = 0;
 	m_tracksMutex.lockForRead();
 	for( int i = 0; i < m_tracks.size(); ++i )
 	{
-		if( m_tracks[i]->type() == _tt || _tt == track::NumTrackTypes )
+		if( m_tracks[i]->type() == _tt )
 		{
 			++cnt;
 		}
@@ -150,9 +103,9 @@ int trackContainer::countTracks( track::TrackTypes _tt ) const
 
 
 
-void trackContainer::addTrack( track * _track )
+void TrackContainer::addTrack( Track * _track )
 {
-	if( _track->type() != track::HiddenAutomationTrack )
+	if( _track->type() != Track::HiddenAutomationTrack )
 	{
 		m_tracksMutex.lockForWrite();
 		m_tracks.push_back( _track );
@@ -164,9 +117,12 @@ void trackContainer::addTrack( track * _track )
 
 
 
-void trackContainer::removeTrack( track * _track )
+void TrackContainer::removeTrack( Track * _track )
 {
-	int index = m_tracks.indexOf( _track );
+	int index;
+	m_tracksMutex.lockForRead();
+	index = m_tracks.indexOf( _track );
+	m_tracksMutex.unlock();
 	if( index != -1 )
 	{
 		m_tracksMutex.lockForWrite();
@@ -174,24 +130,19 @@ void trackContainer::removeTrack( track * _track )
 		m_tracksMutex.unlock();
 		emit trackRemoved( _track );
 
-		if( engine::getSong() )
+		/* TODO{TNG}: Better signalling
+		if( engine::song() )
 		{
-			engine::getSong()->setModified();
+			engine::song()->setModified();
 		}
+		*/
 	}
 }
 
 
 
 
-void trackContainer::updateAfterTrackAdd()
-{
-}
-
-
-
-
-void trackContainer::clearAllTracks()
+void TrackContainer::clearAllTracks()
 {
 	//m_tracksMutex.lockForWrite();
 	while( !m_tracks.isEmpty() )
@@ -204,13 +155,12 @@ void trackContainer::clearAllTracks()
 
 
 
-
-bool trackContainer::isEmpty() const
+bool TrackContainer::isEmpty() const
 {
-	for( trackList::const_iterator it = m_tracks.begin();
+	for( TrackList::const_iterator it = m_tracks.begin();
 						it != m_tracks.end(); ++it )
 	{
-		if( !( *it )->getTCOs().isEmpty() )
+		if( ( *it )->countSegments() > 0 )
 		{
 			return false;
 		}
@@ -221,22 +171,16 @@ bool trackContainer::isEmpty() const
 
 
 
-
-
 DummyTrackContainer::DummyTrackContainer() :
-	trackContainer(),
-	m_dummyInstrumentTrack( NULL )
+		TrackContainer(),
+		m_dummyInstrumentTrack( NULL )
 {
-	setJournalling( false );
 	m_dummyInstrumentTrack = dynamic_cast<InstrumentTrack *>(
-				track::create( track::InstrumentTrack,
-							this ) );
-	m_dummyInstrumentTrack->setJournalling( false );
+			Track::create( Track::InstrumentTrack,
+			this ) );
 }
 
 
-
-
-#include "moc_track_container.cxx"
+#include "moc_TrackContainer.cxx"
 
 /* vim: set tw=0 noexpandtab: */

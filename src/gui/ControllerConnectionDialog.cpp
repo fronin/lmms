@@ -39,7 +39,7 @@
 #include "combobox.h"
 #include "tab_widget.h"
 #include "group_box.h"
-#include "song.h"
+#include "Song.h"
 #include "tool_button.h"
 
 #include "gui_templates.h"
@@ -192,9 +192,9 @@ ControllerConnectionDialog::ControllerConnectionDialog( QWidget * _parent,
 	m_userController = new comboBox( m_userGroupBox, "Controller" );
 	m_userController->setGeometry( 10, 24, 200, 22 );
 
-	for( int i = 0; i < engine::getSong()->controllers().size(); ++i )
+	for( int i = 0; i < engine::song()->controllers().size(); ++i )
 	{
-		Controller * c = engine::getSong()->controllers().at( i );
+		Controller * c = engine::song()->controllers().at( i );
 		m_userController->model()->addItem( c->name() );
 	}
 	
@@ -246,7 +246,7 @@ ControllerConnectionDialog::ControllerConnectionDialog( QWidget * _parent,
 		cc = m_targetModel->getControllerConnection();
 
 		if( cc && cc->getController()->type() != 
-				Controller::DummyController && engine::getSong() )
+				Controller::DummyController && engine::song() )
 		{
 			if ( cc->getController()->type() == 
 					Controller::MidiController )
@@ -266,7 +266,7 @@ ControllerConnectionDialog::ControllerConnectionDialog( QWidget * _parent,
 			}
 			else
 			{
-				int idx = engine::getSong()->controllers().indexOf(
+				int idx = engine::song()->controllers().indexOf(
 						cc->getController() );
 
 				if( idx >= 0 )
@@ -309,7 +309,7 @@ void ControllerConnectionDialog::selectController()
 		{
 			MidiController * mc;
 			mc = m_midiController->copyToMidiController(
-					engine::getSong() );
+					engine::song() );
 	
 			/*
 			if( m_targetModel->getTrack() && 
@@ -332,9 +332,9 @@ void ControllerConnectionDialog::selectController()
 	else 
 	{
 		if( m_userGroupBox->model()->value() > 0 && 
-				engine::getSong()->controllers().size() )
+				engine::song()->controllers().size() )
 		{
-			m_controller = engine::getSong()->controllers().at( 
+			m_controller = engine::song()->controllers().at( 
 					m_userController->model()->value() );
 		}
 
@@ -364,7 +364,7 @@ void ControllerConnectionDialog::midiToggled()
 
 		if( !m_midiController )
 		{
-			m_midiController = new AutoDetectMidiController( engine::getSong() );
+			m_midiController = new AutoDetectMidiController( engine::song() );
 
 			MidiPort::Map map = m_midiController->m_midiPort.readablePorts();
 			for( MidiPort::Map::Iterator it = map.begin();

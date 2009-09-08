@@ -59,7 +59,7 @@
 #include "ImportFilter.h"
 #include "MainWindow.h"
 #include "ProjectRenderer.h"
-#include "song.h"
+#include "Song.h"
 #include "Cpu.h"
 
 // TODO Make a factory class for this (or hide it behind engine)
@@ -182,32 +182,33 @@ int main( int argc, char * * argv )
 			printf( "\nLinux MultiMedia Studio %s\n"
 	"Copyright (c) 2004-2008 LMMS developers.\n\n"
 	"usage: lmms [ -r <project file> ] [ options ]\n"
-	"			[ -u <in> <out> ]\n"
-	"			[ -d <in> ]\n"
-	"			[ -h ]\n"
-	"			[ <file to load> ]\n\n"
-	"-r, --render <project file>	render given project file\n"
-	"-o, --output <file>		render into <file>\n"
-	"-f, --output-format <format>	specify format of render-output where\n"
-	"				format is either 'wav', 'ogg', 'mp3', or 'flac'.\n"
-	"-s, --samplerate <samplerate>	specify output samplerate in Hz\n"
-	"				range: 44100 (default) to 192000\n"
-	"-b, --bitrate <bitrate>		specify output bitrate in kHz\n"
-	"				default: 160.\n"
-	"-i, --interpolation <method>	specify interpolation method\n"
-	"				possible values:\n"
-	"				   - linear\n"
-	"				   - sincfastest (default)\n"
-	"				   - sincmedium\n"
-	"				   - sincbest\n"
-	"-x, --oversampling <value>	specify oversampling\n"
-	"				possible values: 1, 2, 4, 8\n"
-	"				default: 2\n"
-	"-u, --upgrade <in> <out>	upgrade file <in> and save as <out>\n"
-	"-d, --dump <in>			dump XML of compressed file <in>\n"
-	"-v, --version			show version information and exit.\n"
-	"-h, --help			show this usage information and exit.\n\n",
-							LMMS_VERSION );
+	"            [ -u <in> <out> ]\n"
+	"            [ -d <in> ]\n"
+	"            [ -h ]\n"
+	"            [ <file to load> ]\n\n"
+	"-r, --render <project file>   render given project file\n"
+	"-o, --output <file>           render into <file>\n"
+	"-f, --output-format <format>  specify format of render-output where format\n"
+	"                              is either 'wav', 'ogg', 'mp3', or 'flac'.\n"
+	"-s, --samplerate <samplerate> specify output samplerate in Hz\n"
+	"                              range: 44100 (default) to 192000\n"
+	"-b, --bitrate <bitrate>       specify output bitrate in kBps\n"
+	"                              default: 160.\n"
+	"-i, --interpolation <method>  specify interpolation method\n"
+	"                              possible values:\n"
+	"                                 - linear\n"
+	"                                 - sincfastest (default)\n"
+	"                                 - sincmedium\n"
+	"                                 - sincbest\n"
+	"-x, --oversampling <value>    specify oversampling\n"
+	"                              possible values: 1, 2, 4, 8\n"
+	"                              default: 2\n"
+	"-u, --upgrade <in> <out>      upgrade file <in> and save as <out>\n"
+	"-D, --dev-mode                run in dev mode (no splash or welcome)\n"
+	"-d, --dump <in>               dump XML of compressed file <in>\n"
+	"-v, --version                 show version information and exit.\n"
+	"-h, --help                    show this usage information and exit.\n\n",
+					LMMS_VERSION );
 			return( EXIT_SUCCESS );
 		}
 		else if( argc > i+1 && ( QString( argv[i] ) == "--upgrade" ||
@@ -372,6 +373,12 @@ int main( int argc, char * * argv )
 				exit_after_import = true;
 			}
 		}
+		else if( argc > i &&
+				( QString( argv[i] ) == "--dev-mode" ||
+						QString( argv[i] ) == "-D" ) )
+		{
+			engine::setDevMode( true );
+		}
 		else
 		{
 			if( argv[i][0] == '-' )
@@ -463,7 +470,7 @@ int main( int argc, char * * argv )
 		ss->setAttribute( Qt::WA_PaintOnScreen, true );
 		ss->setMask( splash.alphaChannel().createMaskFromColor(
 							QColor( 0, 0, 0 ) ) );
-		if( !QProcess::systemEnvironment().contains( "NOSPLASH=1" ) )
+		if( !QProcess::systemEnvironment().contains( "NOSPLASH=1" ) && !engine::devMode() )
 		{
 			ss->show();
 		}
@@ -486,11 +493,13 @@ int main( int argc, char * * argv )
 			{
 				engine::mainWindow()->showMaximized();
 			}
-			engine::getSong()->loadProject( file_to_load );
+			engine::song()->loadProject( file_to_load );
 		}
 		else if( !file_to_import.isEmpty() )
 		{
-			ImportFilter::import( file_to_import, engine::getSong() );
+			/* TODO{TNG} Do Song Import
+			ImportFilter::import( file_to_import, engine::song() );
+			*/
 			if( exit_after_import )
 			{
 				return 0;
@@ -504,7 +513,7 @@ int main( int argc, char * * argv )
 		}
 		else
 		{
-			engine::getSong()->createNewProject();
+			engine::song()->createNewProject();
 
 			// [Settel] workaround: showMaximized() doesn't work with
 			// FVWM2 unless the window is already visible -> show() first
@@ -520,7 +529,7 @@ int main( int argc, char * * argv )
 		// we're going to render our song
 		engine::init( false );
 		printf( "loading project...\n" );
-		engine::getSong()->loadProject( file_to_load );
+		engine::song()->loadProject( file_to_load );
 		printf( "done\n" );
 
 		if( !render_out.isEmpty() )
@@ -543,7 +552,7 @@ int main( int argc, char * * argv )
 		}
 		else
 		{
-			engine::getSong()->saveProjectAs( file_to_save );
+			engine::song()->saveProjectAs( file_to_save );
 			return( 0 );
 		}
 	}

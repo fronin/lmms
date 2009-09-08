@@ -1,8 +1,8 @@
 /*
- * track_container.h - base-class for all track-containers like Song-Editor,
- *                     BB-Editor...
+ * TrackContainer.h - base-class for all track-containers like Song, BB
  *
- * Copyright (c) 2004-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009 Paul Giblock <pgib/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -24,50 +24,41 @@
  */
 
 
-#ifndef _TRACK_CONTAINER_H
-#define _TRACK_CONTAINER_H
+#ifndef _TRACK_CONTAINER_TNG_H
+#define _TRACK_CONTAINER_TNG_H
 
 #include <QReadWriteLock>
 
-#include "track.h"
-#include "JournallingObject.h"
+#include "Track.h"
+#include "SerializingObject.h"
 
 
-class automationPattern;
-class InstrumentTrack;
-class trackContainerView;
+class InstrumentTrack;	// For DummyTrackContainer
 
 
-class EXPORT trackContainer : public Model, public JournallingObject
+class EXPORT TrackContainer : public Model, public SerializingObject
 {
 	Q_OBJECT
 public:
-	typedef QVector<track *> trackList;
+	typedef QVector<Track *> TrackList;
 
-	trackContainer();
-	virtual ~trackContainer();
+	TrackContainer();
+	virtual ~TrackContainer();
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 
 	virtual void loadSettings( const QDomElement & _this );
 
+	int countTracks( Track::TrackTypes _tt = Track::NumTrackTypes ) const;
 
-	virtual automationPattern * tempoAutomationPattern()
-	{
-		return NULL;
-	}
+	void addTrack( Track * _track );
+	void removeTrack( Track * _track );
 
-	int countTracks( track::TrackTypes _tt = track::NumTrackTypes ) const;
-
-
-	void addTrack( track * _track );
-	void removeTrack( track * _track );
-
-	virtual void updateAfterTrackAdd();
+	//virtual void updateAfterTrackAdd();
 
 	void clearAllTracks();
 
-	const trackList & tracks() const
+	const TrackList & tracks() const
 	{
 		return m_tracks;
 	}
@@ -76,28 +67,26 @@ public:
 
 	static const QString classNodeName()
 	{
-		return "trackcontainer";
+		return "trackContainer";
 	}
 
 
 signals:
-	void trackAdded( track * _track );
-	void trackRemoved( track * _track );
+	void trackAdded( Track * _track );
+	void trackRemoved( Track * _track );
 
 protected:
 	mutable QReadWriteLock m_tracksMutex;
 
 private:
-	trackList m_tracks;
+	TrackList m_tracks;
+
+};
 
 
-	friend class trackContainerView;
-	friend class track;
-
-} ;
 
 
-class DummyTrackContainer : public trackContainer
+class DummyTrackContainer : public TrackContainer
 {
 public:
 	DummyTrackContainer();
@@ -119,7 +108,6 @@ public:
 
 private:
 	InstrumentTrack * m_dummyInstrumentTrack;
-
 } ;
 
 

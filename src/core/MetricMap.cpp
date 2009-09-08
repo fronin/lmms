@@ -183,22 +183,100 @@ void MetricMap::recalculate( Calculation _from )
 
 
 
-f_cnt_t MetricMap::toNearestBar( f_cnt_t _frame )
+f_cnt_t MetricMap::toNearestBar( f_cnt_t _frame, Rounding _round )
 {
 	QReadLocker locker( &m_lock );
 
-	// Binary search instead?
-	//m_segments.
-}
-f_cnt_t MetricMap::toNearestBeat( f_cnt_t _frame )
-{
-	QReadLocker locker( &m_lock );
-}
-f_cnt_t MetricMap::toNearestTick( f_cnt_t _frame )
-{
-	QReadLocker locker( &m_lock );
+	// TODO: Group these?
+	f_cnt_t foundFrame;
+	MidiTime foundTime;
+	Tempo foundTempo = defaultTempo();
+	Meter foundMeter = defaultMeter();
+
+	TempoSegment * tempoSeg;
+	MeterSegment * meterSeg;
+
+	// Step 1: Find segment of frame, and relevant metrics
+	for( QVector<MetricSegment *>::const_iterator i = m_segments.begin();
+			i != m_segments.end() && (*i)->frame() > _frame; ++i )
+	{
+		if( (tempoSeg = reinterpret_cast<TempoSegment *>(*i)) != NULL )
+		{
+			foundTempo = tempoSeg->tempo();
+		}
+		else if( (meterSeg = reinterpret_cast<MeterSegment *>(*i)) != NULL )
+		{
+			foundMeter = meterSeg->meter();
+		}
+		foundFrame = (*i)->frame();
+		foundTime = (*i)->time();
+	}
+
+	// Step 2: Extrapolate and find where we are
+	f_cnt_t deltaFrames = _frame - foundFrame;
+
+	float beatsPerBar = foundMeter.beatsPerBar();
+	double framesPerBeat = foundTempo.framesPerBeat( foundMeter, m_sampleRate );
+	double framesPerBar = framesPerBeat * beatsPerBar;
+
+	// Get total number of beats
+	int numBeats = deltaFrames / framesPerBeat;
+
+	// Calculate extra ticks
+	f_cnt_t extraFrames = numBeats * framesPerBeat;
+	deltaFrames -= extraFrames;
+	int numTicks = deltaFrames * TicksPerBeat / framesPerBeat;
+
+	// Now fold it all in (Break into MidiTime.add function?
+	numBeats += foundTime.beat();
+	int numBars = numBeats / beatsPerBar;
+	f_cnt_t frameAtBar = foundFrame + (numBars * framesPerBar);
+	numBeats -= numBars * beatsPerBar;
+	//numBars += foundTime.bar();
+
+	// Now we are at the floor'd Bar:Beat:Tick and have:
+	//     numBars, numBeats, numTicks, foundTempo, and foundTime
+
+	// Step 3: Round
+	if( _round == Floor )
+	{
+		// Nothing, we are already there
+	}
+	else if( _round == Ceiling )
+	{
+		if( numBeats > 0 ) {
+			//++numBars;
+			frameAtBar += framesPerBar;
+		}
+	}
+	else // Nearest
+	{
+		if( numBeats > foundMeter.beatsPerBar() / 2 ) {
+			//++numBars;
+			frameAtBar += framesPerBar;
+		}
+	}
+	//numBeats = 0;
+	//numTicks = 0;
+
+	return frameAtBar;
 }
 
+
+
+f_cnt_t MetricMap::toNearestBeat( f_cnt_t _frame, Rounding _round )
+{
+	QReadLocker locker( &m_lock );
+	return 0;
+}
+
+
+
+f_cnt_t MetricMap::toNearestTick( f_cnt_t _frame, Rounding _round )
+{
+	QReadLocker locker( &m_lock );
+	return 0;
+}
 
 
 

@@ -26,12 +26,12 @@
 #include "gui/tracks/track_content_object_item.h"
 #include "gui/tracks/track_container_scene.h"
 #include "gui/tracks/track_item.h"
-#include "track.h"
+#include "Track.h"
 
 
-TrackContentObjectItem::TrackContentObjectItem(
+TrackSegmentItem::TrackSegmentItem(
 		TrackItem * _track,
-		trackContentObject * _object ) :
+		TrackSegment * _object ) :
 	QObject(),
 	QGraphicsItem(),
 	m_trackItem( _track ),
@@ -60,7 +60,7 @@ TrackContentObjectItem::TrackContentObjectItem(
 
 
 
-void TrackContentObjectItem::updateLength()
+void TrackSegmentItem::updateLength()
 {
 	// TODO: only change if different?
 	prepareGeometryChange();
@@ -69,7 +69,7 @@ void TrackContentObjectItem::updateLength()
 
 
 
-void TrackContentObjectItem::updatePosition()
+void TrackSegmentItem::updatePosition()
 {
 	midiTime startPos = m_tco->startPosition();
 	float x = TrackContainerScene::DEFAULT_CELL_WIDTH *
@@ -80,7 +80,7 @@ void TrackContentObjectItem::updatePosition()
 
 
 
-QRectF TrackContentObjectItem::boundingRect() const
+QRectF TrackSegmentItem::boundingRect() const
 {
 	qreal penWidth = 1;
 	// Must not call tco->length directly since boundingRect must
@@ -96,21 +96,21 @@ QRectF TrackContentObjectItem::boundingRect() const
 
 
 
-qreal TrackContentObjectItem::zValue() const
+qreal TrackSegmentItem::zValue() const
 {
 	return QGraphicsItem::zValue();
 }
 
 
 
-void TrackContentObjectItem::updateGeometry()
+void TrackSegmentItem::updateGeometry()
 {
 	prepareGeometryChange();
 }
 
 
 
-void TrackContentObjectItem::paint( QPainter * _painter,
+void TrackSegmentItem::paint( QPainter * _painter,
 		const QStyleOptionGraphicsItem * _option, QWidget * _widget )
 {
 }
@@ -129,7 +129,7 @@ float easeInOutQuart(float t, float b, float c, float d)
 } 
 
 
-QVariant TrackContentObjectItem::itemChange( GraphicsItemChange _change,
+QVariant TrackSegmentItem::itemChange( GraphicsItemChange _change,
                                              const QVariant & _value )
 {
 	if( _change == ItemPositionChange && scene( ) )
@@ -196,7 +196,7 @@ QVariant TrackContentObjectItem::itemChange( GraphicsItemChange _change,
 
 
 
-void TrackContentObjectItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
+void TrackSegmentItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
 {
 	QGraphicsItem::mousePressEvent( event );
 
@@ -208,7 +208,7 @@ void TrackContentObjectItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
 
 
 
-void TrackContentObjectItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
+void TrackSegmentItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
 {
 	QGraphicsItem::mouseReleaseEvent( event );
 
@@ -237,8 +237,8 @@ void TrackContentObjectItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event
 				it != selItems.end(); ++it )
 		{
 			
-			TrackContentObjectItem * tcoItem =
-				dynamic_cast<TrackContentObjectItem*>( *it );
+			TrackSegmentItem * tcoItem =
+				dynamic_cast<TrackSegmentItem*>( *it );
 			if( tcoItem->x() < earliestX )
 			{
 				earliestX = qMin( earliestX, tcoItem->x() );
@@ -252,8 +252,8 @@ void TrackContentObjectItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event
 		for( QList<QGraphicsItem *>::iterator it = selItems.begin();
 				it != selItems.end(); ++it ) {
 			
-			trackContentObject * tco =
-				dynamic_cast<TrackContentObjectItem*>( *it )->m_tco;
+			TrackSegment * tco =
+				dynamic_cast<TrackSegmentItem*>( *it )->m_tco;
 				
 			tco->movePosition( tco->startPosition() + dt );
 		}
@@ -287,7 +287,7 @@ void TrackContentObjectItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event
  
 
 
-void TrackContentObjectItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
+void TrackSegmentItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
 {
 	m_hover = true;
 	QGraphicsItem::hoverEnterEvent( event );
@@ -296,7 +296,7 @@ void TrackContentObjectItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
 
 
 
-void TrackContentObjectItem::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
+void TrackSegmentItem::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
 {
 	QGraphicsItem::hoverLeaveEvent( event );
 	m_hover = false;
@@ -306,14 +306,14 @@ void TrackContentObjectItem::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
 
 
 
-void TrackContentObjectItem::prepareSnapBackAnimation( QTimeLine * timeLine )
+void TrackSegmentItem::prepareSnapBackAnimation( QTimeLine * timeLine )
 {
 	prepareSnapBackAnimation( timeLine, x() );
 }
 
 
 
-void TrackContentObjectItem::prepareSnapBackAnimation( QTimeLine * timeLine, int newX )
+void TrackSegmentItem::prepareSnapBackAnimation( QTimeLine * timeLine, int newX )
 {
 	const qreal cellWidth = TrackContainerScene::DEFAULT_CELL_WIDTH;
 	const qreal xVal = newX + TrackContainerScene::DEFAULT_CELL_WIDTH * 0.5f;

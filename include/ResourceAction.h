@@ -26,7 +26,7 @@
 #define _RESOURCE_ACTION_H
 
 class InstrumentTrack;
-class trackContainer;
+class TrackContainer;
 class ResourceItem;
 
 
@@ -58,7 +58,7 @@ public:
 	bool loadProject();
 	bool loadByPlugin( InstrumentTrack * _target );
 	bool loadPreset( InstrumentTrack * _target );
-	bool importProject( trackContainer * _target );
+	bool importProject( TrackContainer * _target );
 
 
 private:

@@ -33,22 +33,23 @@
 #include "mixer.h"
 #include "sample_buffer.h"
 
-class bbTrack;
-class pattern;
-class sampleTCO;
-class track;
+class BbTrack;
+class Pattern;
+class SampleSegment;
+class Track;
+
 
 
 class sampleRecordHandle : public playHandle
 {
 public:
-	sampleRecordHandle( sampleTCO * _tco );
+	sampleRecordHandle( SampleSegment * _tco );
 	virtual ~sampleRecordHandle();
 
 	virtual void play( sampleFrame * _working_buffer );
 	virtual bool done() const;
 
-	virtual bool isFromTrack( const track * _track ) const;
+	virtual bool isFromTrack( const Track * _track ) const;
 
 	f_cnt_t framesRecorded() const;
 	void createSampleBuffer( sampleBuffer * * _sample_buf );
@@ -63,9 +64,10 @@ private:
 	f_cnt_t m_framesRecorded;
 	midiTime m_minLength;
 
-	track * m_track;
-	bbTrack * m_bbTrack;
-	sampleTCO * m_tco;
+	// TODO{TNG}: These links back to track sound like a bad idea perhaps
+	Track * m_track;
+	BbTrack * m_bbTrack;
+	SampleSegment * m_tco;
 
 } ;
 

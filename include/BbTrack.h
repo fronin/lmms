@@ -1,8 +1,9 @@
 /*
- * bb_track.h - class bbTrack, a wrapper for using bbEditor
+ * BbTrack.h - class BbTrack, a wrapper for using bbEditor
  *              (which is a singleton-class) as track
  *
  * Copyright (c) 2004-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009 Paul Giblock <pgib/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -24,29 +25,29 @@
  */
 
 
-#ifndef _BB_TRACK_H
-#define _BB_TRACK_H
+#ifndef _BB_TRACK_TNG_H
+#define _BB_TRACK_TNG_H
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 
-#include "track.h"
+#include "Track.h"
 
 class trackLabelButton;
-class trackContainer;
+class TrackContainer;
 
 
-class bbTCO : public trackContentObject
+class BbSegment : public TrackSegment
 {
 public:
-	bbTCO( track * _track, unsigned int _color = 0 );
-	virtual ~bbTCO();
+	BbSegment( Track * _track, unsigned int _color = 0 );
+	virtual ~BbSegment();
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 	inline virtual QString nodeName() const
 	{
-		return( "bbtco" );
+		return( "bbSegment" );
 	}
 
 	inline unsigned int color() const
@@ -54,85 +55,45 @@ public:
 		return( m_color );
 	}
 
-	virtual trackContentObjectView * createView( trackView * _tv );
-
 
 private:
 	unsigned int m_color;
 
-
-	friend class bbTCOView;
-
-} ;
-
-
-
-class bbTCOView : public trackContentObjectView
-{
-	Q_OBJECT
-public:
-	bbTCOView( trackContentObject * _tco, trackView * _tv );
-	virtual ~bbTCOView();
-
-	QColor color() const
-	{
-		return( m_bbTCO->m_color );
-	}
-	void setColor( QColor _new_color );
-
-
-protected slots:
-	void openInBBEditor();
-	void resetName();
-	void changeName();
-	void changeColor();
-
-
-protected:
-	void paintEvent( QPaintEvent * );
-	void mouseDoubleClickEvent( QMouseEvent * _me );
-	virtual void constructContextMenu( QMenu * );
-
-
-private:
-	bbTCO * m_bbTCO;
-
 } ;
 
 
 
 
-class EXPORT bbTrack : public track
+class EXPORT BbTrack : public Track
 {
 	Q_OBJECT
 public:
-	bbTrack( trackContainer * _tc );
-	virtual ~bbTrack();
+	BbTrack( TrackContainer * _tc );
+	virtual ~BbTrack();
 
 	virtual bool play( const midiTime & _start,
 					const fpp_t _frames,
 					const f_cnt_t _frame_base,
 							Sint16 _tco_num = -1 );
-	virtual trackView * createView( trackContainerView * _tcv );
-	virtual trackContentObject * createTCO( const midiTime & _pos );
+	virtual TrackSegment * createSegment( const midiTime & _pos );
 
 	virtual void saveTrackSpecificSettings( QDomDocument & _doc,
 							QDomElement & _parent );
 	virtual void loadTrackSpecificSettings( const QDomElement & _this );
 
-	static bbTrack * findBBTrack( int _bb_num );
-	static int numOfBBTrack( track * _track );
-	static void swapBBTracks( track * _track1, track * _track2 );
+	static BbTrack * findBBTrack( int _bb_num );
+	static int numOfBBTrack( Track * _track );
+	static void swapBBTracks( Track * _track1, Track * _track2 );
 
-	bool automationDisabled( track * _track )
+	bool automationDisabled( Track * _track )
 	{
 		return( m_disabledTracks.contains( _track ) );
 	}
-	void disableAutomation( track * _track )
+	void disableAutomation( Track * _track )
 	{
 		m_disabledTracks.append( _track );
 	}
-	void enableAutomation( track * _track )
+	void enableAutomation( Track * _track )
 	{
 		m_disabledTracks.removeAll( _track );
 	}
@@ -141,48 +102,20 @@ public:
 protected:
 	inline virtual QString nodeName() const
 	{
-		return( "bbtrack" );
+		return( "bbTrack" );
 	}
 
 
 private:
-	QList<track *> m_disabledTracks;
+	QList<Track *> m_disabledTracks;
 
-	typedef QMap<bbTrack *, int> infoMap;
+	typedef QMap<BbTrack *, int> infoMap;
 	static infoMap s_infoMap;
 
 
 	friend class bbTrackView;
 
 } ;
-
-
-
-class bbTrackView : public trackView
-{
-	Q_OBJECT
-public:
-	bbTrackView( bbTrack * _bbt, trackContainerView * _tcv );
-	virtual ~bbTrackView();
-
-	virtual bool close();
-
-	const bbTrack * getBBTrack() const
-	{
-		return( m_bbTrack );
-	}
-
-
-public slots:
-	void clickedTrackLabel();
-
-
-private:
-	bbTrack * m_bbTrack;
-	trackLabelButton * m_trackLabel;
-
-} ;
-
 
 
 #endif

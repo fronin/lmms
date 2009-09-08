@@ -27,7 +27,7 @@
 #include <QTimer>
 
 #include "ProjectRenderer.h"
-#include "song.h"
+#include "Song.h"
 #include "engine.h"
 
 #include "AudioFileWave.h"
@@ -173,15 +173,16 @@ void ProjectRenderer::run()
 #endif
 #endif
 
-	engine::getSong()->startExport();
+	/* TODO{TNG}: Migrate export
+	engine::song()->startExport();
 
-	song::playPos & pp = engine::getSong()->getPlayPos(
+	song::playPos & pp = engine::song()->getPlayPos(
 							song::Mode_PlaySong );
 	m_progress = 0;
-	const int sl = ( engine::getSong()->length() + 1 ) * 192;
+	const int sl = ( engine::song()->length() + 1 ) * 192;
 
-	while( engine::getSong()->isExportDone() == false &&
-				engine::getSong()->isExporting() == true
+	while( engine::song()->isExportDone() == false &&
+				engine::song()->isExporting() == true
 							&& !m_abort )
 	{
 		m_fileDev->processNextBuffer();
@@ -193,7 +194,7 @@ void ProjectRenderer::run()
 		}
 	}
 
-	engine::getSong()->stopExport();
+	engine::song()->stopExport();
 
 	const QString f = m_fileDev->outputFile();
 
@@ -205,6 +206,7 @@ void ProjectRenderer::run()
 	{
 		QFile( f ).remove();
 	}
+	*/
 }
 
 

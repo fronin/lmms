@@ -43,8 +43,7 @@
 #include "engine.h"
 #include "gui_templates.h"
 #include "MainWindow.h"
-#include "ProjectJournal.h"
-#include "song.h"
+#include "Song.h"
 #include "string_pair_drag.h"
 #include "templates.h"
 #include "text_float.h"
@@ -425,6 +424,8 @@ void knob::dropEvent( QDropEvent * _de )
 	}
 	else if( type == "automatable_model" )
 	{
+		/* TODO{TNG} JOID is no longer avail.  should probably use the
+		   SO->getPath() code Toby and I discussed.
 		AutomatableModel * mod = dynamic_cast<AutomatableModel *>(
 				engine::projectJournal()->
 					journallingObject( val.toInt() ) );
@@ -433,6 +434,7 @@ void knob::dropEvent( QDropEvent * _de )
 			AutomatableModel::linkModels( model(), mod );
 			mod->setValue( model()->value() );
 		}
+		*/
 	}
 }
 

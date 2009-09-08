@@ -27,7 +27,6 @@
 #include <QtGui/QMouseEvent>
 
 #include "AutomatableModelView.h"
-#include "automation_pattern.h"
 #include "ControllerConnectionDialog.h"
 #include "ControllerConnection.h"
 #include "embed.h"
@@ -252,8 +251,10 @@ void AutomatableModelViewSlots::removeConnection()
 
 void AutomatableModelViewSlots::editSongGlobalAutomation()
 {
-	automationPattern::globalAutomationPattern( amv->modelUntyped() )->
+	/* TODO{TNG} Bring back automation.. possibly remove SongGlobal?
+	AutomationPattern::globalAutomationPattern( amv->modelUntyped() )->
 						openInAutomationEditor();
+	*/
 }
 
 

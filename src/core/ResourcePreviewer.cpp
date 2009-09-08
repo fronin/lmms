@@ -33,7 +33,6 @@
 #include "Instrument.h"
 #include "InstrumentTrack.h"
 #include "mmp.h"
-#include "ProjectJournal.h"
 
 
 ResourcePreviewer::ResourcePreviewer() :
@@ -43,9 +42,8 @@ ResourcePreviewer::ResourcePreviewer() :
 {
 	// do not clutter global journal with items due to changing settings
 	// in preview classes
-	m_previewTrackContainer.setJournalling( false );
 	m_previewTrack = dynamic_cast<InstrumentTrack *>(
-				track::create( track::InstrumentTrack,
+				Track::create( Track::InstrumentTrack,
 						&m_previewTrackContainer ) );
 
 	// save default settings so we can restore them later
@@ -54,7 +52,6 @@ ResourcePreviewer::ResourcePreviewer() :
 
 	// make sure a default instrument is loaded
 	m_previewTrack->loadInstrument( "tripleoscillator" );
-	m_previewTrack->setJournalling( false );
 }
 
 
@@ -73,9 +70,6 @@ void ResourcePreviewer::preview( ResourceItem * _item )
 	// stop any existing preview sounds
 	stopPreview();
 
-	// disable journalling of changes in our preview track
-	const bool j = engine::projectJournal()->isJournalling();
-	engine::projectJournal()->setJournalling( false );
 	engine::setSuppressMessages( true );
 
 	// handle individual resource types
@@ -108,7 +102,6 @@ void ResourcePreviewer::preview( ResourceItem * _item )
 
 	// re-enable journalling
 	engine::setSuppressMessages( false );
-	engine::projectJournal()->setJournalling( j );
 
 	if( handledItem )
 	{

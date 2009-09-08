@@ -28,7 +28,7 @@
 
 #include "TempoSyncKnobModel.h"
 #include "engine.h"
-#include "song.h"
+#include "Song.h"
 
 
 TempoSyncKnobModel::TempoSyncKnobModel( const float _val, const float _min,
@@ -41,7 +41,7 @@ TempoSyncKnobModel::TempoSyncKnobModel( const float _val, const float _min,
 	m_scale( _scale ),
 	m_custom( _parent )
 {
-	connect( engine::getSong(), SIGNAL( tempoChanged( bpm_t ) ),
+	connect( engine::song(), SIGNAL( tempoChanged( bpm_t ) ),
 			this, SLOT( calculateTempoSyncTime( bpm_t ) ) );
 }
 
@@ -66,7 +66,7 @@ void TempoSyncKnobModel::setTempoSync( QAction * _item )
 void TempoSyncKnobModel::setTempoSync( int _note_type )
 {
 	setSyncMode( ( TempoSyncMode ) _note_type );
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -157,7 +157,9 @@ void TempoSyncKnobModel::setSyncMode( TempoSyncMode _new_mode )
 					this, SLOT( updateCustom() ) );
 		}
 	}
-	calculateTempoSyncTime( engine::getSong()->getTempo() );
+	/* TODO{TNG} Use MetricMap
+	calculateTempoSyncTime( engine::song()->getTempo() );
+	*/
 }
 
 
@@ -166,7 +168,9 @@ void TempoSyncKnobModel::setSyncMode( TempoSyncMode _new_mode )
 void TempoSyncKnobModel::setScale( float _new_scale )
 {
 	m_scale = _new_scale;
-	calculateTempoSyncTime( engine::getSong()->getTempo() );
+	/* TODO{TNG} Use MetricMap
+	calculateTempoSyncTime( engine::song()->getTempo() );
+	*/
 	emit scaleChanged( _new_scale );
 }
 

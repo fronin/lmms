@@ -1,5 +1,5 @@
 /*
- * pattern.h - declaration of class pattern, which contains all informations
+ * Pattern.h - declaration of class pattern, which contains all informations
  *             about a pattern
  *
  * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef _PATTERN_H
-#define _PATTERN_H
+#ifndef _PATTERN_TNG_H
+#define _PATTERN_TNG_H
 
 #include <QtCore/QVector>
 #include <QtGui/QWidget>
@@ -34,7 +34,7 @@
 
 
 #include "note.h"
-#include "track.h"
+#include "Track.h"
 
 
 class QAction;
@@ -42,12 +42,12 @@ class QProgressBar;
 class QPushButton;
 
 class InstrumentTrack;
-class patternFreezeThread;
+class PatternFreezeThread;
 class sampleBuffer;
 
 
 
-class EXPORT pattern : public trackContentObject
+class EXPORT Pattern : public TrackSegment
 {
 	Q_OBJECT
 public:
@@ -57,9 +57,9 @@ public:
 		MelodyPattern
 	} ;
 
-	pattern( InstrumentTrack * _instrument_track );
-	pattern( const pattern & _pat_to_copy );
-	virtual ~pattern();
+	Pattern( InstrumentTrack * _instrumentTrack );
+	Pattern( const Pattern & _patToCopy );
+	virtual ~Pattern();
 
 	void init();
 
@@ -128,9 +128,6 @@ public:
 	void addSteps( int _n );
 	void removeSteps( int _n );
 
-	virtual trackContentObjectView * createView( trackView * _tv );
-
-
 	using Model::dataChanged;
 
 
@@ -161,75 +158,19 @@ private:
 	bool m_freezing;
 	volatile bool m_freezeAborted;
 
-
-	friend class patternView;
-	friend class patternFreezeThread;
-
-} ;
-
-
-
-class patternView : public trackContentObjectView
-{
-	Q_OBJECT
-public:
-	patternView( pattern * _pattern, trackView * _parent );
-	virtual ~patternView();
-
-
-public slots:
-	virtual void update();
-
-
-protected slots:
-	void openInPianoRoll();
-
-	void resetName();
-	void changeName();
-
-	void addSteps( QAction * _item );
-	void removeSteps( QAction * _item );
-
-
-protected:
-	virtual void constructContextMenu( QMenu * );
-	virtual void mouseDoubleClickEvent( QMouseEvent * _me );
-	virtual void mousePressEvent( QMouseEvent * _me );
-	virtual void paintEvent( QPaintEvent * _pe );
-	virtual void resizeEvent( QResizeEvent * _re )
-	{
-		m_needsUpdate = true;
-		trackContentObjectView::resizeEvent( _re );
-	}
-	virtual void wheelEvent( QWheelEvent * _we );
-
-
-private:
-	static QPixmap * s_stepBtnOn;
-	static QPixmap * s_stepBtnOverlay;
-	static QPixmap * s_stepBtnOff;
-	static QPixmap * s_stepBtnOffLight;
-	static QPixmap * s_frozen;
-
-	pattern * m_pat;
-	QPixmap m_paintPixmap;
-	bool m_needsUpdate;
+	friend class PatternFreezeThread;
 
 } ;
 
 
 
 
-// TODO: move to own header-files
-//
-
-
-class patternFreezeStatusDialog : public QDialog
+class PatternFreezeStatusDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	patternFreezeStatusDialog( QThread * _thread );
-	virtual ~patternFreezeStatusDialog();
+	PatternFreezeStatusDialog( QThread * _thread );
+	virtual ~PatternFreezeStatusDialog();
 
 	void setProgress( int _p );
 
@@ -260,12 +201,11 @@ signals:
 
 
 
-
-class patternFreezeThread : public QThread
+class PatternFreezeThread : public QThread
 {
 public:
-	patternFreezeThread( pattern * _pattern );
-	virtual ~patternFreezeThread();
+	PatternFreezeThread( Pattern * _pattern );
+	virtual ~PatternFreezeThread();
 
 
 protected:
@@ -273,8 +213,8 @@ protected:
 
 
 private:
-	pattern * m_pattern;
-	patternFreezeStatusDialog * m_statusDlg;
+	Pattern * m_pattern;
+	PatternFreezeStatusDialog * m_statusDlg;
 
 } ;
 

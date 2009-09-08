@@ -29,12 +29,12 @@
 
 #include <QtCore/QVector>
 
-#include "track_container.h"
+#include "TrackContainer.h"
 #include "AutomatableModel.h"
 #include "Controller.h"
 
-class automationTrack;
-class pattern;
+class AutomationTrack;
+class Pattern;
 class Song;
 class timeLine;
 
@@ -184,9 +184,9 @@ public slots:
 	void record( void );
 	void playAndRecord( Song * _song );
 	void stop( void );
-	void playTrack( track * _trackToPlay );
+	void playTrack( Track * _trackToPlay );
 	void playBB( void );
-	void playPattern( pattern * _patternToPlay, bool _loop = true );
+	void playPattern( Pattern * _patternToPlay, bool _loop = true );
 	void pause( void );
 	void resumeFromPause( void );
 
@@ -256,8 +256,8 @@ private:
 	PlayModes m_playMode;
 	playPos m_playPos[Mode_Count];
 
-	track * m_trackToPlay;
-	pattern * m_patternToPlay;
+	Track * m_trackToPlay;
+	Pattern * m_patternToPlay;
 	Song * m_song;
 	bool m_loopPattern;
 

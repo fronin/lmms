@@ -30,10 +30,10 @@
 #include "sample_buffer.h"
 #include "AutomatableModel.h"
 
-class bbTrack;
-class pattern;
-class sampleTCO;
-class track;
+class BbTrack;
+class Pattern;
+class SampleSegment;
+class Track;
 class AudioPort;
 
 
@@ -42,8 +42,8 @@ class samplePlayHandle : public playHandle
 public:
 	samplePlayHandle( const QString & _sample_file );
 	samplePlayHandle( sampleBuffer * _sample_buffer );
-	samplePlayHandle( sampleTCO * _tco );
-	samplePlayHandle( pattern * _pattern );
+	samplePlayHandle( SampleSegment * _tco );
+	samplePlayHandle( Pattern * _pattern );
 	virtual ~samplePlayHandle();
 
 	virtual inline bool affinityMatters() const
@@ -55,7 +55,7 @@ public:
 	virtual void play( sampleFrame * _working_buffer );
 	virtual bool done() const;
 
-	virtual bool isFromTrack( const track * _track ) const;
+	virtual bool isFromTrack( const Track * _track ) const;
 
 	f_cnt_t totalFrames() const;
 	inline f_cnt_t framesDone() const
@@ -67,7 +67,7 @@ public:
 		m_doneMayReturnTrue = _enable;
 	}
 
-	void setBBTrack( bbTrack * _bb_track )
+	void setBBTrack( BbTrack * _bb_track )
 	{
 		m_bbTrack = _bb_track;
 	}
@@ -90,9 +90,9 @@ private:
 
 	FloatModel m_defaultVolumeModel;
 	FloatModel * m_volumeModel;
-	track * m_track;
+	Track * m_track;
 
-	bbTrack * m_bbTrack;
+	BbTrack * m_bbTrack;
 
 } ;
 

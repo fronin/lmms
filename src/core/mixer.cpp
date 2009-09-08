@@ -27,7 +27,7 @@
 #include "mixer.h"
 #include "FxMixer.h"
 #include "play_handle.h"
-#include "song.h"
+#include "Song.h"
 #include "templates.h"
 #include "EnvelopeAndLfoParameters.h"
 #include "note_play_handle.h"
@@ -36,7 +36,6 @@
 #include "engine.h"
 #include "config_mgr.h"
 #include "sample_play_handle.h"
-#include "piano_roll.h"
 #include "Cpu.h"
 #include "MicroTimer.h"
 
@@ -481,7 +480,8 @@ sample_rate_t mixer::processingSampleRate() const
 
 bool mixer::criticalXRuns() const
 {
-	return m_cpuLoad >= 99 && engine::getSong()->realTimeTask() == true;
+	/* TODO{TNG} What to do for realtime task?? */
+	return m_cpuLoad >= 99 /* && engine::song()->realTimeTask() == true */;
 }
 
 
@@ -519,13 +519,14 @@ void mixer::pushInputFrames( sampleFrame * _ab, const f_cnt_t _frames )
 
 sampleFrameA * mixer::renderNextBuffer()
 {
+	/* TODO{TNG} Reimplement rendering
 	MicroTimer timer;
 	static song::playPos last_metro_pos = -1;
 
 	// TODO: PRG: Replace with tempo-map lookup.
-	song::playPos p = engine::getSong()->getPlayPos(
+	song::playPos p = engine::song()->getPlayPos(
 						song::Mode_PlayPattern );
-	if( engine::getSong()->playMode() == song::Mode_PlayPattern &&
+	if( engine::song()->playMode() == song::Mode_PlayPattern &&
 		engine::getPianoRoll()->isRecording() == true &&
 		p != last_metro_pos && p.getTicks() %
 					(DefaultTicksPerTact / 4 ) == 0 )
@@ -579,7 +580,7 @@ sampleFrameA * mixer::renderNextBuffer()
 	engine::fxMixer()->prepareMasterMix();
 
 	// create play-handles for new notes, samples etc.
-	engine::getSong()->processNextBuffer();
+	engine::song()->processNextBuffer();
 
 
 	// STAGE 1: run and render all play handles
@@ -641,7 +642,7 @@ sampleFrameA * mixer::renderNextBuffer()
 				processingSampleRate() / m_framesPerPeriod;
 	m_cpuLoad = tLimit( (int) ( new_cpu_load * 0.1f + m_cpuLoad * 0.9f ), 0,
 									100 );
-
+	*/
 	return m_readBuf;
 }
 
@@ -909,7 +910,7 @@ void mixer::removePlayHandle( playHandle * _ph )
 
 
 
-void mixer::removePlayHandles( track * _track, playHandle::Type _type )
+void mixer::removePlayHandles( Track * _track, playHandle::Type _type )
 {
 	lock();
 	PlayHandleList::Iterator it = m_playHandles.begin();

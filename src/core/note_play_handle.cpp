@@ -26,17 +26,20 @@
 #include "note_play_handle.h"
 #include "basic_filters.h"
 #include "config_mgr.h"
-#include "detuning_helper.h"
 #include "InstrumentSoundShaping.h"
 #include "InstrumentTrack.h"
 #include "MidiPort.h"
-#include "song.h"
+#include "Song.h"
+
+class detuningHelper;
 
 
 inline notePlayHandle::baseDetuning::baseDetuning(
 						detuningHelper * _detuning ) :
-	m_detuning( _detuning ),
+	m_detuning( _detuning )
+	/* TODO:TNG Detuning automation
 	m_value( m_detuning->getAutomationPattern()->valueAt( 0 ) )
+	*/
 {
 }
 
@@ -70,7 +73,8 @@ notePlayHandle::notePlayHandle( InstrumentTrack * _it,
 #ifdef LMMS_SINGERBOT_SUPPORT
 	m_patternIndex( 0 ),
 #endif
-	m_origTempo( engine::getSong()->getTempo() )
+	/* TODO{TNG}: Pass in a parameter instead */
+	m_origTempo( /*engine::song()->getTempo()*/ 120 )
 {
 	if( m_baseNote )
 	{
@@ -297,7 +301,7 @@ f_cnt_t notePlayHandle::framesLeft() const
 
 
 
-bool notePlayHandle::isFromTrack( const track * _track ) const
+bool notePlayHandle::isFromTrack( const Track * _track ) const
 {
 	return m_instrumentTrack == _track || m_bbTrack == _track;
 }
@@ -468,7 +472,7 @@ void notePlayHandle::updateFrequency()
 {
 	const float pitch =
 		( key() - m_instrumentTrack->baseNoteModel()->value() +
-				engine::getSong()->masterPitch() ) / 12.0f;
+				engine::song()->masterPitch() ) / 12.0f;
 	m_frequency = BaseFreq * powf( 2.0f, pitch +
 		m_instrumentTrack->pitchModel()->value() / ( 100 * 12.0f ) );
 	m_unpitchedFrequency = BaseFreq * powf( 2.0f, pitch );
@@ -487,6 +491,7 @@ void notePlayHandle::processMidiTime( const midiTime & _time )
 {
 	if( _time >= pos() )
 	{
+		/* TODO{TNG}: Detuning Automation
 		const float v = detuning()->getAutomationPattern()->
 						valueAt( _time - pos() );
 		if( !typeInfo<float>::isEqual( v, m_baseDetuning->value() ) )
@@ -494,6 +499,7 @@ void notePlayHandle::processMidiTime( const midiTime & _time )
 			m_baseDetuning->setValue( v );
 			updateFrequency();
 		}
+		*/
 	}
 }
 

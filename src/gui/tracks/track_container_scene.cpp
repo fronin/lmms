@@ -31,9 +31,9 @@
 #include "gui/tracks/track_container_scene.h"
 #include "gui/tracks/track_content_object_item.h"
 #include "gui/tracks/track_item.h"
-#include "track_container.h"
+#include "TrackContainer.h"
 
-TrackContainerScene::TrackContainerScene( QObject * parent, trackContainer * _tc ) :
+TrackContainerScene::TrackContainerScene( QObject * parent, TrackContainer * _tc ) :
 	QGraphicsScene( parent ),
 	m_trackContainer( _tc ),
 	m_ppt( 16 )
@@ -61,7 +61,7 @@ void TrackContainerScene::setPixelsPerTact( float _ppt )
 
 
 
-void TrackContainerScene::addTrack( track * _t )
+void TrackContainerScene::addTrack( Track * _t )
 {
 	TrackItem * item = new TrackItem( this, _t );
 	item->setHeight( DEFAULT_CELL_HEIGHT );
@@ -71,9 +71,9 @@ void TrackContainerScene::addTrack( track * _t )
 }
 
 
-void TrackContainerScene::removeTrack( track * _t )
+void TrackContainerScene::removeTrack( Track * _t )
 {
-	QMap<track*,  TrackItem*>::iterator i = m_trackItems.find( _t );
+	QMap<Track*,  TrackItem*>::iterator i = m_trackItems.find( _t );
 
 	if( i != m_trackItems.end() && i.key() == _t )
 	{
@@ -112,8 +112,8 @@ void TrackContainerScene::keyPressEvent( QKeyEvent * event )
 			for( QList<QGraphicsItem *>::iterator it = selItems.begin();
 					it != selItems.end(); ++it )
 			{
-				TrackContentObjectItem * tcoItem =
-					dynamic_cast<TrackContentObjectItem*>( *it );
+				TrackSegmentItem * tcoItem =
+					dynamic_cast<TrackSegmentItem*>( *it );
 				if( tcoItem )
 				{
 					qreal destPos = tcoItem->m_snapBackAnimation->posAt( 1.0 ).x();

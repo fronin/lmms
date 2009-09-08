@@ -70,6 +70,8 @@ typedef Sint8 fx_ch_t;			// FX-channel (0 to MAX_EFFECT_CHANNEL)
 
 typedef Uint32 jo_id_t;			// (unique) ID of a journalling object
 
+enum Rounding { Floor = -1, Nearest = 0, Ceiling = 1 };
+
 // use for improved branch prediction
 #define likely(x)	__builtin_expect((x),1)
 #define unlikely(x)	__builtin_expect((x),0)

@@ -24,16 +24,16 @@
 
 
 #include "sample_record_handle.h"
-#include "bb_track.h"
+#include "BbTrack.h"
 #include "engine.h"
 #include "InstrumentTrack.h"
-#include "pattern.h"
+#include "Pattern.h"
 #include "sample_buffer.h"
-#include "sample_track.h"
+#include "SampleTrack.h"
 
 
 
-sampleRecordHandle::sampleRecordHandle( sampleTCO * _tco ) :
+sampleRecordHandle::sampleRecordHandle( SampleSegment * _tco ) :
 	playHandle( SamplePlayHandle ),
 	m_framesRecorded( 0 ),
 	m_minLength( _tco->length() ),
@@ -92,7 +92,7 @@ bool sampleRecordHandle::done() const
 
 
 
-bool sampleRecordHandle::isFromTrack( const track * _track ) const
+bool sampleRecordHandle::isFromTrack( const Track * _track ) const
 {
 	return( m_track == _track || m_bbTrack == _track );
 }

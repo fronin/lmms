@@ -33,6 +33,7 @@
 
 class QPushButton;
 class QScrollArea;
+class QVBoxLayout;
 
 class ControllerView;
 

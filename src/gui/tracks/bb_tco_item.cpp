@@ -30,23 +30,23 @@
 #include "gui/tracks/track_container_scene.h"
 #include "gui/tracks/track_item.h"
 #include "lmms_style.h"
-#include "bb_track.h"
+#include "BbTrack.h"
 #include "bb_track_container.h"
-#include "track.h"
+#include "Track.h"
 #include "engine.h"
 
 
 
-BbTrackContentObjectItem::BbTrackContentObjectItem(
+BbSegmentItem::BbSegmentItem(
 		TrackItem * _track,
-		trackContentObject * _object ) :
-	TrackContentObjectItem( _track, _object )
+		TrackSegment * _object ) :
+	TrackSegmentItem( _track, _object )
 {
 }
 
 
 
-void BbTrackContentObjectItem::paint(
+void BbSegmentItem::paint(
 		QPainter * _painter,
 		const QStyleOptionGraphicsItem * _option,
 		QWidget * _widget )
@@ -58,7 +58,7 @@ void BbTrackContentObjectItem::paint(
 	_painter->scale( 1.0f/xscale, 1.0f );
 	rc.setWidth( rc.width() * xscale );
 
-	bbTCO * bbTco  = (bbTCO*)m_tco;
+	BbSegment * bbTco  = (BbSegment*)m_tco;
 
 	// TODO: Use a proxy class
 	LmmsStyleOptionTCO * options = new LmmsStyleOptionTCO();
@@ -68,10 +68,10 @@ void BbTrackContentObjectItem::paint(
 	options->hovered = m_hover;
 	options->userColor = bbTco->color();
 
-	int trackNum = bbTrack::numOfBBTrack( bbTco->getTrack() );
+	int trackNum = BbTrack::numOfBBTrack( bbTco->getTrack() );
 	options->duration = engine::getBBTrackContainer()->lengthOfBB( trackNum );
 
-	engine::getLmmsStyle()->drawTrackContentObject( _painter, m_tco, options );
+	engine::getLmmsStyle()->drawTrackSegment( _painter, m_tco, options );
 
 	_painter->restore();
 	delete options;
@@ -80,27 +80,27 @@ void BbTrackContentObjectItem::paint(
 
 
 
-QVariant BbTrackContentObjectItem::itemChange(
+QVariant BbSegmentItem::itemChange(
 		GraphicsItemChange _change,
 		const QVariant & _value )
 {
-	return TrackContentObjectItem::itemChange( _change, _value );
+	return TrackSegmentItem::itemChange( _change, _value );
 }
 
 
 
-void BbTrackContentObjectItem::mousePressEvent(
+void BbSegmentItem::mousePressEvent(
 		QGraphicsSceneMouseEvent * event )
 {
-	TrackContentObjectItem::mousePressEvent( event );
+	TrackSegmentItem::mousePressEvent( event );
 }
 
 
 
-void BbTrackContentObjectItem::mouseReleaseEvent(
+void BbSegmentItem::mouseReleaseEvent(
 		QGraphicsSceneMouseEvent * event )
 {
-	TrackContentObjectItem::mouseReleaseEvent( event );
+	TrackSegmentItem::mouseReleaseEvent( event );
 }
 
 

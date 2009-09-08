@@ -39,9 +39,9 @@ public:
 	// TODO: move remove and replace functions..
 
 	// TODO: Add direction parameter?  and a NearestDivisionOfBeat?
-	f_cnt_t toNearestBar( f_cnt_t _frame );
-	f_cnt_t toNearestBeat( f_cnt_t _frame );
-	f_cnt_t toNearestTick( f_cnt_t _frame );
+	f_cnt_t toNearestBar( f_cnt_t _frame, Rounding _round );
+	f_cnt_t toNearestBeat( f_cnt_t _frame, Rounding _round );
+	f_cnt_t toNearestTick( f_cnt_t _frame, Rounding _round );
 
 	f_cnt_t length() const
 	{
@@ -103,11 +103,11 @@ public:
 		meter( _meter )
 	{}
 
-	Tempo tempo;
-	Meter meter;
 	bar_t bar;
 	beat_t beat;
 	f_cnt_t frame;
+	Tempo tempo;
+	Meter meter;
 };
 
 #endif

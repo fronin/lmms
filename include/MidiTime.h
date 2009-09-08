@@ -42,19 +42,29 @@ public:
 		return m_bar;
 	}
 
+	inline void setBar( bar_t _bar )
+	{
+		m_bar = _bar;
+	}
+
 	inline beat_t beat( void ) const
 	{
 		return m_beat;
 	}
 
-	inline void setTicks( tick_t _t )
+	inline void setBeat( beat_t _beat )
 	{
-		m_ticks = _t;
+		m_beat = _beat;
 	}
 
 	inline tick_t ticks( void ) const
 	{
 		return m_ticks;
+	}
+
+	inline void setTicks( tick_t _t )
+	{
+		m_ticks = _t;
 	}
 
 	bool operator< ( const MidiTime & _other ) const

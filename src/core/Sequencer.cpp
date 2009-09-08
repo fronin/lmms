@@ -31,37 +31,30 @@
 
 #include <math.h>
 
-// TODO: Remove unused includes
 #include "Sequencer.h"
 #include "Song.h"
-#include "automation_track.h"
-#include "automation_editor.h"
-#include "automation_recorder.h"
-#include "bb_editor.h"
-#include "bb_track.h"
-#include "bb_track_container.h"
-#include "config_mgr.h"
+#include "BbTrack.h"
 #include "ControllerRackView.h"
 #include "ControllerConnection.h"
-#include "embed.h"
 #include "EnvelopeAndLfoParameters.h"
 #include "FxMixer.h"
 #include "FxMixerView.h"
 #include "ImportFilter.h"
 #include "InstrumentTrack.h"
 #include "MidiClient.h"
-#include "mmp.h"
-#include "note_play_handle.h"
-#include "pattern.h"
-#include "piano_roll.h"
-#include "ProjectJournal.h"
+#include "Pattern.h"
 #include "project_notes.h"
 #include "ProjectRenderer.h"
+
+// TODO: Remove unused includes
+#include "bb_track_container.h"
+#include "config_mgr.h"
+#include "embed.h"
+#include "mmp.h"
+#include "note_play_handle.h"
 #include "rename_dialog.h"
-#include "song_editor.h"
 #include "templates.h"
 #include "text_float.h"
-#include "timeline.h"
 
 
 Sequencer::Sequencer() :
@@ -93,6 +86,7 @@ Sequencer::~Sequencer()
 
 void Sequencer::doActions()
 {
+	/* TODO{TNG}: Port rendering
 	while( !m_actions.empty() )
 	{
 		switch( m_actions.front() )
@@ -197,6 +191,7 @@ void Sequencer::doActions()
 		m_actions.erase( m_actions.begin() );
 
 	}
+	*/
 
 }
 
@@ -205,6 +200,7 @@ void Sequencer::doActions()
 
 void Sequencer::processNextBuffer()
 {
+	/* TODO{TNG}: Port rendering
 	doActions();
 
 	if( m_playing == false )
@@ -212,7 +208,7 @@ void Sequencer::processNextBuffer()
 		return;
 	}
 
-	trackContainer::trackList track_list;
+	TrackContainer::TrackList track_list;
 	int tco_num = -1;
 
 	switch( m_playMode )
@@ -235,7 +231,7 @@ void Sequencer::processNextBuffer()
 			{
 				tco_num = engine::getBBTrackContainer()->
 								currentBB();
-				track_list.push_back( bbTrack::findBBTrack(
+				track_list.push_back( BbTrack::findBBTrack(
 								tco_num ) );
 			}
 			break;
@@ -385,6 +381,7 @@ void Sequencer::processNextBuffer()
 		m_playPos[m_playMode].setCurrentFrame( played_frames +
 								current_frame );
 	}
+	*/
 }
 
 
@@ -392,9 +389,11 @@ void Sequencer::processNextBuffer()
 
 bool Sequencer::realTimeTask() const
 {
+	/* TODO{TNG}: Unquote
 	return !( m_exporting == true || ( m_playMode == Mode_PlayPattern &&
 		  	m_patternToPlay != NULL &&
 			m_patternToPlay->freezing() == true ) );
+	*/
 }
 
 
@@ -402,6 +401,7 @@ bool Sequencer::realTimeTask() const
 
 void Sequencer::play( Song * _song )
 {
+	/* TODO{TNG}: Unquote
 	m_recording = false;
 	if( m_playing == true )
 	{
@@ -417,7 +417,8 @@ void Sequencer::play( Song * _song )
 			return;
 		}
 	}
-	m_actions.push_back( ActionPlaySong );
+	m_actions.push_back( ActionPlaySong )
+	*/
 }
 
 
@@ -441,8 +442,9 @@ void Sequencer::playAndRecord( Song * _song )
 
 
 
-void Sequencer::playTrack( track * _trackToPlay )
+void Sequencer::playTrack( Track * _trackToPlay )
 {
+	/* TODO{TNG}: Unquote
 	if( m_playing == true )
 	{
 		stop();
@@ -450,6 +452,7 @@ void Sequencer::playTrack( track * _trackToPlay )
 	m_trackToPlay = _trackToPlay;
 
 	m_actions.push_back( ActionPlayTrack );
+	*/
 }
 
 
@@ -457,18 +460,21 @@ void Sequencer::playTrack( track * _trackToPlay )
 
 void Sequencer::playBB()
 {
+	/* TODO{TNG}: Unquote
 	if( m_playing == true )
 	{
 		stop();
 	}
 	m_actions.push_back( ActionPlayBB );
+	*/
 }
 
 
 
 
-void Sequencer::playPattern( pattern * _patternToPlay, bool _loop )
+void Sequencer::playPattern( Pattern * _patternToPlay, bool _loop )
 {
+	/* TODO{TNG}: Unquote
 	if( m_playing == true )
 	{
 		stop();
@@ -479,6 +485,7 @@ void Sequencer::playPattern( pattern * _patternToPlay, bool _loop )
 	{
 		m_actions.push_back( ActionPlayPattern );
 	}
+	*/
 }
 
 
@@ -497,7 +504,9 @@ void Sequencer::stop()
 {
 	m_actions.push_back( ActionStop );
 
+	/* TODO{TNG} Bring back automation
 	engine::getAutomationRecorder()->initRecord();
+	*/
 }
 
 
@@ -546,7 +555,8 @@ void Sequencer::stopExport()
 
 void Sequencer::updateFramesPerTick()
 {
-	engine::updateFramesPerTick();
+	// TODO{TNG} ??
+	//engine::updateFramesPerTick();
 }
 
 

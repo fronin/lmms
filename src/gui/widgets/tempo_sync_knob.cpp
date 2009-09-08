@@ -32,7 +32,7 @@
 #include "embed.h"
 #include "MainWindow.h"
 #include "MeterDialog.h"
-#include "song.h"
+#include "Song.h"
 
 
 
@@ -86,8 +86,9 @@ void TempoSyncKnob::contextMenuEvent( QContextMenuEvent * )
 	captionMenu contextMenu( model()->displayName() );
 	addDefaultActions( &contextMenu );
 	contextMenu.addSeparator();
-	
-	float limit = 60000.0f / ( engine::getSong()->getTempo() *
+
+	/* TODO{TNG}: Fix tempo-sync knobs
+	float limit = 60000.0f / ( engine::song()->getTempo() *
 							model()->m_scale );
 	
 	QMenu * syncMenu = contextMenu.addMenu( m_tempoSyncIcon,
@@ -153,6 +154,7 @@ void TempoSyncKnob::contextMenuEvent( QContextMenuEvent * )
 	contextMenu.exec( QCursor::pos() );
 	
 	delete syncMenu;
+	*/
 }
 
 

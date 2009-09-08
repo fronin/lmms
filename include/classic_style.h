@@ -66,7 +66,7 @@ public:
 
 	virtual QColor color(LmmsStyle::ColorRole _role) const;
 
-	virtual void drawTrackContentObject( QPainter * _painter, const trackContentObject * _model,
+	virtual void drawTrackSegment( QPainter * _painter, const TrackSegment * _model,
 			const LmmsStyleOptionTCO * _options );
 
 	private:

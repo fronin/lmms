@@ -37,7 +37,7 @@
 #include "instrument_play_handle.h"
 #include "note_play_handle.h"
 #include "knob.h"
-#include "song.h"
+#include "Song.h"
 
 #include "patches_dialog.h"
 #include "tooltip.h"
@@ -1076,7 +1076,7 @@ void sf2InstrumentView::showFileDialog()
 		if( f != "" )
 		{
 			k->openFile( f );
-			engine::getSong()->setModified();
+			engine::song()->setModified();
 		}
 	}
 

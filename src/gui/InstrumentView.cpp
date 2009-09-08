@@ -44,10 +44,12 @@ InstrumentView::InstrumentView( Instrument * _instrument, QWidget * _parent ) :
 
 InstrumentView::~InstrumentView()
 {
+	/* TODO{TNG}: Reimplement
 	if( instrumentTrackWindow() )
 	{
 		instrumentTrackWindow()->m_instrumentView = NULL;
 	}
+	*/
 }
 
 
@@ -58,8 +60,10 @@ void InstrumentView::setModel( Model * _model, bool )
 	if( dynamic_cast<Instrument *>( _model ) != NULL )
 	{
 		ModelView::setModel( _model );
+		/* TODO{TNG}: Reimplement
 		instrumentTrackWindow()->setWindowIcon(
 				model()->descriptor()->logo->pixmap() );
+		*/
 		connect( model(), SIGNAL( destroyed( QObject * ) ),
 					this, SLOT( close() ) );
 	}
@@ -70,8 +74,10 @@ void InstrumentView::setModel( Model * _model, bool )
 
 InstrumentTrackWindow * InstrumentView::instrumentTrackWindow()
 {
+	/* TODO{TNG}: Reimplement
 	return dynamic_cast<InstrumentTrackWindow *>(
-											parentWidget()->parentWidget() );
+			parentWidget()->parentWidget() );
+	*/
 }
 
 

@@ -27,13 +27,11 @@
 #include <QtCore/QObject>
 #include <QtCore/QVector>
 
-#include "song.h"
+#include "Song.h"
 #include "engine.h"
 #include "mixer.h"
 #include "MidiClient.h"
 #include "MidiController.h"
-#include "automation_recorder.h"
-
 
 MidiController::MidiController( Model * _parent ) :
 	Controller( Controller::MidiController, _parent, tr( "MIDI Controller" ) ),

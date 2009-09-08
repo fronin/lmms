@@ -35,8 +35,7 @@
 #include "MidiPort.h"
 #include "engine.h"
 #include "note.h"
-#include "song.h"
-#include "timeline.h"
+#include "Song.h"
 #include "config_mgr.h"
 
 const QString MidiControlListener::configClass = "MidiControlListener";
@@ -163,7 +162,9 @@ void MidiControlListener::processInEvent( const midiEvent & _me,
 
 void MidiControlListener::act( EventAction _action )
 {
-	timeLine * tl = engine::getSong()->getPlayPos( song::Mode_PlaySong ).m_timeLine;
+	/* TODO{TNG} Resolve Timeline code
+	timeLine * tl = engine::song()->getPlayPos( song::Mode_PlaySong ).m_timeLine;
+
 	switch( _action )
 	{
 		case ActionNone:
@@ -171,19 +172,19 @@ void MidiControlListener::act( EventAction _action )
 		case ActionControl:
 			break;
 		case ActionPlay:
-			engine::getSong()->play();
+			engine::song()->play();
 			break;
 		case ActionStop:
-			engine::getSong()->stop();
+			engine::song()->stop();
 			break;
 		case ActionToggleLoop:
 			if( tl->loopPointsEnabled() )
 			{
-				engine::getSong()->toggleLoopPoints( timeLine::LoopPointsDisabled );
+				engine::song()->toggleLoopPoints( timeLine::LoopPointsDisabled );
 			}
 			else
 			{
-				engine::getSong()->toggleLoopPoints( timeLine::LoopPointsEnabled );
+				engine::song()->toggleLoopPoints( timeLine::LoopPointsEnabled );
 			}
 			break;
 		case ActionJumpToLoopStart:
@@ -197,6 +198,7 @@ void MidiControlListener::act( EventAction _action )
 		case NumActions:  // prevent compiler warnings
 			break;
 	}
+	*/
 }
 
 

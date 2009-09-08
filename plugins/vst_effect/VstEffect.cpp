@@ -25,7 +25,7 @@
 #include <QtGui/QMessageBox>
 
 #include "VstEffect.h"
-#include "song.h"
+#include "Song.h"
 #include "text_float.h"
 #include "VstSubPluginFeatures.h"
 
@@ -147,10 +147,11 @@ void VstEffect::openPlugin( const QString & _plugin )
 						QMessageBox::Ok );
 		return;
 	}
-	VstPlugin::connect( engine::getSong(),
+	VstPlugin::connect( engine::song(),
 				SIGNAL( tempoChanged( bpm_t ) ),
 			 m_plugin, SLOT( setTempo( bpm_t ) ) );
-	m_plugin->setTempo( engine::getSong()->getTempo() );
+	// TODO{TNG} MetricMap
+	// m_plugin->setTempo( engine::song()->getTempo() );
 	m_pluginMutex.unlock();
 	delete tf;
 

@@ -24,12 +24,12 @@
 
 #include "sample_play_handle.h"
 #include "AudioPort.h"
-#include "bb_track.h"
+#include "BbTrack.h"
 #include "engine.h"
 #include "InstrumentTrack.h"
-#include "pattern.h"
+#include "Pattern.h"
 #include "sample_buffer.h"
-#include "sample_track.h"
+#include "SampleTrack.h"
 
 
 
@@ -67,12 +67,12 @@ samplePlayHandle::samplePlayHandle( sampleBuffer * _sample_buffer ) :
 
 
 
-samplePlayHandle::samplePlayHandle( sampleTCO * _tco ) :
+samplePlayHandle::samplePlayHandle( SampleSegment * _tco ) :
 	playHandle( SamplePlayHandle ),
 	m_sampleBuffer( sharedObject::ref( _tco->getSampleBuffer() ) ),
 	m_doneMayReturnTrue( true ),
 	m_frame( 0 ),
-	m_audioPort( ( (sampleTrack *)_tco->getTrack() )->audioPort() ),
+	m_audioPort( ( (SampleTrack *)_tco->getTrack() )->audioPort() ),
 	m_ownAudioPort( false ),
 	m_defaultVolumeModel( DefaultVolume, MinVolume, MaxVolume, 1 ),
 	m_volumeModel( &m_defaultVolumeModel ),
@@ -84,7 +84,7 @@ samplePlayHandle::samplePlayHandle( sampleTCO * _tco ) :
 
 
 
-samplePlayHandle::samplePlayHandle( pattern * _pattern ) :
+samplePlayHandle::samplePlayHandle( Pattern * _pattern ) :
 	playHandle( SamplePlayHandle ),
 	m_sampleBuffer( sharedObject::ref( _pattern->frozenPattern() ) ),
 	m_doneMayReturnTrue( true ),
@@ -148,7 +148,7 @@ bool samplePlayHandle::done() const
 
 
 
-bool samplePlayHandle::isFromTrack( const track * _track ) const
+bool samplePlayHandle::isFromTrack( const Track * _track ) const
 {
 	return( m_track == _track || m_bbTrack == _track );
 }

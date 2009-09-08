@@ -31,10 +31,10 @@
 #include <QtCore/QVector>
 #include <QtGui/QGraphicsScene>
 
-#include "track.h"
+#include "Track.h"
 
-class trackContainer;
-class TrackContentObjectItem;
+class TrackContainer;
+class TrackSegmentItemTrackContentObjectItem;
 class TrackItem;
 
 class TrackContainerScene : public QGraphicsScene
@@ -45,7 +45,7 @@ public:
 	const static float DEFAULT_CELL_HEIGHT = 32;
 	const static float DEFAULT_CELL_WIDTH = 16;
 	
-	TrackContainerScene( QObject * parent, trackContainer * _tc );
+	TrackContainerScene( QObject * parent, TrackContainer * _tc );
 	virtual ~TrackContainerScene();
 
 
@@ -62,12 +62,12 @@ public:
 
 	void setPixelsPerTact( float _ppt );
 
-	trackContainer * model()
+	TrackContainer * model()
 	{
 		return( m_trackContainer );
 	}
 
-	const trackContainer * model() const
+	const TrackContainer * model() const
 	{
 		return( m_trackContainer );
 	}
@@ -75,13 +75,13 @@ public:
 
 	virtual QString nodeName() const
 	{
-		return( "trackcontainerscene" );
+		return( "trackContainerScene" );
 	}
 
 private slots:
 
-	void addTrack( track * _t );
-	void removeTrack( track * _t );
+	void addTrack( Track * _t );
+	void removeTrack( Track * _t );
 
 	/*
 	virtual void dragEnterEvent( QDragEnterEvent * _dee );
@@ -96,11 +96,11 @@ private slots:
 
 protected:
 	midiTime m_currentPosition;
-	trackContainer * m_trackContainer;
+	TrackContainer * m_trackContainer;
 	float m_ppt;
 
 	//QVector<TrackContentItem*> m_trackItems;
-	QMap<track*, TrackItem*> m_trackItems;
+	QMap<Track*, TrackItem*> m_trackItems;
 
     virtual void keyPressEvent( QKeyEvent * event );
 

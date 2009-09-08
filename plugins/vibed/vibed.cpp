@@ -37,7 +37,7 @@
 #include "string_container.h"
 #include "templates.h"
 #include "volume.h"
-#include "song.h"
+#include "Song.h"
 
 #include "embed.cpp"
 
@@ -693,7 +693,7 @@ void vibedView::showString( Uint8 _string )
 void vibedView::sinWaveClicked()
 {
 	m_graph->model()->setWaveToSine();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -701,7 +701,7 @@ void vibedView::sinWaveClicked()
 void vibedView::triangleWaveClicked()
 {
 	m_graph->model()->setWaveToTriangle();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -709,7 +709,7 @@ void vibedView::triangleWaveClicked()
 void vibedView::sawWaveClicked()
 {
 	m_graph->model()->setWaveToSaw();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -717,7 +717,7 @@ void vibedView::sawWaveClicked()
 void vibedView::sqrWaveClicked()
 {
 	m_graph->model()->setWaveToSquare();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -725,7 +725,7 @@ void vibedView::sqrWaveClicked()
 void vibedView::noiseWaveClicked()
 {
 	m_graph->model()->setWaveToNoise();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -734,7 +734,7 @@ void vibedView::usrWaveClicked()
 {
 	// TODO: load file
 	//m_graph->model()->setWaveToUser();
-	//engine::getSongEditor()->setModified();
+	//engine::songEditor()->setModified();
 }
 
 
@@ -742,7 +742,7 @@ void vibedView::usrWaveClicked()
 void vibedView::smoothClicked()
 {
 	m_graph->model()->smooth();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -750,7 +750,7 @@ void vibedView::smoothClicked()
 void vibedView::normalizeClicked()
 {
 	m_graph->model()->normalize();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 

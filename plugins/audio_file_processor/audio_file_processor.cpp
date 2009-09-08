@@ -33,7 +33,7 @@
 
 #include "audio_file_processor.h"
 #include "engine.h"
-#include "song.h"
+#include "Song.h"
 #include "InstrumentTrack.h"
 #include "note_play_handle.h"
 #include "interpolation.h"
@@ -459,7 +459,7 @@ void AudioFileProcessorView::openAudioFile()
 	if( af != "" )
 	{
 		castModel<audioFileProcessor>()->setAudioFile( af );
-		engine::getSong()->setModified();
+		engine::song()->setModified();
 	}
 }
 

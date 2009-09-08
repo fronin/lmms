@@ -923,8 +923,8 @@ void CusisStyle::drawTrackContentBackground( QPainter * _painter, const QSize & 
 
 
 
-void CusisStyle::drawTrackContentObject( QPainter * _painter,
-		const trackContentObject * _model, const LmmsStyleOptionTCO * _option )
+void CusisStyle::drawTrackSegment( QPainter * _painter,
+		const TrackSegment * _model, const LmmsStyleOptionTCO * _option )
 {
 	QString pixmapName = getTcoCacheKey( "tco", _option );
 	QPixmap cache;

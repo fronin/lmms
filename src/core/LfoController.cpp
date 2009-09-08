@@ -29,7 +29,7 @@
 #include <QtCore/QVector>
 
 
-#include "song.h"
+#include "Song.h"
 #include "engine.h"
 #include "mixer.h"
 #include "LfoController.h"

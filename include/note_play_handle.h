@@ -31,7 +31,7 @@
 #include "mixer.h"
 #include "note.h"
 #include "engine.h"
-#include "track.h"
+#include "Track.h"
 
 
 class InstrumentTrack;
@@ -88,7 +88,7 @@ public:
 	}
 
 
-	virtual bool isFromTrack( const track * _track ) const;
+	virtual bool isFromTrack( const Track * _track ) const;
 
 
 	void noteOff( const f_cnt_t _s = 0 );
@@ -178,7 +178,7 @@ public:
 	{
 		return m_bbTrack && m_bbTrack->isMuted();
 	}
-	void setBBTrack( track * _bb_track )
+	void setBBTrack( Track * _bb_track )
 	{
 		m_bbTrack = _bb_track;
 	}
@@ -223,6 +223,8 @@ private:
 	} ;
 	
 
+	// TODO{TNG}: These links back to track sound like a bad idea perhaps
+	Track * m_bbTrack;		// related BB track
 	InstrumentTrack * m_instrumentTrack;	// needed for calling
 					// InstrumentTrack::playNote
 	f_cnt_t m_frames;		// total frames to play
@@ -243,7 +245,6 @@ private:
 					// an arpeggio (either base-note or
 					// sub-note)
 	bool m_muted;			// indicates whether note is muted
-	track * m_bbTrack;		// related BB track
 #ifdef LMMS_SINGERBOT_SUPPORT
 	int m_patternIndex;		// position among relevant notes
 #endif

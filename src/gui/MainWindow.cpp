@@ -41,11 +41,6 @@
 
 #include "lmmsversion.h"
 #include "MainWindow.h"
-#include "bb_editor.h"
-#include "song_editor.h"
-#include "automation_recorder.h"
-#include "song.h"
-#include "piano_roll.h"
 #include "embed.h"
 #include "engine.h"
 #include "FxMixerView.h"
@@ -61,8 +56,6 @@
 #include "ToolPlugin.h"
 #include "ToolPluginView.h"
 #include "tool_button.h"
-#include "ProjectJournal.h"
-#include "automation_editor.h"
 #include "templates.h"
 #include "lcd_spinbox.h"
 #include "tooltip.h"
@@ -163,6 +156,7 @@ MainWindow::MainWindow() :
 	m_welcomeScreen = new WelcomeScreen( this );
 
 	setCentralWidget( m_welcomeScreen );
+	setMainWidgetVisible( engine::devMode() );
 
 	m_updateTimer.start( 1000 / 20, this );	// 20 fps
 }
@@ -237,11 +231,11 @@ void MainWindow::finalize()
 	project_menu->addSeparator();
 	project_menu->addAction( embed::getIconPixmap( "project_import" ),
 					tr( "Import..." ),
-					engine::getSong(),
+					engine::song(),
 					SLOT( importProject() ) );
 	project_menu->addAction( embed::getIconPixmap( "project_export" ),
 					tr( "E&xport..." ),
-					engine::getSong(),
+					engine::song(),
 					SLOT( exportProject() ),
 					Qt::CTRL + Qt::Key_E );
 	project_menu->addSeparator();
@@ -367,7 +361,7 @@ void MainWindow::finalize()
 	toolButton * project_export = new toolButton(
 				embed::getIconPixmap( "project_export" ),
 					tr( "Export current project" ),
-					engine::getSong(),
+					engine::song(),
 							SLOT( exportProject() ),
 								gridButtons_w );
 
@@ -497,9 +491,10 @@ void MainWindow::finalize()
 	tempo_hq_layout->setSpacing( 0 );
 	tempo_hq_layout->addSpacing( 22 );
 
+	/* TODO{TNG} Bring back a Tempo display
 	// tempo spin box
 	m_tempoSpinBox = new lcdSpinBox( 3, tempo_hq_w, tr( "Tempo" ) );
-	m_tempoSpinBox->setModel( &( engine::getSong()->m_tempoModel) );
+	m_tempoSpinBox->setModel( &( engine::song()->m_tempoModel) );
 	m_tempoSpinBox->setLabel( tr( "TEMPO/BPM" ) );
 	toolTip::add( m_tempoSpinBox, tr( "tempo of song" ) );
 
@@ -512,6 +507,7 @@ void MainWindow::finalize()
 			"should be played within four minutes)." ) );
 
 	tempo_hq_layout->addWidget( m_tempoSpinBox );
+	*/
 
 #if 0
 	// high quality button
@@ -532,6 +528,7 @@ void MainWindow::finalize()
 
 	m_toolBarLayout->insertSpacing( -1, 10 );
 
+	/* TODO{TNG}: Bring back time-sig display
 	// time signature spin boxes
 	QWidget * timeSigWidget = new QWidget( m_toolBar );
 	QVBoxLayout * timeSigLayout = new QVBoxLayout( timeSigWidget );
@@ -540,10 +537,11 @@ void MainWindow::finalize()
 	timeSigLayout->addSpacing( 3 );
 
 	m_timeSigDisplay = new MeterDialog( this, true );
-	m_timeSigDisplay->setModel( &( engine::getSong()->m_timeSigModel ) );
+	m_timeSigDisplay->setModel( &( engine::song()->m_timeSigModel ) );
 	timeSigLayout->addWidget( m_timeSigDisplay );
 
 	m_toolBarLayout->addWidget( timeSigWidget );
+	*/
 
 	m_toolBarLayout->insertSpacing( -1, 10 );
 
@@ -553,7 +551,7 @@ void MainWindow::finalize()
 
 	m_masterVolumeSlider = new automatableSlider( m_toolBar,
 							tr( "Master volume" ) );
-	m_masterVolumeSlider->setModel( &( engine::getSong()->m_masterVolumeModel ) );
+	m_masterVolumeSlider->setModel( &( engine::song()->m_masterVolumeModel ) );
 	m_masterVolumeSlider->setOrientation( Qt::Vertical );
 	m_masterVolumeSlider->setPageStep( 1 );
 	m_masterVolumeSlider->setTickPosition( QSlider::TicksLeft );
@@ -585,7 +583,7 @@ void MainWindow::finalize()
 	master_pitch_lbl->setFixedHeight( 64 );
 
 	m_masterPitchSlider = new automatableSlider( m_toolBar, tr( "Master pitch" ) );
-	m_masterPitchSlider->setModel( &( engine::getSong()->m_masterPitchModel ) );
+	m_masterPitchSlider->setModel( &( engine::song()->m_masterPitchModel ) );
 	m_masterPitchSlider->setOrientation( Qt::Vertical );
 	m_masterPitchSlider->setPageStep( 1 );
 	m_masterPitchSlider->setTickPosition( QSlider::TicksLeft );
@@ -805,16 +803,16 @@ void MainWindow::addSpacingToToolBar( int _size )
 void MainWindow::resetWindowTitle()
 {
 	QString title = "";
-	if( engine::getSong()->projectFileName() != "" )
+	if( engine::song()->projectFileName() != "" )
 	{
-		title = QFileInfo( engine::getSong()->projectFileName()
+		title = QFileInfo( engine::song()->projectFileName()
 							).completeBaseName();
 	}
 	if( title == "" )
 	{
 		title = tr( "Untitled" );
 	}
-	if( engine::getSong()->isModified() )
+	if( engine::song()->isModified() )
 	{
 		title += '*';
 	}
@@ -826,7 +824,7 @@ void MainWindow::resetWindowTitle()
 
 bool MainWindow::mayChangeProject()
 {
-	if( !engine::getSong()->isModified() )
+	if( !engine::song()->isModified() )
 	{
 		return true;
 	}
@@ -921,7 +919,7 @@ void MainWindow::createNewProject()
 {
 	if( mayChangeProject() )
 	{
-		engine::getSong()->createNewProject();
+		engine::song()->createNewProject();
 	}
 }
 
@@ -936,7 +934,7 @@ void MainWindow::createNewProjectFromTemplate( QAction * _idx )
 						>= m_custom_templates_count ?
 				configManager::inst()->factoryProjectsDir() :
 				configManager::inst()->userProjectsDir();
-		engine::getSong()->createNewProjectFromTemplate(
+		engine::song()->createNewProjectFromTemplate(
 			dir_base + "templates/" + _idx->text() + ".mpt" );
 	}
 }
@@ -957,7 +955,7 @@ void MainWindow::openProject()
 						!ofd.selectedFiles().isEmpty() )
 		{
 			setCursor( Qt::WaitCursor );
-			engine::getSong()->loadProject(
+			engine::song()->loadProject(
 						ofd.selectedFiles()[0] );
 			setCursor( Qt::ArrowCursor );
 		}
@@ -999,7 +997,7 @@ void MainWindow::openRecentlyOpenedProject( QAction * _action )
 {
 	const QString & f = _action->text();
 	setCursor( Qt::WaitCursor );
-	engine::getSong()->loadProject( f );
+	engine::song()->loadProject( f );
 	configManager::inst()->addRecentlyOpenedProject( f );
 	setCursor( Qt::ArrowCursor );
 }
@@ -1009,13 +1007,13 @@ void MainWindow::openRecentlyOpenedProject( QAction * _action )
 
 bool MainWindow::saveProject()
 {
-	if( engine::getSong()->projectFileName() == "" )
+	if( engine::song()->projectFileName() == "" )
 	{
 		return saveProjectAs();
 	}
 	else
 	{
-		engine::getSong()->saveProject();
+		engine::song()->saveProject();
 	}
 	return true;
 }
@@ -1030,7 +1028,7 @@ bool MainWindow::saveProjectAs()
 				"MultiMedia Project Template (*.mpt)" ) );
 	sfd.setAcceptMode( QFileDialog::AcceptSave );
 	sfd.setFileMode( QFileDialog::AnyFile );
-	QString f = engine::getSong()->projectFileName();
+	QString f = engine::song()->projectFileName();
 	if( f != "" )
 	{
 		sfd.setDirectory( QFileInfo( f ).absolutePath() );
@@ -1044,7 +1042,7 @@ bool MainWindow::saveProjectAs()
 	if( sfd.exec () == QFileDialog::Accepted &&
 		!sfd.selectedFiles().isEmpty() && sfd.selectedFiles()[0] != "" )
 	{
-		engine::getSong()->saveProjectAs(
+		engine::song()->saveProjectAs(
 						sfd.selectedFiles()[0] );
 		return true;
 	}
@@ -1105,7 +1103,9 @@ void MainWindow::toggleWindow( QWidget * _w )
 
 void MainWindow::toggleBBEditorWin()
 {
+	/* TODO{TNG} Reimplement BBEditor
 	toggleWindow( engine::getBBEditor() );
+	*/
 }
 
 
@@ -1113,7 +1113,9 @@ void MainWindow::toggleBBEditorWin()
 
 void MainWindow::toggleSongEditorWin()
 {
-	toggleWindow( engine::getSongEditor() );
+	/* TODO{TNG} Reimplement SongEditor
+	toggleWindow( engine::songEditor() );
+	*/
 }
 
 
@@ -1129,7 +1131,9 @@ void MainWindow::toggleProjectNotesWin()
 
 void MainWindow::togglePianoRollWin()
 {
+	/* TODO{TNG} Reimplement PianoRoll
 	toggleWindow( engine::getPianoRoll() );
+	*/
 }
 
 
@@ -1137,7 +1141,9 @@ void MainWindow::togglePianoRollWin()
 
 void MainWindow::toggleAutomationEditorWin()
 {
+	/* TODO{TNG} Reimplement Automation Editor
 	toggleWindow( engine::getAutomationEditor() );
+	*/
 }
 
 
@@ -1161,7 +1167,7 @@ void MainWindow::toggleControllerRack()
 
 void MainWindow::undo()
 {
-	engine::projectJournal()->undo();
+	// TODO{TNG} QUndo
 }
 
 
@@ -1169,7 +1175,7 @@ void MainWindow::undo()
 
 void MainWindow::redo()
 {
-	engine::projectJournal()->redo();
+	// TODO{TNG} QUndo
 }
 
 
@@ -1226,14 +1232,15 @@ void MainWindow::keyPressEvent( QKeyEvent * _ke )
 
 void MainWindow::shortcutSpacePressed()
 {
-	if( engine::getSong()->isPlaying() )
+	/* TODO{TNG} Migrate to use Sequencer
+	if( engine::song()->isPlaying() )
 	{
 		if(
-			( engine::getSong()->playMode() == song::Mode_PlaySong &&
+			( engine::song()->playMode() == song::Mode_PlaySong &&
 				m_playbackMode == PPM_Song ) ||
-			( engine::getSong()->playMode() == song::Mode_PlayBB &&
+			( engine::song()->playMode() == song::Mode_PlayBB &&
 				m_playbackMode == PPM_BB ) ||
-			( engine::getSong()->playMode() == song::Mode_PlayPattern &&
+			( engine::song()->playMode() == song::Mode_PlayPattern &&
 				m_playbackMode == PPM_PianoRoll ) )
 		{
 			// we should stop playback because the user did not
@@ -1252,6 +1259,7 @@ void MainWindow::shortcutSpacePressed()
 	{
 		play();
 	}
+	*/
 }
 
 
@@ -1279,6 +1287,7 @@ void MainWindow::shortcutLPressed()
 
 void MainWindow::play()
 {
+	/* TODO{TNG} Migrate to use Sequencer
 	if( m_playbackMode == PPM_BB )
 	{
 		engine::getBBEditor()->play();
@@ -1289,8 +1298,9 @@ void MainWindow::play()
 	}
 	else
 	{
-		engine::getSongEditor()->play();
+		engine::songEditor()->play();
 	}
+	*/
 }
 
 
@@ -1298,6 +1308,7 @@ void MainWindow::play()
 
 void MainWindow::stop()
 {
+	/* TODO{TNG} Migrate to use Sequencer
 	if( m_playbackMode == PPM_BB )
 	{
 		engine::getBBEditor()->stop();
@@ -1308,8 +1319,9 @@ void MainWindow::stop()
 	}
 	else
 	{
-		engine::getSongEditor()->stop();
+		engine::songEditor()->stop();
 	}
+	*/
 }
 
 
@@ -1317,6 +1329,7 @@ void MainWindow::stop()
 
 void MainWindow::record()
 {
+	/* TODO{TNG} Migrate to use Sequencer
 	if( m_playbackMode == PPM_BB )
 	{
 		printf("beat+bassline does not support recording\n");
@@ -1327,8 +1340,9 @@ void MainWindow::record()
 	}
 	else
 	{
-		engine::getSongEditor()->record();
+		engine::songEditor()->record();
 	}
+	*/
 }
 
 
@@ -1336,6 +1350,7 @@ void MainWindow::record()
 
 void MainWindow::playAndRecord()
 {
+	/* TODO{TNG} Migrate to use Sequencer
 	if( m_playbackMode == PPM_BB )
 	{
 		printf("bb editor does not support record accompany\n");
@@ -1346,8 +1361,9 @@ void MainWindow::playAndRecord()
 	}
 	else
 	{
-		engine::getSongEditor()->recordAccompany();
+		engine::songEditor()->recordAccompany();
 	}
+	*/
 }
 
 
@@ -1466,7 +1482,7 @@ void MainWindow::setHighQuality( bool _hq )
 void MainWindow::masterVolumeChanged( int _new_val )
 {
 	masterVolumeMoved( _new_val );
-	if( m_mvsStatus->isVisible() == false && engine::getSong()->m_loadingProject == false
+	if( m_mvsStatus->isVisible() == false && engine::song()->m_loadingProject == false
 					&& m_masterVolumeSlider->showStatus() )
 	{
 		m_mvsStatus->moveGlobal( m_masterVolumeSlider,
@@ -1484,7 +1500,7 @@ void MainWindow::masterVolumePressed()
 	m_mvsStatus->moveGlobal( m_masterVolumeSlider,
 			QPoint( m_masterVolumeSlider->width() + 2, -2 ) );
 	m_mvsStatus->show();
-	masterVolumeMoved( engine::getSong()->m_masterVolumeModel.value() );
+	masterVolumeMoved( engine::song()->m_masterVolumeModel.value() );
 }
 
 
@@ -1510,7 +1526,7 @@ void MainWindow::masterPitchChanged( int _new_val )
 {
 	masterPitchMoved( _new_val );
 	if( m_mpsStatus->isVisible() == false &&
-			engine::getSong()->m_loadingProject == false &&
+			engine::song()->m_loadingProject == false &&
 			m_masterPitchSlider->showStatus() )
 	{
 		m_mpsStatus->moveGlobal( m_masterPitchSlider,
@@ -1527,7 +1543,7 @@ void MainWindow::masterPitchPressed()
 	m_mpsStatus->moveGlobal( m_masterPitchSlider,
 			QPoint( m_masterPitchSlider->width() + 2, -2 ) );
 	m_mpsStatus->show();
-	masterPitchMoved( engine::getSong()->m_masterPitchModel.value() );
+	masterPitchMoved( engine::song()->m_masterPitchModel.value() );
 }
 
 
@@ -1551,7 +1567,9 @@ void MainWindow::masterPitchReleased()
 
 void MainWindow::toggleRecordAutomation( bool _recording )
 {
+	/* TODO{TNG}: Bring back automation
 	engine::getAutomationRecorder()->setRecording( _recording );
+	*/
 }
 
 

@@ -33,10 +33,10 @@
 #include "InstrumentSoundShaping.h"
 #include "MidiEventProcessor.h"
 #include "MidiPort.h"
-#include "note_play_handle.h"
 #include "Piano.h"
 #include "PianoView.h"
-#include "track.h"
+#include "Track.h"
+#include "note_play_handle.h"
 
 
 class QLineEdit;
@@ -59,12 +59,12 @@ class tabWidget;
 class trackLabelButton;
 
 
-class EXPORT InstrumentTrack : public track, public MidiEventProcessor
+class EXPORT InstrumentTrack : public Track, public MidiEventProcessor
 {
 	Q_OBJECT
 	mapPropertyFromModel(int,getVolume,setVolume,m_volumeModel);
 public:
-	InstrumentTrack( trackContainer * _tc );
+	InstrumentTrack( TrackContainer * _tc );
 	virtual ~InstrumentTrack();
 
 	// used by instrument
@@ -117,11 +117,9 @@ public:
 	virtual bool play( const midiTime & _start, const fpp_t _frames,
 					const f_cnt_t _frame_base,
 							Sint16 _tco_num = -1 );
-	// create new view for me
-	virtual trackView * createView( trackContainerView * _tcv );
 
-	// create new track-content-object = pattern
-	virtual trackContentObject * createTCO( const midiTime & _pos );
+	// create new pattern
+	virtual TrackSegment * createSegment( const midiTime & _pos );
 
 
 	// called by track
@@ -129,7 +127,7 @@ public:
 							QDomElement & _parent );
 	virtual void loadTrackSpecificSettings( const QDomElement & _this );
 
-	using track::setJournalling;
+	using Track::setJournalling;
 
 
 	// load instrument whose name matches given one
@@ -195,7 +193,7 @@ signals:
 protected:
 	virtual QString nodeName() const
 	{
-		return "instrumenttrack";
+		return "instrumentTrack";
 	}
 
 
@@ -229,176 +227,9 @@ private:
 
 	Piano m_piano;
 
-
-	friend class InstrumentTrackView;
-	friend class InstrumentTrackWindow;
 	friend class notePlayHandle;
 	friend class FlpImport;
-
 } ;
-
-
-
-
-class InstrumentTrackView : public trackView
-{
-	Q_OBJECT
-public:
-	InstrumentTrackView( InstrumentTrack * _it, trackContainerView * _tc );
-	virtual ~InstrumentTrackView();
-
-	InstrumentTrackWindow * getInstrumentTrackWindow();
-
-	InstrumentTrack * model()
-	{
-		return castModel<InstrumentTrack>();
-	}
-
-	const InstrumentTrack * model() const
-	{
-		return castModel<InstrumentTrack>();
-	}
-
-
-	QMenu * midiMenu()
-	{
-		return m_midiMenu;
-	}
-
-	void freeInstrumentTrackWindow();
-
-	static void cleanupWindowPool();
-
-
-protected:
-	virtual void dragEnterEvent( QDragEnterEvent * _dee );
-	virtual void dropEvent( QDropEvent * _de );
-
-
-private slots:
-	void toggleInstrumentWindow( bool _on );
-	void activityIndicatorPressed();
-	void activityIndicatorReleased();
-
-	void midiInSelected();
-	void midiOutSelected();
-	void midiConfigChanged();
-
-
-private:
-	InstrumentTrackWindow * m_window;
-
-	static QQueue<InstrumentTrackWindow *> s_windows;
-
-	// widgets in track-settings-widget
-	trackLabelButton * m_tlb;
-	knob * m_volumeKnob;
-	knob * m_panningKnob;
-	fadeButton * m_activityIndicator;
-
-	QMenu * m_midiMenu;
-
-	QAction * m_midiInputAction;
-	QAction * m_midiOutputAction;
-
-	QPoint m_lastPos;
-
-
-	friend class InstrumentTrackWindow;
-
-} ;
-
-
-
-
-class InstrumentTrackWindow : public QWidget, public ModelView,
-								public SerializingObjectHook
-{
-	Q_OBJECT
-public:
-	InstrumentTrackWindow( InstrumentTrackView * _tv );
-	virtual ~InstrumentTrackWindow();
-
-	// parent for all internal tab-widgets
-	tabWidget * tabWidgetParent()
-	{
-		return m_tabWidget;
-	}
-
-	InstrumentTrack * model()
-	{
-		return castModel<InstrumentTrack>();
-	}
-
-	const InstrumentTrack * model() const
-	{
-		return castModel<InstrumentTrack>();
-	}
-
-	void setInstrumentTrackView( InstrumentTrackView * _tv )
-	{
-		m_itv = _tv;
-	}
-
-	static void dragEnterEventGeneric( QDragEnterEvent * _dee );
-
-	virtual void dragEnterEvent( QDragEnterEvent * _dee );
-	virtual void dropEvent( QDropEvent * _de );
-
-
-public slots:
-	void textChanged( const QString & _new_name );
-	void toggleVisibility( bool _on );
-	void updateName();
-	void updateInstrumentView();
-
-
-protected:
-	// capture close-events for toggling instrument-track-button
-	virtual void closeEvent( QCloseEvent * _ce );
-	virtual void focusInEvent( QFocusEvent * _fe );
-
-	virtual void saveSettings( QDomDocument & _doc, QDomElement & _this );
-	virtual void loadSettings( const QDomElement & _this );
-
-
-protected slots:
-	void saveSettingsBtnClicked();
-
-
-private:
-	virtual void modelChanged();
-
-	InstrumentTrack * m_track;
-	InstrumentTrackView * m_itv;
-
-	// widgets on the top of an instrument-track-window
-	tabWidget * m_generalSettingsWidget;
-	QLineEdit * m_nameLineEdit;
-	knob * m_volumeKnob;
-	knob * m_panningKnob;
-	knob * m_pitchKnob;
-	lcdSpinBox * m_pitchRange;
-	lcdSpinBox * m_effectChannelNumber;
-	QPushButton * m_saveSettingsBtn;
-
-
-	// tab-widget with all children
-	tabWidget * m_tabWidget;
-	PluginView * m_instrumentView;
-	InstrumentSoundShapingView * m_ssView;
-	ChordCreatorView * m_chordView;
-	ArpeggiatorView * m_arpView;
-	InstrumentMidiIOView * m_midiView;
-	EffectRackView * m_effectView;
-
-	// test-piano at the bottom of every instrument-settings-window
-	PianoView * m_pianoView;
-
-	friend class InstrumentView;
-
-} ;
-
 
 
 #endif

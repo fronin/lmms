@@ -34,10 +34,9 @@
 #include "note_play_handle.h"
 #include "Oscillator.h"
 #include "pixmap_button.h"
-#include "song_editor.h"
 #include "templates.h"
 #include "tooltip.h"
-#include "song.h"
+#include "Song.h"
 
 #include "embed.cpp"
 
@@ -227,7 +226,7 @@ void bitInvader::lengthChanged()
 void bitInvader::samplesChanged( int _begin, int _end )
 {
 	normalize();
-	//engine::getSongEditor()->setModified();
+	//engine::songEditor()->setModified();
 }
 
 
@@ -470,7 +469,7 @@ void bitInvaderView::modelChanged()
 void bitInvaderView::sinWaveClicked()
 {
 	m_graph->model()->setWaveToSine();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -479,7 +478,7 @@ void bitInvaderView::sinWaveClicked()
 void bitInvaderView::triangleWaveClicked()
 {
 	m_graph->model()->setWaveToTriangle();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -488,7 +487,7 @@ void bitInvaderView::triangleWaveClicked()
 void bitInvaderView::sawWaveClicked()
 {
 	m_graph->model()->setWaveToSaw();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -497,7 +496,7 @@ void bitInvaderView::sawWaveClicked()
 void bitInvaderView::sqrWaveClicked()
 {
 	m_graph->model()->setWaveToSquare();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -506,7 +505,7 @@ void bitInvaderView::sqrWaveClicked()
 void bitInvaderView::noiseWaveClicked()
 {
 	m_graph->model()->setWaveToNoise();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -516,7 +515,7 @@ void bitInvaderView::usrWaveClicked()
 {
 	/*
 	m_graph->model()->setWaveToNoise();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 	// zero sample_shape
 	for (int i = 0; i < sample_length; i++)
 	{
@@ -549,7 +548,7 @@ void bitInvaderView::usrWaveClicked()
 void bitInvaderView::smoothClicked()
 {
 	m_graph->model()->smooth();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -558,7 +557,7 @@ void bitInvaderView::smoothClicked()
 void bitInvaderView::interpolationToggled( bool value )
 {
 	m_graph->setGraphStyle( value ? graph::LinearStyle : graph::NearestStyle);
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -566,7 +565,7 @@ void bitInvaderView::interpolationToggled( bool value )
 
 void bitInvaderView::normalizeToggled( bool value )
 {
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 

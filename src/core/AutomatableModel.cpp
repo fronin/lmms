@@ -25,8 +25,6 @@
 #include <QtXml/QDomElement>
 
 #include "AutomatableModel.h"
-#include "automation_recorder.h"
-#include "automation_pattern.h"
 #include "ControllerConnection.h"
 
 
@@ -87,7 +85,10 @@ AutomatableModel::~AutomatableModel()
 
 bool AutomatableModel::isAutomated() const
 {
+	/* TODO{TNG} Bring back automation
 	return automationPattern::isAutomated( this );
+	*/
+	return false;
 }
 
 
@@ -133,6 +134,7 @@ void AutomatableModel::saveSettings( QDomDocument & _doc, QDomElement & _this,
 void AutomatableModel::loadSettings( const QDomElement & _this,
 						const QString & _name )
 {
+	/* TODO{TNG} Bring back automation
 	// compat code
 	QDomNode node = _this.namedItem( automationPattern::classNodeName() );
 	if( node.isElement() )
@@ -173,6 +175,7 @@ void AutomatableModel::loadSettings( const QDomElement & _this,
 			//m_controllerConnection->setTargetName( displayName() );
 		}
 	}
+	*/
 
 	setInitValue( _this.attribute( _name ).toFloat() );
 }
@@ -479,7 +482,8 @@ void AutomatableModel::unlinkControllerConnection()
 void AutomatableModel::handleDataChanged()
 {
 	// report the data changed to AutomationRecorder
-	engine::getAutomationRecorder()->modelDataEvent( this );
+	// TODO{TNG} Bring back automation
+	//engine::getAutomationRecorder()->modelDataEvent( this );
 }
 
 

@@ -28,7 +28,6 @@
 #include <math.h>
 
 #include "note.h"
-#include "detuning_helper.h"
 #include "templates.h"
 
 
@@ -50,8 +49,9 @@ note::note( const midiTime & _length, const midiTime & _pos,
 	m_pos( _pos ),
 	m_detuning( NULL )
 {
-	//saveJournallingState( false );
-//	setJournalling( false );
+
+	/* TODO{TNG}: Not sure what this SharedObject stuff is about.
+	   commenting out until Automation is back.
 	if( _detuning )
 	{
 		m_detuning = sharedObject::ref( _detuning );
@@ -60,7 +60,7 @@ note::note( const midiTime & _length, const midiTime & _pos,
 	{
 		createDetuning();
 	}
-	//restoreJournallingState();
+	*/
 }
 
 
@@ -80,6 +80,7 @@ note::note( const note & _note ) :
 	m_pos( _note.m_pos ),
 	m_detuning( NULL )
 {
+	/* TODO{TNG}: Detuning Automation.
 	if( _note.m_detuning )
 	{
 		m_detuning = sharedObject::ref( _note.m_detuning );
@@ -88,6 +89,7 @@ note::note( const note & _note ) :
 	{
 		createDetuning();
 	}
+	*/
 }
 
 
@@ -95,10 +97,12 @@ note::note( const note & _note ) :
 
 note::~note()
 {
+	/* TODO{TNG}: Detuning Automation
 	if( m_detuning )
 	{
 		sharedObject::unref( m_detuning );
 	}
+	*/
 }
 
 
@@ -192,10 +196,12 @@ void note::saveSettings( QDomDocument & _doc, QDomElement & _this )
 	_this.setAttribute( "pan", m_panning );
 	_this.setAttribute( "len", m_length );
 	_this.setAttribute( "pos", m_pos );
+	/* TODO{TNG}: Detuning Automation
 	if( m_length > 0 )
 	{
 		m_detuning->saveSettings( _doc, _this );
 	}
+	*/
 }
 
 
@@ -210,10 +216,12 @@ void note::loadSettings( const QDomElement & _this )
 	m_panning = _this.attribute( "pan" ).toInt();
 	m_length = _this.attribute( "len" ).toInt();
 	m_pos = _this.attribute( "pos" ).toInt();
+	/* TODO{TNG}: Detuning Automation
 	if( _this.hasChildNodes() )
 	{
 		m_detuning->loadSettings( _this );
 	}
+	*/
 }
 
 
@@ -261,7 +269,9 @@ void note::redoStep( journalEntry & _je )
 
 void note::editDetuningPattern()
 {
+	/* TODO{TNG}: Detuning Automation
 	m_detuning->getAutomationPattern()->openInAutomationEditor();
+	*/
 }
 
 
@@ -269,9 +279,11 @@ void note::editDetuningPattern()
 
 void note::createDetuning()
 {
+	/* TODO{TNG}: Detuning Automation
 	m_detuning = new detuningHelper;
 	(void) m_detuning->getAutomationPattern();
 	m_detuning->setRange( -MaxDetuning, MaxDetuning, 0.1f );
+	*/
 }
 
 
@@ -279,7 +291,10 @@ void note::createDetuning()
 
 bool note::hasDetuningInfo() const
 {
+	/* TODO{TNG}: Detuning Automation
 	return m_detuning && m_detuning->hasAutomation();
+	*/
+	return false;
 }
 
 

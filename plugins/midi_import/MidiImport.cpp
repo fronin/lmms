@@ -32,17 +32,15 @@
 #include "ResourceDB.h"
 
 #include "MidiImport.h"
-#include "track_container.h"
+#include "TrackContainer.h"
 #include "InstrumentTrack.h"
-#include "automation_track.h"
-#include "automation_pattern.h"
 #include "config_mgr.h"
-#include "pattern.h"
+#include "Pattern.h"
 #include "Instrument.h"
 #include "MainWindow.h"
 #include "debug.h"
 #include "embed.h"
-#include "song.h"
+#include "Song.h"
 
 #include "portsmf/allegro.h"
 
@@ -71,6 +69,8 @@ Plugin::Descriptor PLUGIN_EXPORT midiimport_plugin_descriptor =
 
 }
 
+class automationTrack;
+class automationPattern;
 
 MidiImport::MidiImport( const QString & _file ) :
 	ImportFilter( _file, &midiimport_plugin_descriptor ),
@@ -89,7 +89,7 @@ MidiImport::~MidiImport()
 
 
 
-bool MidiImport::tryImport( trackContainer * _tc )
+bool MidiImport::tryImport( TrackContainer * _tc )
 {
 	if( openFile() == false )
 	{
@@ -156,13 +156,14 @@ public:
 	automationPattern * ap;
 	midiTime lastPos;
 	
-	smfMidiCC & create( trackContainer * _tc )
+	smfMidiCC & create( TrackContainer * _tc )
 	{
+		/* TODO{TNG} Bring back automation
 		if( !at )
 		{
-			at = dynamic_cast<automationTrack *>(
-					track::create( track::AutomationTrack, _tc ) );
-		}
+			at = dynamic_cast<AutomationTrack *>(
+					Track::create( Track::AutomationTrack, _tc ) );
+		}*/
 		return *this;
 	}
 
@@ -177,6 +178,7 @@ public:
 
 	smfMidiCC & putValue( midiTime time, AutomatableModel * objModel, float value )
 	{
+		/* TODO{TNG} Bring back automation
 		if( !ap || time > lastPos + DefaultTicksPerTact )
 		{
 			midiTime pPos = midiTime( time.getTact(), 0 );
@@ -190,11 +192,10 @@ public:
 		time = time - ap->startPosition();
 		ap->putValue( time, value, false );
 		ap->changeLength( midiTime( time.getTact() + 1, 0 ) ); 
-
+		*/
 		return *this;
 	}
 };
-
 
 
 class smfMidiChannel
@@ -211,17 +212,17 @@ public:
 	{ }
 	
 	InstrumentTrack * it;
-	pattern * p;
+	Pattern * p;
 	Instrument * it_inst;
 	bool isSF2; 
 	bool hasNotes;
 	midiTime lastEnd;
 	
-	smfMidiChannel * create( trackContainer * _tc )
+	smfMidiChannel * create( TrackContainer * _tc )
 	{
 		if( !it ) {
 			it = dynamic_cast<InstrumentTrack *>(
-			track::create( track::InstrumentTrack, _tc ) );
+			Track::create( Track::InstrumentTrack, _tc ) );
 
 #ifdef LMMS_HAVE_FLUIDSYNTH
 			it_inst = it->loadInstrument( "sf2player" );
@@ -254,7 +255,7 @@ public:
 		if( !p || n.pos() > lastEnd + DefaultTicksPerTact )
 		{
 			midiTime pPos = midiTime(n.pos().getTact(), 0 );
-			p = dynamic_cast<pattern *>( it->createTCO( 0 ) );
+			p = dynamic_cast<Pattern *>( it->createSegment( 0 ) );
 			p->movePosition( pPos );
 		}
 		hasNotes = true;
@@ -266,15 +267,15 @@ public:
 };
 
 
-bool MidiImport::readSMF( trackContainer * _tc )
+bool MidiImport::readSMF( TrackContainer * _tc )
 {
 	QString filename = file().fileName();
 	closeFile();
 
 	const int preTrackSteps = 2;
-	QProgressDialog pd( trackContainer::tr( "Importing MIDI-file..." ),
-	trackContainer::tr( "Cancel" ), 0, preTrackSteps, engine::mainWindow() );
-	pd.setWindowTitle( trackContainer::tr( "Please wait..." ) );
+	QProgressDialog pd( TrackContainer::tr( "Importing MIDI-file..." ),
+	TrackContainer::tr( "Cancel" ), 0, preTrackSteps, engine::mainWindow() );
+	pd.setWindowTitle( TrackContainer::tr( "Please wait..." ) );
 	pd.setWindowModality(Qt::WindowModal);
 	pd.setMinimumDuration( 0 );
 
@@ -290,12 +291,14 @@ bool MidiImport::readSMF( trackContainer * _tc )
 	smfMidiCC ccs[129];
 	smfMidiChannel chs[256];
 
-	MeterModel & timeSigMM = engine::getSong()->getTimeSigModel();
+	/* TODO{TNG} Bring back automation
+	MeterModel & timeSigMM = engine::song()->getTimeSigModel();
 	automationPattern * timeSigNumeratorPat = 
 		automationPattern::globalAutomationPattern( &timeSigMM.numeratorModel() );
 	automationPattern * timeSigDenominatorPat = 
 		automationPattern::globalAutomationPattern( &timeSigMM.denominatorModel() );
-	
+	*/
+
 	// TODO: adjust these to Time.Sig changes
 	double beatsPerTact = 4; 
 	double ticksPerBeat = DefaultTicksPerTact / beatsPerTact;
@@ -308,10 +311,11 @@ bool MidiImport::readSMF( trackContainer * _tc )
 		// Initial timeSig, set song-default value
 		if(/* timeSig.beat == 0*/ true )
 		{
-			// TODO set song-global default value
+			/* TODO{TNG} Bring back automation
 			printf("Another timesig at %f\n", timeSig.beat);
 			timeSigNumeratorPat->putValue( timeSig.beat*ticksPerBeat, timeSig.num );
 			timeSigDenominatorPat->putValue( timeSig.beat*ticksPerBeat, timeSig.den );
+			*/
 		}
 		else
 		{
@@ -322,6 +326,7 @@ bool MidiImport::readSMF( trackContainer * _tc )
 	pd.setValue( 2 );
 
 	// Tempo stuff
+	/* TODO{TNG} Bring back automation
 	automationPattern * tap = _tc->tempoAutomationPattern();
 	if( tap )
 	{
@@ -341,6 +346,7 @@ bool MidiImport::readSMF( trackContainer * _tc )
 			tap->putValue( b->beat * ticksPerBeat, timeMap->last_tempo * 60.0 );
 		}
 	}
+	*/
 
 	// Song events
 	for( int e = 0; e < seq->length(); ++e )
@@ -510,7 +516,7 @@ bool MidiImport::readSMF( trackContainer * _tc )
 
 
 
-bool MidiImport::readRIFF( trackContainer * _tc )
+bool MidiImport::readRIFF( TrackContainer * _tc )
 {
 	// skip file length
 	skip( 4 );

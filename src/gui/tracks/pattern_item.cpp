@@ -31,12 +31,12 @@
 #include "gui/tracks/track_item.h"
 #include "engine.h"
 #include "lmms_style.h"
-#include "track.h"
+#include "Track.h"
 
 
 
-PatternItem::PatternItem( TrackItem * _track, trackContentObject * _object ) :
-	TrackContentObjectItem( _track, _object )
+PatternItem::PatternItem( TrackItem * _track, TrackSegment * _object ) :
+	TrackSegmentItem( _track, _object )
 {
 }
 
@@ -61,7 +61,7 @@ void PatternItem::paint(
 	options->hovered = m_hover;
 	options->duration = 1;
 
-	engine::getLmmsStyle()->drawTrackContentObject( _painter, m_tco, options );
+	engine::getLmmsStyle()->drawTrackSegment( _painter, m_tco, options );
 
 	_painter->restore();
 	delete options;
@@ -79,14 +79,14 @@ QVariant PatternItem::itemChange( QGraphicsItemChange _change, const QVariant & 
 
 void PatternItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
 {
-	TrackContentObjectItem::mousePressEvent( event );
+	TrackSegmentItem::mousePressEvent( event );
 }
 
 
 
 void PatternItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
 {
-    TrackContentObjectItem::mouseReleaseEvent( event );
+	TrackSegmentItem::mouseReleaseEvent( event );
 } 
  
 

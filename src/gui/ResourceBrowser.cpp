@@ -38,7 +38,7 @@
 #include "MainWindow.h"
 #include "Piano.h"
 #include "PianoView.h"
-#include "song.h"
+#include "Song.h"
 
 
 struct ActionDesc
@@ -373,12 +373,12 @@ void ResourceBrowser::triggerAction( Actions _action, ResourceItem * _item )
 				ResourceFileMapper mapper( _item );
 				if( _item->isLocalResource() )
 				{
-					engine::getSong()->loadProject(
+					engine::song()->loadProject(
 							mapper.fileName() );
 				}
 				else
 				{
-					engine::getSong()->
+					engine::song()->
 						createNewProjectFromTemplate(
 							mapper.fileName() );
 				}

@@ -37,7 +37,7 @@
 #include "InstrumentTrack.h"
 #include "note_play_handle.h"
 #include "pixmap_button.h"
-#include "song.h"
+#include "Song.h"
 #include "string_pair_drag.h"
 #include "tooltip.h"
 
@@ -554,7 +554,7 @@ void PatmanView::openFile()
 		if( f != "" )
 		{
 			m_pi->setFile( f );
-			engine::getSong()->setModified();
+			engine::song()->setModified();
 		}
 	}
 }

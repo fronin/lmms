@@ -25,7 +25,7 @@
 
 
 #include "Controller.h"
-#include "song.h"
+#include "Song.h"
 #include "PeakController.h"
 #include "peak_controller_effect.h"
 
@@ -67,8 +67,8 @@ PeakControllerEffect::PeakControllerEffect(
 	m_effectId( ++PeakController::s_lastEffectId ),
 	m_autoController( NULL )
 {
-	m_autoController = new PeakController( engine::getSong(), this );
-	engine::getSong()->addController( m_autoController );
+	m_autoController = new PeakController( engine::song(), this );
+	engine::song()->addController( m_autoController );
 	PeakController::s_effects.append( this );
 }
 

@@ -3,7 +3,7 @@
 
 #include <QtCore/QVector>
 
-#include "track_container.h"
+#include "TrackContainer.h"
 #include "AutomatableModel.h"
 #include "Controller.h"
 #include "MeterModel.h"  // Remove?
@@ -11,7 +11,7 @@
 
 
 class automationTrack;
-class pattern;
+class Pattern;
 class timeLine;
 
 // Already defined in song.h ATM
@@ -21,13 +21,13 @@ class timeLine;
 //const tick_t MaxSongLength = 9999 * DefaultTicksPerTact;
 
 
-class EXPORT Song : public trackContainer
+class EXPORT Song : public TrackContainer
 {
 	Q_OBJECT
+	// TODO{TNG} Something has to happen here... these models are time-based
 	//mapPropertyFromModel(int,getTempo,setTempo,m_tempoModel);
-	//mapPropertyFromModel(int,masterPitch,setMasterPitch,m_masterPitchModel);
-	//mapPropertyFromModel(int,masterVolume,setMasterVolume,
-	//						m_masterVolumeModel);
+	mapPropertyFromModel(int,masterPitch,setMasterPitch,m_masterPitchModel);
+	mapPropertyFromModel(int,masterVolume,setMasterVolume,m_masterVolumeModel);
 public:
 
 	void updateLength( void );
@@ -146,7 +146,7 @@ private:
 
 	/* TODO! Remove as many friends as possible */
 	friend class engine;
-	friend class mainWindow;
+	friend class MainWindow;
 	friend class ControllerRackView;
 	friend class Sequencer;
 

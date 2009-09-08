@@ -27,9 +27,7 @@
 
 #include "ImportFilter.h"
 #include "engine.h"
-#include "track_container.h"
-#include "ProjectJournal.h"
-
+#include "TrackContainer.h"
 
 
 ImportFilter::ImportFilter( const QString & _file_name,
@@ -50,7 +48,7 @@ ImportFilter::~ImportFilter()
 
 
 void ImportFilter::import( const QString & _file_to_import,
-							trackContainer * _tc )
+							TrackContainer * _tc )
 {
 	DescriptorList d;
 	Plugin::getDescriptorsOfAvailPlugins( d );
@@ -58,10 +56,6 @@ void ImportFilter::import( const QString & _file_to_import,
 	bool successful = false;
 
 	char * s = qstrdup( _file_to_import.toUtf8().constData() );
-
-	// do not record changes while importing files
-	const bool j = engine::projectJournal()->isJournalling();
-	engine::projectJournal()->setJournalling( false );
 
 	for( Plugin::DescriptorList::ConstIterator it = d.begin();
 												it != d.end(); ++it )
@@ -81,15 +75,13 @@ void ImportFilter::import( const QString & _file_to_import,
 		}
 	}
 
-	engine::projectJournal()->setJournalling( j );
-
 	delete[] s;
 
 	if( successful == false )
 	{
 		QMessageBox::information( NULL,
-			trackContainer::tr( "Couldn't import file" ),
-			trackContainer::tr( "Couldn't find a filter for "
+			TrackContainer::tr( "Couldn't import file" ),
+			TrackContainer::tr( "Couldn't find a filter for "
 						"importing file %1.\n"
 						"You should convert this file "
 						"into a format supported by "
@@ -108,8 +100,8 @@ bool ImportFilter::openFile()
 	if( m_file.open( QFile::ReadOnly ) == false )
 	{
 		QMessageBox::critical( NULL,
-			trackContainer::tr( "Couldn't open file" ),
-			trackContainer::tr( "Couldn't open file %1 "
+			TrackContainer::tr( "Couldn't open file" ),
+			TrackContainer::tr( "Couldn't open file %1 "
 						"for reading.\nPlease make "
 						"sure you have read-"
 						"permission to the file and "

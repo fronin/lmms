@@ -41,7 +41,7 @@
 #include "TempoSyncKnob.h"
 #include "text_float.h"
 #include "tooltip.h"
-#include "track.h"
+#include "Track.h"
 
 
 extern const float SECS_PER_ENV_SEGMENT;
@@ -370,7 +370,7 @@ void EnvelopeAndLfoView::dragEnterEvent( QDragEnterEvent * _dee )
 {
 	stringPairDrag::processDragEnterEvent( _dee,
 					QString( "samplefile,tco_%1" ).arg(
-							track::SampleTrack ) );
+							Track::SampleTrack ) );
 }
 
 
@@ -387,7 +387,7 @@ void EnvelopeAndLfoView::dropEvent( QDropEvent * _de )
 		m_userLfoBtn->model()->setValue( true );
 		_de->accept();
 	}
-	else if( type == QString( "tco_%1" ).arg( track::SampleTrack ) )
+	else if( type == QString( "tco_%1" ).arg( Track::SampleTrack ) )
 	{
 		multimediaProject mmp( value.toUtf8() );
 		m_params->m_userWave.setAudioFile(

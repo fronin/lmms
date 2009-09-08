@@ -30,9 +30,8 @@
 
 #include "FlpImport.h"
 #include "note_play_handle.h"
-#include "automation_pattern.h"
 #include "basic_filters.h"
-#include "bb_track.h"
+#include "BbTrack.h"
 #include "bb_track_container.h"
 #include "combobox.h"
 #include "config_mgr.h"
@@ -46,12 +45,11 @@
 #include "EnvelopeAndLfoParameters.h"
 #include "knob.h"
 #include "Oscillator.h"
-#include "pattern.h"
+#include "Pattern.h"
 #include "Piano.h"
-#include "ProjectJournal.h"
 #include "project_notes.h"
-#include "song.h"
-#include "track_container.h"
+#include "Song.h"
+#include "TrackContainer.h"
 #include "embed.h"
 #include "lmmsconfig.h"
 
@@ -104,6 +102,7 @@ extern QString outstring;
 
 }
 
+const bpm_t DefaultTempo = 140;
 
 
 static void dump_mem( const void * buffer, uint n_bytes )
@@ -592,7 +591,7 @@ FlpImport::~FlpImport()
 {
 }
 
-bool FlpImport::tryImport( trackContainer * _tc )
+bool FlpImport::tryImport( TrackContainer * _tc )
 {
 #ifdef LMMS_HAVE_ZIP
 	return tryFLPImport( _tc ) || tryZIPImport( _tc );
@@ -602,7 +601,7 @@ bool FlpImport::tryImport( trackContainer * _tc )
 }
 
 #ifdef LMMS_HAVE_ZIP
-bool FlpImport::tryZIPImport( trackContainer * _tc )
+bool FlpImport::tryZIPImport( TrackContainer * _tc )
 {
 	// see if the file is a zip file
 	closeFile();
@@ -724,7 +723,7 @@ bool FlpImport::tryZIPImport( trackContainer * _tc )
 }
 #endif
 
-bool FlpImport::tryFLPImport( trackContainer * _tc )
+bool FlpImport::tryFLPImport( TrackContainer * _tc )
 {
 	const int mappedFilter[] =
 	{
@@ -849,9 +848,9 @@ bool FlpImport::tryFLPImport( trackContainer * _tc )
 	}
 
 	QProgressDialog progressDialog(
-			trackContainer::tr( "Importing FLP-file..." ),
-			trackContainer::tr( "Cancel" ), 0, p.numChannels );
-	progressDialog.setWindowTitle( trackContainer::tr( "Please wait..." ) );
+			TrackContainer::tr( "Importing FLP-file..." ),
+			TrackContainer::tr( "Cancel" ), 0, p.numChannels );
+	progressDialog.setWindowTitle( TrackContainer::tr( "Please wait..." ) );
 	progressDialog.show();
 
 	bool valid = false;
@@ -899,9 +898,6 @@ bool FlpImport::tryFLPImport( trackContainer * _tc )
 	FL_Plugin::PluginTypes last_plugin_type = FL_Plugin::UnknownPlugin;
 	
 	int cur_channel = -1;
-
-	const bool is_journ = engine::projectJournal()->isJournalling();
-	engine::projectJournal()->setJournalling( false );
 
 
 	while( file().atEnd() == false )
@@ -1559,12 +1555,13 @@ else
 
 	// now create a project from FL_Project data structure
 
-	engine::getSong()->clearProject();
+	engine::song()->clearProject();
 
 	// set global parameters
-	engine::getSong()->setMasterVolume( p.mainVolume );
-	engine::getSong()->setMasterPitch( p.mainPitch );
-	engine::getSong()->setTempo( p.tempo );
+	engine::song()->setMasterVolume( p.mainVolume );
+	engine::song()->setMasterPitch( p.mainPitch );
+	// TODO{TNG} Use metric map
+	//engine::song()->setTempo( p.tempo );
 
 	// set project notes
 	engine::getProjectNotes()->setText( p.projectNotes );
@@ -1575,14 +1572,14 @@ else
 	int cur_progress = 0;
 
 	// create BB tracks
-	QList<bbTrack *> bb_tracks;
+	QList<BbTrack *> bb_tracks;
 	QList<InstrumentTrack *> i_tracks;
 
 	while( engine::getBBTrackContainer()->numOfBBs() <= p.maxPatterns )
 	{
 		const int cur_pat = bb_tracks.size();
-		bbTrack * bbt = dynamic_cast<bbTrack *>(
-			track::create( track::BBTrack, engine::getSong() ) );
+		BbTrack * bbt = dynamic_cast<BbTrack *>(
+			Track::create( Track::BBTrack, engine::song() ) );
 		if( p.patternNames.contains( cur_pat ) )
 		{
 			bbt->setName( p.patternNames[cur_pat] );
@@ -1597,7 +1594,7 @@ else
 						it != p.channels.end(); ++it )
 	{
 		InstrumentTrack * t = dynamic_cast<InstrumentTrack *>(
-			track::create( track::InstrumentTrack,
+			Track::create( Track::InstrumentTrack,
 					engine::getBBTrackContainer() ) );
 		engine::getBBTrackContainer()->updateAfterTrackAdd();
 		i_tracks.push_back( t );
@@ -1683,8 +1680,8 @@ else
 		{
 			const int pat = *jt / 256;
 			const int pos = *jt % 256;
-			pattern * p =
-				dynamic_cast<pattern *>( t->getTCO( pat ) );
+			Pattern * p =
+				dynamic_cast<Pattern *>( t->getSegment( pat ) );
 			if( p == NULL )
 			{
 				continue;
@@ -1708,7 +1705,7 @@ else
 			{
 				continue;
 			}
-			pattern * p = dynamic_cast<pattern *>( t->getTCO( pat ) );
+			Pattern * p = dynamic_cast<Pattern *>( t->getSegment( pat ) );
 			if( p != NULL )
 			{
 				p->addNote( jt->second, false );
@@ -1767,8 +1764,10 @@ if( scale )
 	value = m->minValue<float>() + value *
 				( m->maxValue<float>() - m->minValue<float>() );
 }
+/* TODO{TNG} Bring back automation
 automationPattern * p = automationPattern::globalAutomationPattern( m );
 p->putValue( jt->pos, value, false );
+*/
 			}
 		}
 
@@ -1894,8 +1893,8 @@ p->putValue( jt->pos, value, false );
 		{
 			continue;
 		}
-		trackContentObject * tco =
-			bb_tracks[it->pattern]->createTCO( midiTime() );
+		TrackSegment * tco =
+			bb_tracks[it->pattern]->createSegment( midiTime() );
 		tco->movePosition( it->position );
 		if( it->length != DefaultTicksPerTact )
 		{
@@ -1911,9 +1910,6 @@ p->putValue( jt->pos, value, false );
 		engine::getBBTrackContainer()->setCurrentBB(
 							p.activeEditPattern );
 	}
-
-	// restore journalling settings
-	engine::projectJournal()->setJournalling( is_journ );
 
 	return true;
 }

@@ -36,25 +36,25 @@
 
 #include "lmms_basics.h"
 
-class trackContentObject;
+class TrackSegment;
 class TrackItem;
 
-class TrackContentObjectItem : public QObject, public QGraphicsItem
+class TrackSegmentItem : public QObject, public QGraphicsItem
 {
 	Q_OBJECT
 
     friend class TrackContainerScene;
 
 public:
-	TrackContentObjectItem( TrackItem * _track, trackContentObject * _object );
+	TrackSegmentItem( TrackItem * _track, TrackSegment * _model );
 
-	virtual ~TrackContentObjectItem()
+	virtual ~TrackSegmentItem()
 	{
 		if( m_snapBackAnimation != NULL )
 		{
 			delete m_snapBackAnimation;
 		}
-	};
+	}
 
 	QRectF boundingRect() const;
 
@@ -95,7 +95,7 @@ protected:
 	static QTimeLine s_snapBackTimeLine;
 
 	TrackItem * m_trackItem;
-	trackContentObject * m_tco;
+	TrackSegment * m_tco;
 	bool m_hover;
 };
 

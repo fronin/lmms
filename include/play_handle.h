@@ -30,7 +30,7 @@
 
 #include "lmms_basics.h"
 
-class track;
+class Track;
 
 
 class playHandle
@@ -87,7 +87,7 @@ public:
 	}
 
 
-	virtual bool isFromTrack( const track * _track ) const = 0;
+	virtual bool isFromTrack( const Track * _track ) const = 0;
 
 
 private:

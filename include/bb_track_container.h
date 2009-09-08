@@ -26,11 +26,11 @@
 #ifndef _BB_TRACK_CONTAINER_H
 #define _BB_TRACK_CONTAINER_H
 
-#include "track_container.h"
+#include "TrackContainer.h"
 #include "combobox.h"
 
 
-class EXPORT bbTrackContainer : public trackContainer
+class EXPORT bbTrackContainer : public TrackContainer
 {
 	Q_OBJECT
 	mapPropertyFromModel(int,currentBB,setCurrentBB,m_bbComboBoxModel);
@@ -59,7 +59,7 @@ public:
 
 	void swapBB( int _bb1, int _bb2 );
 
-	void updateBBTrack( trackContentObject * _tco );
+	void updateBBTrack( TrackSegment * _tco );
 	void fixIncorrectPositions();
 	void createTCOsForBB( int _bb );
 

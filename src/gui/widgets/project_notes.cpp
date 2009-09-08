@@ -40,7 +40,7 @@
 #include "embed.h"
 #include "engine.h"
 #include "MainWindow.h"
-#include "song.h"
+#include "Song.h"
 
 
 
@@ -62,7 +62,7 @@ projectNotes::projectNotes() :
 //	connect( m_edit, SIGNAL( currentAlignmentChanged( int ) ),
 //			this, SLOT( alignmentChanged( int ) ) );
 	connect( m_edit, SIGNAL( textChanged() ),
-			engine::getSong(), SLOT( setModified() ) );
+			engine::song(), SLOT( setModified() ) );
 
 	setupActions();
 
@@ -250,7 +250,7 @@ void projectNotes::textBold()
 {
 	m_edit->setFontWeight( m_actionTextBold->isChecked() ? QFont::Bold :
 								QFont::Normal );
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -259,7 +259,7 @@ void projectNotes::textBold()
 void projectNotes::textUnderline()
 {
 	m_edit->setFontUnderline( m_actionTextUnderline->isChecked() );
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -268,7 +268,7 @@ void projectNotes::textUnderline()
 void projectNotes::textItalic()
 {
 	m_edit->setFontItalic( m_actionTextItalic->isChecked() );
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -278,7 +278,7 @@ void projectNotes::textFamily( const QString & _f )
 {
 	m_edit->setFontFamily( _f );
 	m_edit->viewport()->setFocus();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -288,7 +288,7 @@ void projectNotes::textSize( const QString & _p )
 {
 	m_edit->setFontPointSize( _p.toInt() );
 	m_edit->viewport()->setFocus();
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -346,7 +346,7 @@ void projectNotes::formatChanged( const QTextCharFormat & _f )
 	pix.fill( _f.foreground().color() );
 	m_actionTextColor->setIcon( pix );
 
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 
@@ -370,7 +370,7 @@ void projectNotes::alignmentChanged( int _a )
 	{
 		m_actionAlignJustify->setChecked( true );
 	}
-	engine::getSong()->setModified();
+	engine::song()->setModified();
 }
 
 

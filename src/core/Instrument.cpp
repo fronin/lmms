@@ -88,7 +88,7 @@ Instrument * Instrument::instantiate( const QString & _plugin_name,
 
 
 
-bool Instrument::isFromTrack( const track * _track ) const
+bool Instrument::isFromTrack( const Track * _track ) const
 {
 	return m_instrumentTrack == _track;
 }

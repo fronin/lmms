@@ -32,11 +32,11 @@
 #include "lmms_style.h"
 #include "classic_style.h"
 #include "gui_templates.h"
-#include "track.h"
+#include "Track.h"
 #include "gui/tracks/track_container_scene.h"
 #include "embed.h"
-#include "bb_track.h"
-#include "pattern.h"
+#include "BbTrack.h"
+#include "Pattern.h"
 #include "InstrumentTrack.h"
 
 
@@ -340,15 +340,15 @@ void ClassicStyle::drawTrackContentBackground(QPainter * _painter,
 
 
 
-void ClassicStyle::drawTrackContentObject( QPainter * _painter,
-		const trackContentObject * _model, const LmmsStyleOptionTCO * _option )
+void ClassicStyle::drawTrackSegment( QPainter * _painter,
+		const TrackSegment * _model, const LmmsStyleOptionTCO * _option )
 {
 	QRectF rc = _option->rect.adjusted( 0, 2, 0, -2 );
 	_painter->setRenderHint( QPainter::Antialiasing, false );
 
-	if( const bbTCO * bbTco = dynamic_cast<const bbTCO *>( _model ) )
+	if( const BbSegment * bbSegment = dynamic_cast<const BbSegment *>( _model ) )
 	{
-		QColor col( bbTco->color() );
+		QColor col( bbSegment->color() );
 
 		if( _model->getTrack()->isMuted() || _model->isMuted() )
 		{
@@ -422,7 +422,7 @@ void ClassicStyle::drawTrackContentObject( QPainter * _painter,
 		const float TCO_BORDER_WIDTH = 1.0f;
 		float ppt = TrackContainerScene::DEFAULT_CELL_WIDTH;
 
-		if( const pattern * pat = dynamic_cast<const pattern *>( _model ) )
+		if( const Pattern * pat = dynamic_cast<const Pattern *>( _model ) )
 		{
 			ppt = rc.width() / (float) pat->length().getTact();
 
@@ -437,7 +437,7 @@ void ClassicStyle::drawTrackContentObject( QPainter * _painter,
 			}
 
 			p->setClipRect( rc.adjusted( 1, 1, -1, -1 ) );
-			if( pat->type() == pattern::MelodyPattern )
+			if( pat->type() == Pattern::MelodyPattern )
 			{
 				int central_key = 0;
 				if( pat->notes().size() > 0 )
@@ -502,7 +502,7 @@ void ClassicStyle::drawTrackContentObject( QPainter * _painter,
 					}
 				}
 			}
-			/*
+			/* TODO{TNG}: Do beat pattern
 			else if( pat->type() == pattern::BeatPattern &&
 					( fixedTCOs() || 
 				  	  ppt >= 96 || 

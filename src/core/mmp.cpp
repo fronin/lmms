@@ -35,7 +35,7 @@
 
 #include "config_mgr.h"
 #include "project_version.h"
-#include "song_editor.h"
+#include "gui/SongEditor.h"
 #include "Effect.h"
 #include "lmmsversion.h"
 
@@ -94,8 +94,8 @@ multimediaProject::multimediaProject( const QString & _fileName ) :
 	if( !inFile.open( QIODevice::ReadOnly ) )
 	{
 		QMessageBox::critical( NULL,
-			songEditor::tr( "Could not open file" ),
-			songEditor::tr( "Could not open file %1. You probably "
+			SongEditor::tr( "Could not open file" ),
+			SongEditor::tr( "Could not open file %1. You probably "
 					"have no permissions to read this "
 					"file.\n Please make sure to have at "
 					"least read permissions to the file "
@@ -178,8 +178,8 @@ bool multimediaProject::writeFile( const QString & _fn )
 	if( !outfile.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
 	{
 		QMessageBox::critical( NULL,
-				songEditor::tr( "Could not write file" ),
-					songEditor::tr( "Could not write file "
+				SongEditor::tr( "Could not write file" ),
+					SongEditor::tr( "Could not write file "
 							"%1. You probably are "
 							"not permitted to "
 							"write to this file.\n"
@@ -693,8 +693,8 @@ void multimediaProject::loadData( const QByteArray & _data,
 		{
 			qWarning() << "at line" << line << "column" << errorMsg;
 			QMessageBox::critical( NULL,
-				songEditor::tr( "Error in file" ),
-				songEditor::tr( "The file %1 seems to contain "
+				SongEditor::tr( "Error in file" ),
+				SongEditor::tr( "The file %1 seems to contain "
 						"errors and therefore can't be "
 						"loaded." ).
 							arg( _sourceFile ) );

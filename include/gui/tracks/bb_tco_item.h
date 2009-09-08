@@ -34,17 +34,17 @@
 #include <QtGui/QPainter>
 #include <math.h>
 
-class trackContentObject;
-class TrackItem;
-
 #include "gui/tracks/track_content_object_item.h"
 
-class BbTrackContentObjectItem : public TrackContentObjectItem
+class TrackSegment;
+class TrackItem;
+
+class BbSegmentItem : public TrackSegmentItem
 {
 	Q_OBJECT
 
 public:
-	BbTrackContentObjectItem( TrackItem * _track, trackContentObject * _object );
+	BbSegmentItem( TrackItem * _track, TrackSegment * _object );
 
 	virtual void paint( QPainter * _painter, const QStyleOptionGraphicsItem * _option,
 			QWidget * _widget );

@@ -46,7 +46,7 @@
 #include "config_mgr.h"
 #include "engine.h"
 #include "MainWindow.h"
-#include "song.h"
+#include "Song.h"
 #include "templates.h"
 
 
@@ -153,9 +153,10 @@ VstPlugin::VstPlugin( const QString & _plugin ) :
 	}
 #endif
 
-	setTempo( engine::getSong()->getTempo() );
+	// TODO{TNG} MetricMap
+	//setTempo( engine::song()->getTempo() );
 
-	connect( engine::getSong(), SIGNAL( tempoChanged( bpm_t ) ),
+	connect( engine::song(), SIGNAL( tempoChanged( bpm_t ) ),
 			this, SLOT( setTempo( bpm_t ) ) );
 	connect( engine::getMixer(), SIGNAL( sampleRateChanged() ),
 				this, SLOT( updateSampleRate() ) );

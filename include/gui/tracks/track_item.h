@@ -1,5 +1,5 @@
 /*
- * track_content_object_item.cpp - the base-class for TCOs on the song Editor.
+ * track_item.cpp - the base-class for Tracks in the TrackContainerScene
  * Despite the name, it really isn't a GraphicsItem at all.
  *
  * Copyright (c) 2009 Paul Giblock <pgib/at/users.sourceforge.net>
@@ -33,15 +33,15 @@
 #include <QMap>
 
 class TrackContainerScene;
-class track;
-class trackContentObject;
-class TrackContentObjectItem;
+class Track;
+class TrackSegment;
+class TrackSegmentItem;
 
 class TrackItem : public QObject
 {
 	Q_OBJECT;
 public:
-	TrackItem( TrackContainerScene * _scene, track * _track );
+	TrackItem( TrackContainerScene * _scene, Track * _track );
 	virtual ~TrackItem( );
 
 	float height();
@@ -51,15 +51,15 @@ public:
 	void setY( float _x );
 
 private slots:
-	void addTCO( trackContentObject * _tco );
-	void removeTCO( trackContentObject * _tco );
+	void addSegment( TrackSegment * _segment );
+	void removeSegment( TrackSegment * _segment );
 
 private:
 	QRectF m_rect;
 
 	TrackContainerScene * m_scene;
-	track * m_track;
-	QMap<trackContentObject*, TrackContentObjectItem *> m_tcoItems;
+	Track * m_track;
+	QMap<TrackSegment*, TrackSegmentItem *> m_segmentItems;
 
 };
 

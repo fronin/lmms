@@ -31,7 +31,7 @@
 #include "Plugin.h"
 
 
-class trackContainer;
+class TrackContainer;
 
 
 class EXPORT ImportFilter : public Plugin
@@ -45,11 +45,11 @@ public:
 	// tries to import given file to given track-container by having all
 	// available import-filters to try to import the file
 	static void import( const QString & _file_to_import,
-						trackContainer * _tc );
+						TrackContainer * _tc );
 
 
 protected:
-	virtual bool tryImport( trackContainer * _tc ) = 0;
+	virtual bool tryImport( TrackContainer * _tc ) = 0;
 	
 	inline void setFile( QString &_file )
 	{

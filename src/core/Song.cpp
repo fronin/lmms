@@ -31,16 +31,6 @@
 #include <math.h>
 
 #include "Song.h"
-#include "automation_track.h"
-#include "automation_editor.h"
-#include "automation_recorder.h"
-#include "bb_editor.h"
-#include "bb_track.h"
-#include "bb_track_container.h"
-#include "config_mgr.h"
-#include "ControllerRackView.h"
-#include "ControllerConnection.h"
-#include "embed.h"
 #include "EnvelopeAndLfoParameters.h"
 #include "ExportProjectDialog.h"
 #include "FxMixer.h"
@@ -48,18 +38,22 @@
 #include "ImportFilter.h"
 #include "InstrumentTrack.h"
 #include "MainWindow.h"
+
+#include "BbTrack.h"
+#include "bb_track_container.h"
+#include "config_mgr.h"
+#include "ControllerRackView.h"
+#include "ControllerConnection.h"
+#include "embed.h"
+
 #include "mmp.h"
 #include "note_play_handle.h"
-#include "pattern.h"
-#include "piano_roll.h"
-#include "ProjectJournal.h"
+#include "Pattern.h"
 #include "project_notes.h"
 #include "ProjectRenderer.h"
 #include "rename_dialog.h"
-#include "song_editor.h"
 #include "templates.h"
 #include "text_float.h"
-#include "timeline.h"
 
 
 //tick_t midiTime::s_ticksPerTact = DefaultTicksPerTact;
@@ -67,10 +61,7 @@
 
 
 Song::Song( void ) :
-	trackContainer(),
-	m_globalAutomationTrack( dynamic_cast<automationTrack *>(
-				track::create( track::HiddenAutomationTrack,
-								this ) ) ),
+	TrackContainer(),
 	//m_tempoModel( DefaultTempo, MinTempo, MaxTempo, this, tr( "Tempo" ) ),
 	//m_timeSigModel( this ),
 	//m_oldTicksPerTact( DefaultTicksPerTact ),
@@ -169,12 +160,13 @@ void song::setTimeSignature( void )
 */
 
 
-/* TODO! Should be based on the beatMap */
+/* TODO{TNG}: Should be based on the beatMap */
 void Song::updateLength( void )
 {
+	/*
 	m_length = 0;
 	m_tracksMutex.lockForRead();
-	for( trackList::const_iterator it = tracks().begin();
+	for( TrackList::const_iterator it = tracks().begin();
 						it != tracks().end(); ++it )
 	{
 		const tact_t cur = ( *it )->length();
@@ -186,10 +178,11 @@ void Song::updateLength( void )
 	m_tracksMutex.unlock();
 
 	emit lengthChanged( m_length );
+	*/
 }
 
 
-/* TODO! Should be based on the beatMap and needs pos */
+/* TODO{TNG} Should be based on the beatMap and needs pos */
 void Song::insertBar( void )
 {
 	/*
@@ -205,7 +198,7 @@ void Song::insertBar( void )
 
 
 
-/* TODO! Should be based on the beatMap */
+/* TODO{TNG} Should be based on the beatMap */
 void Song::removeBar( void )
 {
 	/*
@@ -222,7 +215,7 @@ void Song::removeBar( void )
 
 
 
-/* TODO! Why lock mixer??? */
+/* TODO{TNG} Why lock mixer??? */
 void Song::addBBTrack( void )
 {
 	/*
@@ -237,7 +230,7 @@ void Song::addBBTrack( void )
 
 
 
-/* TODO! Why lock mixer??? */
+/* TODO{TNG} Why lock mixer??? */
 void Song::addSampleTrack( void )
 {
 	/*
@@ -249,7 +242,7 @@ void Song::addSampleTrack( void )
 
 
 
-/* TODO! Why lock mixer??? */
+/* TODO{TNG} Why lock mixer??? */
 void Song::addAutomationTrack( void )
 {
 	/*
@@ -268,7 +261,7 @@ void Song::addAutomationTrack( void )
 
 
 
-/* TODO! Implement correctly !! */
+/* TODO{TNG} Implement correctly !! */
 void Song::clearProject( void )
 {
 	/*
@@ -284,9 +277,9 @@ void Song::clearProject( void )
 	{
 		engine::getBBEditor()->clearAllTracks();
 	}
-	if( engine::getSongEditor() )
+	if( engine::songEditor() )
 	{
-		engine::getSongEditor()->clearAllTracks();
+		engine::songEditor()->clearAllTracks();
 	}
 	if( engine::getFxMixerView() )
 	{
@@ -356,21 +349,19 @@ void Song::createNewProject( void )
 
 	clearProject();
 
-	engine::projectJournal()->setJournalling( false );
-
 	m_fileName = m_oldFileName = "";
 
-	track * t;
-	t = track::create( track::InstrumentTrack, this );
+	Track * t;
+	t = Track::create( Track::InstrumentTrack, this );
 	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
-					"tripleoscillator" );
-	t = track::create( track::InstrumentTrack,
+					"tripleOscillator" );
+	/*t = Track::create( Track::InstrumentTrack,
 						engine::getBBTrackContainer() );
 	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
-						"tripleoscillator" );
-	track::create( track::SampleTrack, this );
-	track::create( track::BBTrack, this );
-	track::create( track::AutomationTrack, this );
+						"tripleOscillator" );*/
+	Track::create( Track::SampleTrack, this );
+	Track::create( Track::BBTrack, this );
+	Track::create( Track::AutomationTrack, this );
 
 	/*
 	m_tempoModel.setInitValue( DefaultTempo );
@@ -384,8 +375,6 @@ void Song::createNewProject( void )
 	m_loadingProject = false;
 
 	engine::getBBTrackContainer()->updateAfterTrackAdd();
-
-	engine::projectJournal()->setJournalling( true );
 
 	QCoreApplication::sendPostedEvents();
 
@@ -417,8 +406,6 @@ void Song::loadProject( const QString & _file_name )
 	m_loadingProject = true;
 
 	clearProject();
-
-	engine::projectJournal()->setJournalling( false );
 
 	m_fileName = _file_name;
 	m_oldFileName = _file_name;
@@ -455,8 +442,10 @@ void Song::loadProject( const QString & _file_name )
 
 	if( !mmp.content().firstChildElement( "track" ).isNull() )
 	{
+		/* TODO{TNG} Bring back automation
 		m_globalAutomationTrack->restoreState( mmp.content().
 						firstChildElement( "track" ) );
+		*/
 	}
 	QDomNode node = mmp.content().firstChild();
 	while( !node.isNull() )
@@ -486,6 +475,7 @@ void Song::loadProject( const QString & _file_name )
 					engine::getControllerRackView()->
 						restoreState( node.toElement() );
 				}
+				/* TODO{TNG} Separate this state from song
 				else if( node.nodeName() ==
 					engine::getPianoRoll()->nodeName() )
 				{
@@ -499,6 +489,7 @@ void Song::loadProject( const QString & _file_name )
 					engine::getAutomationEditor()->
 						restoreState( node.toElement() );
 				}
+				*/
 				else if( node.nodeName() ==
 						engine::getProjectNotes()->
 								nodeName() )
@@ -530,14 +521,13 @@ void Song::loadProject( const QString & _file_name )
 	ControllerConnection::finalizeConnections();
 
 	// resolve all IDs so that autoModels are automated
-	automationPattern::resolveAllIDs();
+	// TODO{TNG} Bring back automation
+	//automationPattern::resolveAllIDs();
 
 
 	engine::getMixer()->unlock();
 
 	configManager::inst()->addRecentlyOpenedProject( _file_name );
-
-	engine::projectJournal()->setJournalling( true );
 
 	m_loadingProject = false;
 	m_modified = false;
@@ -545,10 +535,6 @@ void Song::loadProject( const QString & _file_name )
 	if( engine::mainWindow() )
 	{
 		engine::mainWindow()->resetWindowTitle();
-	}
-	if( engine::getSongEditor() )
-	{
-		engine::getSongEditor()->scrolled( 0 );
 	}
 }
 
@@ -569,13 +555,16 @@ bool Song::saveProject( void )
 
 	saveState( mmp, mmp.content() );
 
-	m_globalAutomationTrack->saveState( mmp, mmp.content() );
+	// TODO{TNG} Bring back automation
+	//m_globalAutomationTrack->saveState( mmp, mmp.content() );
 	engine::fxMixer()->saveState( mmp, mmp.content() );
 	if( engine::hasGUI() )
 	{
+		/* TODO{TNG} Serialize this better
 		engine::getControllerRackView()->saveState( mmp, mmp.content() );
 		engine::getPianoRoll()->saveState( mmp, mmp.content() );
 		engine::getAutomationEditor()->saveState( mmp, mmp.content() );
+		*/
 		engine::getProjectNotes()->
 			SerializingObject::saveState( mmp, mmp.content() );
 		/*
@@ -646,7 +635,9 @@ void Song::importProject( void )
 	ofd.setFileMode( QFileDialog::ExistingFiles );
 	if( ofd.exec () == QDialog::Accepted && !ofd.selectedFiles().isEmpty() )
 	{
+		/* TODO{TNG}: Port ImportFilter
 		ImportFilter::import( ofd.selectedFiles()[0], this );
+		*/
 	}
 }
 
@@ -769,9 +760,9 @@ void Song::removeController( Controller * _controller )
 	{
 		m_controllers.remove( index );
 
-		if( engine::getSong() )
+		if( engine::song() )
 		{
-			engine::getSong()->setModified();
+			engine::song()->setModified();
 		}
 		emit dataChanged();
 	}

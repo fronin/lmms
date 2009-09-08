@@ -1,5 +1,5 @@
 /*
- * track_content_object_item.cpp - the base-class for TCOs on the song Editor.
+ * track_item.cpp - the base-class for Tracks in the TrackContainerScene.
  * Despite the name, it really isn't a GraphicsItem at all.
  *
  * Copyright (c) 2009 Paul Giblock <pgib/at/users.sourceforge.net>
@@ -24,7 +24,7 @@
  */
 
 
-#include "track.h"
+#include "Track.h"
 #include "gui/tracks/track_item.h"
 #include "gui/tracks/track_content_object_item.h"
 #include "gui/tracks/track_container_scene.h"
@@ -32,19 +32,20 @@
 #include "gui/tracks/bb_tco_item.h"
 #include "gui/tracks/pattern_item.h"
 
-#include "bb_track.h"
-#include "pattern.h"
+// Needed for addSegment
+#include "BbTrack.h"
+#include "Pattern.h"
 
-TrackItem::TrackItem( TrackContainerScene * _scene, track * _track )
+TrackItem::TrackItem( TrackContainerScene * _scene, Track * _track )
 {
 	m_scene = _scene;
 	m_track = _track;
 
 	// create views for already existing TCOs
-	const track::tcoVector & tcos = m_track->getTCOs();
-	for (track::tcoVector::const_iterator it = tcos.begin(); it != tcos.end(); ++it)
+	const Track::SegmentVector & segs = m_track->segments();
+	for (Track::SegmentVector::const_iterator it = segs.begin(); it != segs.end(); ++it)
 	{
-		addTCO( *it );
+		addSegment( *it );
 	}
 
 	QObject * obj = _track;
@@ -60,29 +61,29 @@ TrackItem::TrackItem( TrackContainerScene * _scene, track * _track )
 
 TrackItem::~TrackItem()
 {
-	for (QMap<trackContentObject*, TrackContentObjectItem*>::iterator i = m_tcoItems.begin();
-			i != m_tcoItems.end(); ++i)
+	for (QMap<TrackSegment*, TrackSegmentItem*>::iterator i = m_segmentItems.begin();
+			i != m_segmentItems.end(); ++i)
 	{
-		TrackContentObjectItem * item = i.value();
+		TrackSegmentItem * item = i.value();
 		m_scene->removeItem(item);
-		m_tcoItems.erase(i);
+		m_segmentItems.erase(i);
 		delete item;
 	}
 }
 
 
-void TrackItem::addTCO( trackContentObject * _tco )
+void TrackItem::addSegment( TrackSegment * _tco )
 {
 	// TODO move into a factory?
-	TrackContentObjectItem * tcoItem;
+	TrackSegmentItem * tcoItem;
 
-	if( bbTCO * bbTco = dynamic_cast<bbTCO *>( _tco ) )
+	if( BbSegment * bbSegment = dynamic_cast<BbSegment *>( _tco ) )
 	{
-		tcoItem = new BbTrackContentObjectItem( this, (trackContentObject*)bbTco );
+		tcoItem = new BbSegmentItem( this, bbSegment );
 	}
-	else if( pattern * pat = dynamic_cast<pattern *>( _tco ) )
+	else if( Pattern * pat = dynamic_cast<Pattern *>( _tco ) )
 	{
-		tcoItem = new PatternItem( this, (trackContentObject*)pat );
+		tcoItem = new PatternItem( this, pat );
 	}
 	else
 	{
@@ -93,22 +94,22 @@ void TrackItem::addTCO( trackContentObject * _tco )
 	// TODO refactor to private updateTCOGeometry
 	tcoItem->setPos( tcoItem->x(), y() );
 
-	m_tcoItems.insert( _tco, tcoItem );
+	m_segmentItems.insert( _tco, tcoItem );
 	m_scene->addItem( tcoItem );
 }
 
 
 
-void TrackItem::removeTCO( trackContentObject * _tco )
+void TrackItem::removeSegment( TrackSegment * _tco )
 {
-	QMap<trackContentObject*,  TrackContentObjectItem*>::iterator i =
-			m_tcoItems.find( _tco );
+	QMap<TrackSegment*, TrackSegmentItem*>::iterator i =
+			m_segmentItems.find( _tco );
 
-	if( i != m_tcoItems.end() && i.key() == _tco )
+	if( i != m_segmentItems.end() && i.key() == _tco )
 	{
-		TrackContentObjectItem * item = i.value();
+		TrackSegmentItem * item = i.value();
 		m_scene->removeItem(*i);
-		m_tcoItems.erase(i);
+		m_segmentItems.erase(i);
 		delete item;
 	}
  }
@@ -117,8 +118,8 @@ void TrackItem::removeTCO( trackContentObject * _tco )
 void TrackItem::setHeight( float _height )
 {
 	m_rect.setHeight( _height );
-	for( QMap<trackContentObject*, TrackContentObjectItem*>::const_iterator it = m_tcoItems.constBegin();
-			it != m_tcoItems.constEnd(); ++it )
+	for( QMap<TrackSegment*, TrackSegmentItem*>::const_iterator it = m_segmentItems.constBegin();
+			it != m_segmentItems.constEnd(); ++it )
 	{
 		(*it)->updateGeometry();
 	}
@@ -130,8 +131,8 @@ void TrackItem::setY( float _y )
 {
     //printf("TRK %lld: setY(%.2f)\n", m_track, _y);
 	m_rect.moveTop( _y );
-	for( QMap<trackContentObject*, TrackContentObjectItem*>::const_iterator it = m_tcoItems.constBegin();
-			it != m_tcoItems.constEnd(); ++it )
+	for( QMap<TrackSegment*, TrackSegmentItem*>::const_iterator it = m_segmentItems.constBegin();
+			it != m_segmentItems.constEnd(); ++it )
 	{
 		(*it)->setPos( (*it)->x(), y() );
 	}

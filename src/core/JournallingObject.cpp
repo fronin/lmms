@@ -28,7 +28,6 @@
 
 #include "JournallingObject.h"
 #include "AutomatableModel.h"
-#include "ProjectJournal.h"
 #include "base64.h"
 #include "engine.h"
 
@@ -36,7 +35,7 @@
 
 JournallingObject::JournallingObject() :
 	SerializingObject(),
-	m_id( engine::projectJournal()->allocID( this ) ),
+	m_id( 0 ),
 	m_journalEntries(),
 	m_currentJournalEntry( m_journalEntries.end() ),
 	m_journalling( true ),
@@ -49,10 +48,7 @@ JournallingObject::JournallingObject() :
 
 JournallingObject::~JournallingObject()
 {
-	if( engine::projectJournal() )
-	{
-		engine::projectJournal()->freeID( id() );
-	}
+	// Killing JournallingObject
 }
 
 
@@ -60,15 +56,7 @@ JournallingObject::~JournallingObject()
 
 void JournallingObject::undo()
 {
-	if( m_journalEntries.empty() == true )
-	{
-		return;
-	}
-
-	if( m_currentJournalEntry - 1 >= m_journalEntries.begin() )
-	{
-		undoStep( *--m_currentJournalEntry );
-	}
+	// Killing JournallingObject
 }
 
 
@@ -76,15 +64,7 @@ void JournallingObject::undo()
 
 void JournallingObject::redo()
 {
-	if( m_journalEntries.empty() == true )
-	{
-		return;
-	}
-
-	if( m_currentJournalEntry < m_journalEntries.end() )
-	{
-		redoStep( *m_currentJournalEntry++ );
-	}
+	// Killing JournallingObject
 }
 
 
@@ -93,9 +73,7 @@ void JournallingObject::redo()
 QDomElement JournallingObject::saveState( QDomDocument & _doc,
 							QDomElement & _parent )
 {
-	QDomElement _this = SerializingObject::saveState( _doc, _parent );
-	saveJournal( _doc, _this );
-	return _this;
+	return SerializingObject::saveState( _doc, _parent );
 }
 
 
@@ -103,22 +81,7 @@ QDomElement JournallingObject::saveState( QDomDocument & _doc,
 
 void JournallingObject::restoreState( const QDomElement & _this )
 {
-	SerializingObject::restoreState( _this );
-
-	saveJournallingState( false );
-
-	// search for journal-node
-	QDomNode node = _this.firstChild();
-	while( !node.isNull() )
-	{
-		if( node.isElement() && node.nodeName() == "journal" )
-		{
-			loadJournal( node.toElement() );
-		}
-		node = node.nextSibling();
-	}
-
-	restoreJournallingState();
+	// Killing JournallingObject
 }
 
 
@@ -126,14 +89,7 @@ void JournallingObject::restoreState( const QDomElement & _this )
 
 void JournallingObject::addJournalEntry( const JournalEntry & _je )
 {
-	if( engine::projectJournal()->isJournalling() && isJournalling() )
-	{
-		m_journalEntries.erase( m_currentJournalEntry,
-						m_journalEntries.end() );
-		m_journalEntries.push_back( _je );
-		m_currentJournalEntry = m_journalEntries.end();
-		engine::projectJournal()->journalEntryAdded( id() );
-	}
+	// Killing JournallingObject
 }
 
 
@@ -141,28 +97,7 @@ void JournallingObject::addJournalEntry( const JournalEntry & _je )
 
 void JournallingObject::changeID( jo_id_t _id )
 {
-	if( id() != _id )
-	{
-		JournallingObject * jo = engine::projectJournal()->
-											journallingObject( _id );
-		if( jo != NULL )
-		{
-			QString used_by = jo->nodeName();
-			if( used_by == "automatablemodel" &&
-				dynamic_cast<AutomatableModel *>( jo ) )
-			{
-				used_by += ":" +
-					dynamic_cast<AutomatableModel *>( jo )->
-								displayName();
-			}
-			fprintf( stderr, "JO-ID %d already in use by %s!\n",
-				(int) _id, used_by.toUtf8().constData() );
-			return;
-		}
-		engine::projectJournal()->forgetAboutID( id() );
-		engine::projectJournal()->reallocID( _id, this );
-		m_id = _id;
-	}
+	// Killing JournallingObject
 }
 
 
@@ -171,30 +106,7 @@ void JournallingObject::changeID( jo_id_t _id )
 void JournallingObject::saveJournal( QDomDocument & _doc,
 							QDomElement & _parent )
 {
-/*	// avoid creating empty journal-nodes
-	if( m_journalEntries.size() == 0 )
-	{
-		return;
-	}*/
-	QDomElement journal_de = _doc.createElement( "journal" );
-	journal_de.setAttribute( "id", id() );
-	journal_de.setAttribute( "entries", m_journalEntries.size() );
-	journal_de.setAttribute( "curentry", (int)( m_currentJournalEntry -
-						m_journalEntries.begin() ) );
-	journal_de.setAttribute( "metadata", true );
-
-	for( JournalEntryVector::const_iterator it = m_journalEntries.begin();
-					it != m_journalEntries.end(); ++it )
-	{
-		QDomElement je_de = _doc.createElement( "entry" );
-		je_de.setAttribute( "pos", (int)( it -
-						m_journalEntries.begin() ) );
-		je_de.setAttribute( "actionid", it->actionID() );
-		je_de.setAttribute( "data", base64::encode( it->data() ) );
-		journal_de.appendChild( je_de );
-	}
-
-	_parent.appendChild( journal_de );
+// Killing JournallingObject
 }
 
 
@@ -202,35 +114,7 @@ void JournallingObject::saveJournal( QDomDocument & _doc,
 
 void JournallingObject::loadJournal( const QDomElement & _this )
 {
-	clear();
-
-	const jo_id_t new_id = _this.attribute( "id" ).toInt();
-
-	if( new_id == 0 )
-	{
-		return;
-	}
-
-	changeID( new_id );
-
-	m_journalEntries.resize( _this.attribute( "entries" ).toInt() );
-
-	QDomNode node = _this.firstChild();
-	while( !node.isNull() )
-	{
-		if( node.isElement() )
-		{
-			const QDomElement & je = node.toElement();
-			m_journalEntries[je.attribute( "pos" ).toInt()] =
-				JournalEntry(
-					je.attribute( "actionid" ).toInt(),
-				base64::decode( je.attribute( "data" ) ) );
-		}
-		node = node.nextSibling();
-        }
-
-	m_currentJournalEntry = m_journalEntries.begin() +
-					_this.attribute( "curentry" ).toInt();
+// Killing JournallingObject
 }
 
 

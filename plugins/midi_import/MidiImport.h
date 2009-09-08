@@ -46,10 +46,10 @@ public:
 
 
 private:
-	virtual bool tryImport( trackContainer * _tc );
+	virtual bool tryImport( TrackContainer * _tc );
 
-	bool readSMF( trackContainer * _tc );
-	bool readRIFF( trackContainer * _tc );
+	bool readSMF( TrackContainer * _tc );
+	bool readRIFF( TrackContainer * _tc );
 	bool readTrack( int _track_end, QString & _track_name );
 
 	void error();

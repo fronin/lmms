@@ -32,23 +32,17 @@
 #include "export.h"
 #include "lmms_style.h"
 
-class automationEditor;
 class AutomationRecorder;
-class bbEditor;
 class bbTrackContainer;
 class DummyTrackContainer;
 class FxMixer;
 class FxMixerView;
-class ProjectJournal;
 class MainWindow;
 class mixer;
-class pianoRoll;
 class projectNotes;
 class ResourceDB;
 class Sequencer;
 class Song;
-class song;
-class songEditor;
 class ladspa2LMMS;
 class ControllerRackView;
 class MidiControlListener;
@@ -76,6 +70,16 @@ public:
 		return !s_hasGUI || s_suppressMessages;
 	}
 
+	static void setDevMode( bool _on )
+	{
+		s_devMode = _on;
+	}
+
+	static bool devMode()
+	{
+		return s_devMode;
+	}
+
 	// core
 	static mixer * getMixer()
 	{
@@ -89,7 +93,7 @@ public:
 
 	static Song * song( void )
 	{
-		return s_songTng;
+		return s_song;
 	}
 
 	static Sequencer * sequencer( void )
@@ -97,19 +101,9 @@ public:
 		return s_sequencer;
 	}
 
-	static ::song * getSong( void )
-	{
-		return s_song;
-	}
-
 	static bbTrackContainer * getBBTrackContainer()
 	{
 		return s_bbTrackContainer;
-	}
-
-	static ProjectJournal * projectJournal()
-	{
-		return s_projectJournal;
 	}
 
 	static ResourceDB * workingDirResourceDB()
@@ -138,29 +132,9 @@ public:
 		return s_fxMixerView;
 	}
 
-	static songEditor * getSongEditor()
-	{
-		return s_songEditor;
-	}
-
-	static bbEditor * getBBEditor()
-	{
-		return s_bbEditor;
-	}
-
-	static pianoRoll * getPianoRoll()
-	{
-		return s_pianoRoll;
-	}
-
 	static projectNotes * getProjectNotes()
 	{
 		return s_projectNotes;
-	}
-
-	static automationEditor * getAutomationEditor()
-	{
-		return s_automationEditor;
 	}
 
 	static AutomationRecorder * getAutomationRecorder()
@@ -216,19 +190,18 @@ public:
 private:
 	static bool s_hasGUI;
 	static bool s_suppressMessages;
+	static bool s_devMode;
 	static float s_framesPerTick;
 
 	// core
 	static mixer * s_mixer;
 	static Sequencer * s_sequencer;
-	static ::song * s_song;
-	static Song * s_songTng;
+	static Song * s_song;
 	static FxMixer * s_fxMixer;
 	static ResourceDB * s_workingDirResourceDB;
 	static ResourceDB * s_webResourceDB;
 	static ResourceDB * s_mergedResourceDB;
 	static bbTrackContainer * s_bbTrackContainer;
-	static ProjectJournal * s_projectJournal;
 	static DummyTrackContainer * s_dummyTC;
 	static ControllerRackView * s_controllerRackView;
 	static MidiControlListener * s_midiControlListener;
@@ -236,11 +209,7 @@ private:
 	// GUI
 	static MainWindow * s_mainWindow;
 	static FxMixerView * s_fxMixerView;
-	static songEditor * s_songEditor;
-	static automationEditor * s_automationEditor;
 	static AutomationRecorder * s_automationRecorder;
-	static bbEditor * s_bbEditor;
-	static pianoRoll * s_pianoRoll;
 	static projectNotes * s_projectNotes;
 	static ladspa2LMMS * s_ladspaManager;
 

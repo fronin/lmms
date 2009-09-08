@@ -28,7 +28,7 @@
 #include <QtCore/QVector>
 
 
-#include "song.h"
+#include "Song.h"
 #include "engine.h"
 #include "mixer.h"
 #include "Controller.h"
@@ -68,9 +68,9 @@ Controller::~Controller()
 		s_controllers.remove( idx );
 	}
 
-	if( engine::getSong() )
+	if( engine::song() )
 	{
-		engine::getSong()->removeController( this );
+		engine::song()->removeController( this );
 	}
 
 	// Remove connections by destroyed signal

@@ -28,7 +28,7 @@
 #include "FxMixer.h"
 #include "Cpu.h"
 #include "Effect.h"
-#include "song.h"
+#include "Song.h"
 
 
 FxChannel::FxChannel( Model * _parent ) :

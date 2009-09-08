@@ -37,7 +37,6 @@
 #include "note_play_handle.h"
 #include "pixmap_button.h"
 #include "sample_buffer.h"
-#include "song_editor.h"
 #include "tooltip.h"
 
 #include "embed.cpp"

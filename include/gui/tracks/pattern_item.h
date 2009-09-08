@@ -37,12 +37,12 @@
 #include "gui/tracks/track_item.h"
 
 
-class PatternItem : public TrackContentObjectItem
+class PatternItem : public TrackSegmentItem
 {
 	Q_OBJECT
 
 public:
-	PatternItem( TrackItem * _track, trackContentObject * _object );
+	PatternItem( TrackItem * _track, TrackSegment * _object );
 
 	virtual void paint( QPainter * _painter, const QStyleOptionGraphicsItem * _option,
 						QWidget * _widget );

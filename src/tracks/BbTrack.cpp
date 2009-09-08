@@ -27,30 +27,27 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 
-#include "bb_editor.h"
-#include "bb_track.h"
+#include "BbTrack.h"
 #include "bb_track_container.h"
 #include "embed.h"
 #include "engine.h"
 #include "gui_templates.h"
 #include "mixer.h"
 #include "rename_dialog.h"
-#include "song.h"
-#include "song_editor.h"
+#include "Song.h"
 #include "templates.h"
-#include "track_label_button.h"
 
 
 
-bbTrack::infoMap bbTrack::s_infoMap;
+BbTrack::infoMap BbTrack::s_infoMap;
 
 
-bbTCO::bbTCO( track * _track, unsigned int _color ) :
-	trackContentObject( _track ),
+BbSegment::BbSegment( Track * _track, unsigned int _color ) :
+	TrackSegment( _track ),
 	m_color( _color > 0 ? _color : qRgb( 64, 128, 255 ) )
 {
 	tact_t t = engine::getBBTrackContainer()->lengthOfBB(
-					bbTrack::numOfBBTrack( getTrack() ) );
+					BbTrack::numOfBBTrack( getTrack() ) );
 	if( t > 0 )
 	{
 		saveJournallingState( false );
@@ -62,14 +59,14 @@ bbTCO::bbTCO( track * _track, unsigned int _color ) :
 
 
 
-bbTCO::~bbTCO()
+BbSegment::~BbSegment()
 {
 }
 
 
 
 
-void bbTCO::saveSettings( QDomDocument & _doc, QDomElement & _this )
+void BbSegment::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
 	_this.setAttribute( "name", name() );
 	if( _this.parentNode().nodeName() == "clipboard" )
@@ -88,7 +85,7 @@ void bbTCO::saveSettings( QDomDocument & _doc, QDomElement & _this )
 
 
 
-void bbTCO::loadSettings( const QDomElement & _this )
+void BbSegment::loadSettings( const QDomElement & _this )
 {
 	setName( _this.attribute( "name" ) );
 	if( _this.attribute( "pos" ).toInt() >= 0 )
@@ -110,196 +107,9 @@ void bbTCO::loadSettings( const QDomElement & _this )
 
 
 
-trackContentObjectView * bbTCO::createView( trackView * _tv )
-{
-	return( new bbTCOView( this, _tv ) );
-}
 
-
-
-
-
-
-
-
-
-
-bbTCOView::bbTCOView( trackContentObject * _tco, trackView * _tv ) :
-	trackContentObjectView( _tco, _tv ),
-	m_bbTCO( dynamic_cast<bbTCO *>( _tco ) )
-{
-}
-
-
-
-
-bbTCOView::~bbTCOView()
-{
-}
-
-
-
-
-void bbTCOView::constructContextMenu( QMenu * _cm )
-{
-	QAction * a = new QAction( embed::getIconPixmap( "bb_track" ),
-					tr( "Open in Beat+Bassline-Editor" ),
-					_cm );
-	_cm->insertAction( _cm->actions()[0], a );
-	connect( a, SIGNAL( triggered( bool ) ),
-			this, SLOT( openInBBEditor() ) );
-	_cm->insertSeparator( _cm->actions()[1] );
-	_cm->addSeparator();
-	_cm->addAction( embed::getIconPixmap( "reload" ), tr( "Reset name" ),
-						this, SLOT( resetName() ) );
-	_cm->addAction( embed::getIconPixmap( "edit_rename" ),
-						tr( "Change name" ),
-						this, SLOT( changeName() ) );
-	_cm->addAction( embed::getIconPixmap( "colorize" ),
-			tr( "Change color" ), this, SLOT( changeColor() ) );
-}
-
-
-
-
-void bbTCOView::mouseDoubleClickEvent( QMouseEvent * )
-{
-	openInBBEditor();
-}
-
-
-
-
-void bbTCOView::paintEvent( QPaintEvent * )
-{
-	QColor col( m_bbTCO->m_color );
-	if( m_bbTCO->getTrack()->isMuted() || m_bbTCO->isMuted() )
-	{
-		col = QColor( 160, 160, 160 );
-	}
-	if( isSelected() == true )
-	{
-		col = QColor( qMax( col.red() - 128, 0 ),
-					qMax( col.green() - 128, 0 ), 255 );
-	}
-	QPainter p( this );
-
-	QLinearGradient lingrad( 0, 0, 0, height() );
-	lingrad.setColorAt( 0, col.light( 130 ) );
-	lingrad.setColorAt( 1, col.light( 70 ) );
-	p.fillRect( rect(), lingrad );
-
-	tact_t t = engine::getBBTrackContainer()->lengthOfBB(
-				bbTrack::numOfBBTrack( m_bbTCO->getTrack() ) );
-	if( m_bbTCO->length() > midiTime::ticksPerTact() && t > 0 )
-	{
-		for( int x = static_cast<int>( t * pixelsPerTact() );
-								x < width()-2;
-			x += static_cast<int>( t * pixelsPerTact() ) )
-		{
-			p.setPen( col.light( 80 ) );
-			p.drawLine( x, 1, x, 5 );
-			p.setPen( col.light( 120 ) );
-			p.drawLine( x, height() - 6, x, height() - 2 );
-		}
-	}
-
-	p.setPen( col.dark() );
-	p.drawRect( 0, 0, rect().right(), rect().bottom() );
-
-	p.setFont( pointSize<7>( p.font() ) );
-	p.setPen( QColor( 0, 0, 0 ) );
-	p.drawText( 2, p.fontMetrics().height() - 1, m_bbTCO->name() );
-
-	if( m_bbTCO->isMuted() )
-	{
-		p.drawPixmap( 3, p.fontMetrics().height() + 1,
-				embed::getIconPixmap( "muted", 16, 16 ) );
-	}
-}
-
-
-
-
-void bbTCOView::openInBBEditor()
-{
-	engine::getBBTrackContainer()->setCurrentBB( bbTrack::numOfBBTrack(
-							m_bbTCO->getTrack() ) );
-	engine::getBBEditor()->show();
-	engine::getBBEditor()->setFocus();
-}
-
-
-
-
-void bbTCOView::resetName()
-{
-	m_bbTCO->setName( m_bbTCO->getTrack()->name() );
-}
-
-
-
-
-void bbTCOView::changeName()
-{
-	QString s = m_bbTCO->name();
-	renameDialog rename_dlg( s );
-	rename_dlg.exec();
-	m_bbTCO->setName( s );
-}
-
-
-
-
-void bbTCOView::changeColor()
-{
-	QColor _new_color = QColorDialog::getColor( m_bbTCO->m_color );
-	if( !_new_color.isValid() )
-	{
-		return;
-	}
-	if( isSelected() )
-	{
-		QVector<selectableObject *> selected =
-				engine::getSongEditor()->selectedObjects();
-		for( QVector<selectableObject *>::iterator it =
-							selected.begin();
-						it != selected.end(); ++it )
-		{
-			bbTCOView * bb_tcov = dynamic_cast<bbTCOView *>( *it );
-			if( bb_tcov )
-			{
-				bb_tcov->setColor( _new_color );
-			}
-		}
-	}
-	else
-	{
-		setColor( _new_color );
-	}
-}
-
-
-
-
-void bbTCOView::setColor( QColor _new_color )
-{
-	if( _new_color.rgb() != m_bbTCO->m_color )
-	{
-		m_bbTCO->m_color = _new_color.rgb();
-		engine::getSong()->setModified();
-		update();
-	}
-}
-
-
-
-
-
-
-
-bbTrack::bbTrack( trackContainer * _tc ) :
-	track( BBTrack, _tc )
+BbTrack::BbTrack( TrackContainer * _tc ) :
+	Track( Track::BBTrack, _tc )
 {
 	int bbNum = s_infoMap.size();
 	s_infoMap[this] = bbNum;
@@ -315,7 +125,7 @@ bbTrack::bbTrack( trackContainer * _tc ) :
 
 
 
-bbTrack::~bbTrack()
+BbTrack::~BbTrack()
 {
 	engine::getMixer()->removePlayHandles( this );
 
@@ -333,7 +143,7 @@ bbTrack::~bbTrack()
 
 	// remove us from TC so bbTrackContainer::numOfBBs() returns a smaller
 	// value and thus combobox-updating in bbTrackContainer works well
-	getTrackContainer()->removeTrack( this );
+	trackContainer()->removeTrack( this );
 	engine::getBBTrackContainer()->updateComboBox();
 }
 
@@ -341,9 +151,10 @@ bbTrack::~bbTrack()
 
 
 // play _frames frames of given TCO within starting with _start
-bool bbTrack::play( const midiTime & _start, const fpp_t _frames,
+bool BbTrack::play( const midiTime & _start, const fpp_t _frames,
 				const f_cnt_t _offset, Sint16 _tco_num )
 {
+	/* TODO{TNG} Reimplement playing code
 	if( isMuted() )
 	{
 		return( false );
@@ -385,26 +196,21 @@ bool bbTrack::play( const midiTime & _start, const fpp_t _frames,
 							_offset,
 							s_infoMap[this] ) );
 	}
+	*/
 	return( false );
 }
 
 
 
 
-trackView * bbTrack::createView( trackContainerView * _tcv )
-{
-	return( new bbTrackView( this, _tcv ) );
-}
 
-
-
-
-trackContentObject * bbTrack::createTCO( const midiTime & _pos )
+TrackSegment * BbTrack::createSegment( const midiTime & _pos )
 {
 	// if we're creating a new bbTCO, we colorize it according to the
 	// previous bbTCO, so we have to get all TCOs from 0 to _pos and
 	// pickup the last and take the color if it
-	tcoVector tcos;
+	SegmentVector tcos;
+	/* TODO{TNG} Rethink color code
 	getTCOsInRange( tcos, 0, _pos );
 	if( tcos.size() > 0 && dynamic_cast<bbTCO *>( tcos.back() ) != NULL )
 	{
@@ -412,7 +218,8 @@ trackContentObject * bbTrack::createTCO( const midiTime & _pos )
 			dynamic_cast<bbTCO *>( tcos.back() )->color() ) );
 		
 	}
-	return( new bbTCO( this ) );
+	*/
+	return( new BbSegment( this ) );
 }
 
 
@@ -420,7 +227,7 @@ trackContentObject * bbTrack::createTCO( const midiTime & _pos )
 
 
 
-void bbTrack::saveTrackSpecificSettings( QDomDocument & _doc,
+void BbTrack::saveTrackSpecificSettings( QDomDocument & _doc,
 							QDomElement & _this )
 {
 //	_this.setAttribute( "icon", m_trackLabel->pixmapFile() );
@@ -442,21 +249,22 @@ void bbTrack::saveTrackSpecificSettings( QDomDocument & _doc,
 
 
 
-void bbTrack::loadTrackSpecificSettings( const QDomElement & _this )
+void BbTrack::loadTrackSpecificSettings( const QDomElement & _this )
 {
 /*	if( _this.attribute( "icon" ) != "" )
 	{
 		m_trackLabel->setPixmapFile( _this.attribute( "icon" ) );
 	}*/
 
+	/* TODO{TNG} WHAT IS THIS CLONEBBT STUFF ABOUT?
 	if( _this.hasAttribute( "clonebbt" ) )
 	{
 		const int src = _this.attribute( "clonebbt" ).toInt();
 		const int dst = s_infoMap[this];
 		engine::getBBTrackContainer()->createTCOsForBB( dst );
-		trackContainer::trackList tl =
+		TrackContainer::TrackList tl =
 					engine::getBBTrackContainer()->tracks();
-		for( trackContainer::trackList::iterator it = tl.begin();
+		for( TrackContainer::TrackList::iterator it = tl.begin();
 							it != tl.end(); ++it )
 		{
 			( *it )->getTCO( src )->copy();
@@ -464,9 +272,10 @@ void bbTrack::loadTrackSpecificSettings( const QDomElement & _this )
 		}
 	}
 	else
+	*/
 	{
 		QDomNode node = _this.namedItem(
-					trackContainer::classNodeName() );
+					TrackContainer::classNodeName() );
 		if( node.isElement() )
 		{
 			( (JournallingObject *)engine::getBBTrackContainer() )->
@@ -486,7 +295,7 @@ void bbTrack::loadTrackSpecificSettings( const QDomElement & _this )
 
 
 // return pointer to bbTrack specified by _bb_num
-bbTrack * bbTrack::findBBTrack( int _bb_num )
+BbTrack * BbTrack::findBBTrack( int _bb_num )
 {
 	for( infoMap::iterator it = s_infoMap.begin(); it != s_infoMap.end();
 									++it )
@@ -502,11 +311,11 @@ bbTrack * bbTrack::findBBTrack( int _bb_num )
 
 
 
-int bbTrack::numOfBBTrack( track * _track )
+int BbTrack::numOfBBTrack( Track * _track )
 {
-	if( dynamic_cast<bbTrack *>( _track ) != NULL )
+	if( dynamic_cast<BbTrack *>( _track ) != NULL )
 	{
-		return( s_infoMap[dynamic_cast<bbTrack *>( _track )] );
+		return( s_infoMap[dynamic_cast<BbTrack *>( _track )] );
 	}
 	return( 0 );
 }
@@ -514,10 +323,10 @@ int bbTrack::numOfBBTrack( track * _track )
 
 
 
-void bbTrack::swapBBTracks( track * _track1, track * _track2 )
+void BbTrack::swapBBTracks( Track * _track1, Track * _track2 )
 {
-	bbTrack * t1 = dynamic_cast<bbTrack *>( _track1 );
-	bbTrack * t2 = dynamic_cast<bbTrack *>( _track2 );
+	BbTrack * t1 = dynamic_cast<BbTrack *>( _track1 );
+	BbTrack * t2 = dynamic_cast<BbTrack *>( _track2 );
 	if( t1 != NULL && t2 != NULL )
 	{
 		qSwap( s_infoMap[t1], s_infoMap[t2] );
@@ -528,67 +337,6 @@ void bbTrack::swapBBTracks( track * _track1, track * _track2 )
 }
 
 
-
-
-
-
-
-
-
-bbTrackView::bbTrackView( bbTrack * _bbt, trackContainerView * _tcv ) :
-	trackView( _bbt, _tcv ),
-	m_bbTrack( _bbt )
-{
-	setFixedHeight( 32 );
-	// drag'n'drop with bb-tracks only causes troubles (and makes no sense
-	// too), so disable it
-	setAcceptDrops( false );
-
-	m_trackLabel = new trackLabelButton( this, getTrackSettingsWidget() );
-	m_trackLabel->setIcon( embed::getIconPixmap( "bb_track" ) );
-	m_trackLabel->move( 3, 1 );
-	m_trackLabel->show();
-	connect( m_trackLabel, SIGNAL( clicked( bool ) ),
-			this, SLOT( clickedTrackLabel() ) );
-	setModel( _bbt );
-}
-
-
-
-
-bbTrackView::~bbTrackView()
-{
-	engine::getBBEditor()->removeBBView( bbTrack::s_infoMap[m_bbTrack] );
-}
-
-
-
-
-bool bbTrackView::close()
-{
-	engine::getBBEditor()->removeBBView( bbTrack::s_infoMap[m_bbTrack] );
-	return( trackView::close() );
-}
-
-
-
-
-void bbTrackView::clickedTrackLabel()
-{
-	engine::getBBTrackContainer()->setCurrentBB(
-					bbTrack::numOfBBTrack( m_bbTrack ) );
-	engine::getBBEditor()->show();
-/*	foreach( bbTrackView * tv,
-			getTrackContainerView()->findChildren<bbTrackView *>() )
-	{
-		tv->m_trackLabel->update();
-	}*/
-	
-}
-
-
-
-
-#include "moc_bb_track.cxx"
+#include "moc_BbTrack.cxx"
 
 

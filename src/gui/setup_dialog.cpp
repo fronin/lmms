@@ -40,7 +40,6 @@
 #include "tab_widget.h"
 #include "gui_templates.h"
 #include "mixer.h"
-#include "ProjectJournal.h"
 #include "config_mgr.h"
 #include "embed.h"
 #include "engine.h"
@@ -135,8 +134,6 @@ setupDialog::setupDialog( ConfigTabs _tab_to_open ) :
 	setWindowIcon( embed::getIconPixmap( "setup_general" ) );
 	setWindowTitle( tr( "Setup LMMS" ) );
 	setModal( true );
-
-	engine::projectJournal()->setJournalling( false );
 
 	QVBoxLayout * vlayout = new QVBoxLayout( this );
 	vlayout->setSpacing( 0 );
@@ -739,7 +736,7 @@ setupDialog::setupDialog( ConfigTabs _tab_to_open ) :
 
 setupDialog::~setupDialog()
 {
-	engine::projectJournal()->setJournalling( true );
+
 }
 
 

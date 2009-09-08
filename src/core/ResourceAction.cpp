@@ -30,7 +30,7 @@
 #include "InstrumentTrack.h"
 #include "MainWindow.h"
 #include "mmp.h"
-#include "song.h"
+#include "Song.h"
 
 
 
@@ -41,11 +41,11 @@ bool ResourceAction::loadProject()
 		ResourceFileMapper mapper( m_item );
 		if( m_item->isLocalResource() )
 		{
-			engine::getSong()->loadProject( mapper.fileName() );
+			engine::song()->loadProject( mapper.fileName() );
 		}
 		else
 		{
-			engine::getSong()->createNewProjectFromTemplate(
+			engine::song()->createNewProjectFromTemplate(
 						mapper.fileName() );
 		}
 		return true;
@@ -89,7 +89,7 @@ bool ResourceAction::loadPreset( InstrumentTrack * _target )
 
 
 
-bool ResourceAction::importProject( trackContainer * _target )
+bool ResourceAction::importProject( TrackContainer * _target )
 {
 	ResourceFileMapper mapper( m_item );
 	/*return*/ ImportFilter::import( mapper.fileName(), _target );
