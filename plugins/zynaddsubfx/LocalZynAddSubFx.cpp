@@ -26,7 +26,7 @@
 
 #include "LocalZynAddSubFx.h"
 
-#include "src/Input/MidiIn.h"
+#include "src/Input/NULLMidiIn.h"
 #include "src/Misc/Master.h"
 #include "src/Misc/Dump.h"
 
@@ -60,9 +60,6 @@ LocalZynAddSubFx::LocalZynAddSubFx()
 		{
 			denormalkillbuf[i] = (RND-0.5)*1e-16;
 		}
-
-		OscilGen::tmpsmps = new REALTYPE[OSCIL_SIZE];
-		newFFTFREQS( &OscilGen::outoscilFFTfreqs, OSCIL_SIZE/2 );
 	}
 	++s_instanceCount;
 
@@ -80,8 +77,6 @@ LocalZynAddSubFx::~LocalZynAddSubFx()
 	if( --s_instanceCount == 0 )
 	{
 		delete[] denormalkillbuf;
-		delete[] OscilGen::tmpsmps;
-		deleteFFTFREQS( &OscilGen::outoscilFFTfreqs );
 	}
 }
 
@@ -174,7 +169,7 @@ void LocalZynAddSubFx::setPresetDir( const std::string & _dir )
 void LocalZynAddSubFx::processMidiEvent( const midiEvent & _e )
 {
 	// all functions are called while m_master->mutex is held
-	static MidiIn midiIn;
+	static NULLMidiIn midiIn;
 
 	switch( _e.m_type )
 	{
