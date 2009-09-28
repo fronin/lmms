@@ -29,12 +29,14 @@
 #include "gui/tracks/track_content_object_item.h"
 #include "gui/tracks/track_container_scene.h"
 
-#include "gui/tracks/bb_tco_item.h"
-#include "gui/tracks/pattern_item.h"
 
 // Needed for addSegment
 #include "BbTrack.h"
 #include "Pattern.h"
+#include "SampleTrack.h"
+#include "gui/tracks/bb_tco_item.h"
+#include "gui/tracks/pattern_item.h"
+#include "gui/tracks/SampleSegmentItem.h"
 
 TrackItem::TrackItem( TrackContainerScene * _scene, Track * _track )
 {
@@ -85,9 +87,13 @@ void TrackItem::addSegment( TrackSegment * _tco )
 	{
 		tcoItem = new PatternItem( this, pat );
 	}
+	else if( SampleSegment * ss = dynamic_cast<SampleSegment *>( _tco ) )
+	{
+		tcoItem = new SampleSegmentItem( this, ss );
+	}
 	else
 	{
-		// Whoa.
+		// Whoa..
 		return;
 	}
 	

@@ -143,17 +143,7 @@ QVariant TrackSegmentItem::itemChange( GraphicsItemChange _change,
 		{
 			newPos.setX( 0 );
 		}
-		/* FUCK_GIT
-		if( newPos.y() < 0 )
-		{
-			newPos.setY( 0 );
-		} */
 
-		/* Let's just short-circuit the Y for now 
-		if( fmod( newPos.y(), 32 ) != 16 )
-		{
-			newPos.setY( newPos.y() + 16 - ( fmod( newPos.y(), 32 ) ) );
-		} */
 		newPos.setY( m_trackItem->y() );
 		
 		float cellW = 16.0f;

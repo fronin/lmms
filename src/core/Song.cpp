@@ -215,41 +215,26 @@ void Song::removeBar( void )
 
 
 
-/* TODO{TNG} Why lock mixer??? */
-void Song::addBBTrack( void )
+/* TODO{TNG} Why lock mixer???
+void Song::addBbTrack( void )
 {
-	/*
 	engine::getMixer()->lock();
 	track * t = track::create( track::BBTrack, this );
 	engine::getBBTrackContainer()->setCurrentBB(
 						bbTrack::numOfBBTrack( t ) );
 	engine::getMixer()->unlock();
-	*/
 }
-
-
-
+*/
 
 /* TODO{TNG} Why lock mixer??? */
-void Song::addSampleTrack( void )
+Track * Song::addTrack( Track::TrackTypes _type )
 {
-	/*
+	Track * ret;
 	engine::getMixer()->lock();
-	(void) track::create( track::SampleTrack, this );
+	ret = Track::create( _type, this );
 	engine::getMixer()->unlock();
-	*/
-}
-
-
-
-/* TODO{TNG} Why lock mixer??? */
-void Song::addAutomationTrack( void )
-{
-	/*
-	engine::getMixer()->lock();
-	(void) track::create( track::AutomationTrack, this );
-	engine::getMixer()->unlock();
-	*/
+	printf("We have %d tracks!\n", tracks().size());
+	return ret;
 }
 
 
@@ -352,16 +337,16 @@ void Song::createNewProject( void )
 	m_fileName = m_oldFileName = "";
 
 	Track * t;
-	t = Track::create( Track::InstrumentTrack, this );
+	/*t = Track::create( Track::InstrumentTrack, this );
 	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
-					"tripleOscillator" );
+					"tripleOscillator" );*/
 	/*t = Track::create( Track::InstrumentTrack,
 						engine::getBBTrackContainer() );
 	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
 						"tripleOscillator" );*/
 	Track::create( Track::SampleTrack, this );
-	Track::create( Track::BBTrack, this );
-	Track::create( Track::AutomationTrack, this );
+	//Track::create( Track::BBTrack, this );
+	//Track::create( Track::AutomationTrack, this );
 
 	/*
 	m_tempoModel.setInitValue( DefaultTempo );

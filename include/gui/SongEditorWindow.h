@@ -1,5 +1,5 @@
 /*
- * SongEditor.h - The main interface for editing a song
+ * SongEditorWindow.h -
  *
  * Copyright (c) 2009 Paul Giblock <pgib/at/users/sourceforge/net>
  *
@@ -22,43 +22,30 @@
  *
  */
 
-#ifndef _SONG_EDITOR_H
-#define _SONG_EDITOR_H
+#ifndef _SONG_EDITOR_WINDOW_H
+#define _SONG_EDITOR_WINDOW_H
 
-#include <QtGui/QGraphicsView>
+#include <QtGui/QMainWindow>
 
-#include "gui/SongEditor.h"
-#include "gui/tracks/track_container_scene.h"
-
-class Song;
-class TrackContainerScene;
-class TimeLine;
-class QLabel;
+class SongEditor;
 
 
-class SongEditor : public QGraphicsView
+class SongEditorWindow : public QMainWindow
 {
 	Q_OBJECT
 public:
-	SongEditor( Song * _song, QWidget * _parent = 0 );
+	SongEditorWindow( QWidget * _parent = 0 );
 
-	inline Song * song() const
-	{
-		return m_song;
-	}
+	virtual ~SongEditorWindow();
+
+protected slots:
+	void newSampleTrack();
 
 protected:
-	void resizeEvent( QResizeEvent * _re );
-	void scrollContentsBy( int _dx, int _dy );
-	void drawBackground ( QPainter * painter, const QRectF & rect );
+	SongEditor * m_editor;
 
-	Song * m_song;
-	TrackContainerScene * m_scene;
-
-	QWidget * m_corner;
-	QLabel * m_left;
-	TimeLine * m_timeLine;
-
+	// Actions
+	QAction * m_newBbTrackAction;
 };
 
 #endif

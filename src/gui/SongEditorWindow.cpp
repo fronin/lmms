@@ -1,5 +1,5 @@
 /*
- * SongEditor.h - The main interface for editing a song
+ * SongEditorWindow.cpp -
  *
  * Copyright (c) 2009 Paul Giblock <pgib/at/users/sourceforge/net>
  *
@@ -22,43 +22,41 @@
  *
  */
 
-#ifndef _SONG_EDITOR_H
-#define _SONG_EDITOR_H
+#include "QAction"
+#include "QToolBar"
 
-#include <QtGui/QGraphicsView>
-
+#include "gui/SongEditorWindow.h"
 #include "gui/SongEditor.h"
-#include "gui/tracks/track_container_scene.h"
-
-class Song;
-class TrackContainerScene;
-class TimeLine;
-class QLabel;
+#include "Song.h"
+#include "engine.h"
 
 
-class SongEditor : public QGraphicsView
+
+SongEditorWindow::SongEditorWindow( QWidget * _parent ) :
+		QMainWindow( _parent )
 {
-	Q_OBJECT
-public:
-	SongEditor( Song * _song, QWidget * _parent = 0 );
+	m_editor = new SongEditor( engine::song(), this );
+	setCentralWidget( m_editor );
 
-	inline Song * song() const
-	{
-		return m_song;
-	}
+	// Toolbars
+	QToolBar * toolbar = addToolBar( "Song" );
 
-protected:
-	void resizeEvent( QResizeEvent * _re );
-	void scrollContentsBy( int _dx, int _dy );
-	void drawBackground ( QPainter * painter, const QRectF & rect );
+	toolbar->addAction( QIcon(), "New Sample Track",
+			this, SLOT( newSampleTrack() ) );
+}
 
-	Song * m_song;
-	TrackContainerScene * m_scene;
 
-	QWidget * m_corner;
-	QLabel * m_left;
-	TimeLine * m_timeLine;
 
-};
+SongEditorWindow::~SongEditorWindow()
+{
+	delete m_editor;
+}
 
-#endif
+
+
+void SongEditorWindow::newSampleTrack()
+{
+	m_editor->song()->addTrack( Track::SampleTrack );
+}
+
+#include "gui/moc_SongEditorWindow.cxx"

@@ -24,7 +24,8 @@
  */
 
 
-#include <QtGui/QKeyEvent>
+#include <QKeyEvent>
+#include <QGraphicsSceneMouseEvent>
 
 #include <stdio.h>
 
@@ -38,12 +39,12 @@ TrackContainerScene::TrackContainerScene( QObject * parent, TrackContainer * _tc
 	m_trackContainer( _tc ),
 	m_ppt( 16 )
 {
-	connect( m_trackContainer, SIGNAL( trackAdded( track * ) ),
-	         this, SLOT( addTrack( track * ) ),
+	connect( m_trackContainer, SIGNAL( trackAdded( Track * ) ),
+			 this, SLOT( addTrack( Track * ) ),
 	         Qt::QueuedConnection );
 
-	connect( m_trackContainer, SIGNAL( trackRemoved( track * ) ),
-	         this, SLOT( removeTrack( track * ) ) );
+	connect( m_trackContainer, SIGNAL( trackRemoved( Track * ) ),
+			 this, SLOT( removeTrack( Track * ) ) );
 }
 
 
@@ -68,6 +69,14 @@ void TrackContainerScene::addTrack( Track * _t )
 	item->setY( m_trackItems.size() * DEFAULT_CELL_HEIGHT );
 
 	m_trackItems.insert( _t, item );
+
+	connect( _t, SIGNAL( trackSegmentAdded(TrackSegment*) ),
+			 this, SLOT( addTrackSegment(TrackSegment*) ),
+			 Qt::QueuedConnection );
+
+	connect( _t, SIGNAL( trackSegmentRemoved(TrackSegment*) ),
+		 this, SLOT( removeTrackSegment(TrackSegment*) ),
+		 Qt::QueuedConnection );;
 }
 
 
@@ -94,8 +103,42 @@ void TrackContainerScene::removeTrack( Track * _t )
 
 
 
-void TrackContainerScene::keyPressEvent( QKeyEvent * event )
+void TrackContainerScene::addTrackSegment( TrackSegment * _ts )
 {
+	QMap<Track*,  TrackItem*>::iterator i =
+			m_trackItems.find( _ts->getTrack() );
+
+	TrackItem * item = i.value();
+	item->addSegment( _ts );
+}
+
+
+
+void TrackContainerScene::removeTrackSegment( TrackSegment * _ts )
+{
+}
+
+
+
+void TrackContainerScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent * _me )
+{
+	QPointF p = _me->pos();
+	QPointF sp = _me->scenePos();
+	if( itemAt( sp ) != NULL )
+	{
+		QGraphicsScene::mousePressEvent( _me );
+	}
+	else
+	{
+		printf("clk (%.4f %.4f)  (%.4f %.4f)\n", p.x(), p.y(), sp.x(), sp.y());
+		Track * t = m_trackContainer->tracks().at(0);
+		TrackSegment * seg = t->createSegment( midiTime(0, 0) );
+	}
+}
+
+
+void TrackContainerScene::keyPressEvent( QKeyEvent * event )
+{/*
 	if( event->modifiers() == Qt::ShiftModifier )
 	{
 		const qreal cellWidth = TrackContainerScene::DEFAULT_CELL_WIDTH;
@@ -128,7 +171,7 @@ void TrackContainerScene::keyPressEvent( QKeyEvent * event )
 			timeLine->start();
 		}
 	}
-}
+*/}
 
 
 

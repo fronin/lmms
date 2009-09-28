@@ -40,8 +40,6 @@ ResourcePreviewer::ResourcePreviewer() :
 	m_previewTrack( NULL ),
 	m_defaultSettings( multimediaProject::InstrumentTrackSettings )
 {
-	// do not clutter global journal with items due to changing settings
-	// in preview classes
 	m_previewTrack = dynamic_cast<InstrumentTrack *>(
 				Track::create( Track::InstrumentTrack,
 						&m_previewTrackContainer ) );

@@ -34,7 +34,6 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QStyleOptionFrame>
 
-#include "automation_pattern.h"
 #include "caption_menu.h"
 #include "engine.h"
 #include "embed.h"

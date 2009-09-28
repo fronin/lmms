@@ -242,6 +242,10 @@ public slots:
 
 	void toggleSolo();
 
+protected:
+
+	void addSegment( TrackSegment * _segment );
+
 
 private:
 	TrackContainer * m_trackContainer;

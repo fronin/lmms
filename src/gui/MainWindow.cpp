@@ -69,7 +69,7 @@
 #include "WelcomeScreen.h"
 
 #include "Song.h"
-#include "gui/SongEditor.h"
+#include "gui/SongEditorWindow.h"
 
 MainWindow::MainWindow() :
 	m_workspace( NULL ),
@@ -149,8 +149,8 @@ MainWindow::MainWindow() :
 
 	// Temporary code to expose new song-editor
 	QPixmapCache::setCacheLimit( 10240 );
-	SongEditor * editor = new SongEditor( engine::song() );
-	editor->show();
+	SongEditorWindow * editor = new SongEditorWindow( NULL );
+	//editor->show();
 	QMdiSubWindow * subWin = workspace()->addSubWindow( editor );
 
 	m_welcomeScreen = new WelcomeScreen( this );

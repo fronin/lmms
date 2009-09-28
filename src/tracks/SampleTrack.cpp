@@ -250,9 +250,11 @@ bool SampleTrack::play( const midiTime & _start, const fpp_t _frames,
 
 
 
-TrackSegment * SampleTrack::createSegment( const midiTime & )
+TrackSegment * SampleTrack::createSegment( const midiTime & _time )
 {
-	return new SampleSegment( this );
+	SampleSegment * ss = new SampleSegment( this );
+	addSegment( ss );
+	return ss;
 }
 
 

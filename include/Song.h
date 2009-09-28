@@ -1,5 +1,5 @@
-#ifndef _SONG_TNG_H
-#define _SONG_TNG_H
+#ifndef _SONG_H
+#define _SONG_H
 
 #include <QtCore/QVector>
 
@@ -101,13 +101,14 @@ public slots:
 
 	void clearProject( void );
 
+	Track * addTrack( Track::TrackTypes _type );
 
 private slots:
 	void insertBar( void );
 	void removeBar( void );
-	void addBBTrack( void );
-	void addSampleTrack( void );
-	void addAutomationTrack( void );
+	//void addBbTrack( void );
+	//void addSampleTrack( void );
+	//void addAutomationTrack( void );
 
 	//void setTempo( void );
 	//void setTimeSignature( void );

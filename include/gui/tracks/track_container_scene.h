@@ -33,6 +33,7 @@
 
 #include "Track.h"
 
+class QGraphicsSceneMouseEvent;
 class TrackContainer;
 class TrackSegmentItemTrackContentObjectItem;
 class TrackItem;
@@ -82,13 +83,16 @@ private slots:
 
 	void addTrack( Track * _t );
 	void removeTrack( Track * _t );
+	void addTrackSegment( TrackSegment * _ts );
+	void removeTrackSegment( TrackSegment * _ts );
 
+	void mouseDoubleClickEvent( QGraphicsSceneMouseEvent * mouseEvent );
 	/*
 	virtual void dragEnterEvent( QDragEnterEvent * _dee );
 	virtual void dropEvent( QDropEvent * _de );
-	virtual void mousePressEvent( QMouseEvent * _me );
 	virtual void mouseMoveEvent( QMouseEvent * _me );
 	virtual void mouseReleaseEvent( QMouseEvent * _me );
+	virtual void mousePressEvent( QGraphicsSceneMouseEvent * _me );
 	virtual void resizeEvent( QResizeEvent * );
 	virtual void undoStep( journalEntry & _je );
 	virtual void redoStep( journalEntry & _je );

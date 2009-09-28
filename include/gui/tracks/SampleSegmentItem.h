@@ -1,6 +1,5 @@
 /*
- * track_item.cpp - the base-class for Tracks in the TrackContainerScene
- * Despite the name, it really isn't a GraphicsItem at all.
+ * SampleSegmentItem.h - SampleSegment QGraphicsItem used in the song editor
  *
  * Copyright (c) 2009 Paul Giblock <pgib/at/users.sourceforge.net>
  *
@@ -24,45 +23,37 @@
  */
 
 
+#ifndef _SAMPLE_SEGMENT_ITEM_H_
+#define _SAMPLE_SEGMENT_ITEM_H_
 
-#ifndef TRACK_ITEM_H_
-#define TRACK_ITEM_H_
+#include <QtCore/QVector>
+#include <QtGui/QGraphicsScene>
+#include <QtGui/QGraphicsItem>
+#include <QtGui/QGraphicsItemAnimation>
+#include <QtGui/QPainter>
+#include <math.h>
 
-#include <QObject>
-#include <QRectF>
-#include <QMap>
+#include "gui/tracks/track_content_object_item.h"
+#include "gui/tracks/track_item.h"
 
-class TrackContainerScene;
-class Track;
-class TrackSegment;
-class TrackSegmentItem;
 
-class TrackItem : public QObject
+class SampleSegmentItem : public TrackSegmentItem
 {
-	Q_OBJECT;
+	Q_OBJECT
+
 public:
-	TrackItem( TrackContainerScene * _scene, Track * _track );
-	virtual ~TrackItem( );
+	SampleSegmentItem( TrackItem * _track, TrackSegment * _object );
 
-	float height();
-	void setHeight( float _height );
+	virtual void paint( QPainter * _painter, const QStyleOptionGraphicsItem * _option,
+						QWidget * _widget );
 
-	float y();
-	void setY( float _x );
 
-private slots:
-	void addSegment( TrackSegment * _segment );
-	void removeSegment( TrackSegment * _segment );
+protected:
+	// virtual QVariant itemChange( GraphicsItemChange _change, const QVariant & _value );
 
-private:
-	QRectF m_rect;
+	virtual void mousePressEvent( QGraphicsSceneMouseEvent * event );
+	virtual void mouseReleaseEvent( QGraphicsSceneMouseEvent * event );
 
-	TrackContainerScene * m_scene;
-	Track * m_track;
-	QMap<TrackSegment*, TrackSegmentItem *> m_segmentItems;
-
-	friend class TrackContainerScene;
 };
-
 
 #endif

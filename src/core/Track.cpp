@@ -307,18 +307,17 @@ Track::~Track()
 Track * Track::create( TrackTypes _tt, TrackContainer * _tc )
 {
 	Track * t = NULL;
-/*
 	switch( _tt )
 	{
 		case InstrumentTrack: t = new ::InstrumentTrack( _tc ); break;
-		case BBTrack: t = new bbTrack( _tc ); break;
-		case SampleTrack: t = new sampleTrack( _tc ); break;
-		case AutomationTrack: t = new automationTrack( _tc ); break;
+		case BBTrack: t = new BbTrack( _tc ); break;
+		case SampleTrack: t = new ::SampleTrack( _tc ); break;
+		/*case AutomationTrack: t = new automationTrack( _tc ); break;
 		case HiddenAutomationTrack:
-				t = new automationTrack( _tc, true ); break;
+				t = new automationTrack( _tc, true ); break;*/
 		default: break;
 	}
-*/
+	// TODO{TNG}: Huh?
 	//_tc->updateAfterTrackAdd();
 
 	return t;
@@ -603,7 +602,11 @@ void Track::toggleSolo()
 
 
 
-
+void Track::addSegment( TrackSegment * _segment )
+{
+	m_trackSegments.append( _segment );
+	emit trackSegmentAdded( _segment );
+}
 
 
 
