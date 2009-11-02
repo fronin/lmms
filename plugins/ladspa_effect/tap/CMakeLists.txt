@@ -1,10 +1,12 @@
+CPACK_ADD_COMPONENT(TAP DISPLAY_NAME "TAP plugins" DESCRIPTION "Tom's Audio Processing LADSPA plugins" GROUP "LadspaPlugins")
+
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/include")
 FILE(GLOB PLUGIN_SOURCES *.c)
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wno-write-strings -fomit-frame-pointer -fno-strict-aliasing -fstrength-reduce -funroll-loops -ffast-math")
 FOREACH(_item ${PLUGIN_SOURCES})
 	GET_FILENAME_COMPONENT(_plugin "${_item}" NAME_WE)
 	ADD_LIBRARY(${_plugin} MODULE ${_item})
-	INSTALL(TARGETS ${_plugin} LIBRARY DESTINATION ${PLUGIN_DIR}/ladspa)
+	INSTALL(TARGETS ${_plugin} LIBRARY DESTINATION ${PLUGIN_DIR}/ladspa COMPONENT TAP)
 	SET_TARGET_PROPERTIES(${_plugin} PROPERTIES PREFIX "")
 	IF(LMMS_BUILD_WIN32)
 		ADD_CUSTOM_COMMAND(TARGET ${_plugin} POST_BUILD COMMAND ${STRIP} ${CMAKE_CURRENT_BINARY_DIR}/${_plugin}.dll)

@@ -5,7 +5,7 @@ INCLUDE_DIRECTORIES(../vst_base)
 LINK_DIRECTORIES(../vst_base)
 LINK_LIBRARIES(vstbase)
 
-BUILD_PLUGIN(vsteffect VstEffect.cpp VstEffectControls.cpp VstEffectControlDialog.cpp VstSubPluginFeatures.cpp VstEffect.h VstEffectControls.h VstEffectControlDialog.h VstSubPluginFeatures.h MOCFILES VstEffectControls.h EMBEDDED_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.png)
+BUILD_PLUGIN(vsteffect VstEffect.cpp VstEffectControls.cpp VstEffectControlDialog.cpp VstSubPluginFeatures.cpp VstEffect.h VstEffectControls.h VstEffectControlDialog.h VstSubPluginFeatures.h MOCFILES VstEffectControls.h EMBEDDED_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.png COMPONENT VST)
 
 SET_TARGET_PROPERTIES(vsteffect PROPERTIES COMPILE_FLAGS "-Wno-attributes")
 

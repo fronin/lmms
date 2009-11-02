@@ -1,3 +1,5 @@
+CPACK_ADD_COMPONENT_GROUP(LadspaPlugins DISPLAY_NAME "LADSPA plugins" DESCRIPTION "A huge set of powerful sound effects" PARENT_GROUP "Plugins")
+
 IF(WANT_CAPS)
 ADD_SUBDIRECTORY(caps)
 ENDIF(WANT_CAPS)

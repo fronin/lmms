@@ -3,6 +3,7 @@ if(LMMS_HAVE_FLUIDSYNTH)
 	INCLUDE_DIRECTORIES(${FLUIDSYNTH_INCLUDE_DIRS})
 	LINK_DIRECTORIES(${FLUIDSYNTH_LIBRARY_DIRS})
 	LINK_LIBRARIES(${FLUIDSYNTH_LIBRARIES})
-	BUILD_PLUGIN(sf2player sf2_player.cpp sf2_player.h patches_dialog.cpp patches_dialog.h patches_dialog.ui MOCFILES sf2_player.h patches_dialog.h UICFILES patches_dialog.ui EMBEDDED_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.png)
+	CPACK_ADD_COMPONENT(Sf2 DISPLAY_NAME "Sf2Player" DESCRIPTION "A SoundFont processing plugin" GROUP "Plugins")
+	BUILD_PLUGIN(sf2player sf2_player.cpp sf2_player.h patches_dialog.cpp patches_dialog.h patches_dialog.ui MOCFILES sf2_player.h patches_dialog.h UICFILES patches_dialog.ui EMBEDDED_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.png COMPONENT Sf2)
 endif(LMMS_HAVE_FLUIDSYNTH)
 

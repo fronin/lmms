@@ -1,3 +1,5 @@
+CPACK_ADD_COMPONENT_GROUP(Plugins DISPLAY_NAME "Plugins" DESCRIPTION "Functionality of LMMS can be extended by various plugins")
+
 ADD_SUBDIRECTORY(audio_file_processor)
 ADD_SUBDIRECTORY(bass_booster)
 ADD_SUBDIRECTORY(bit_invader)
@@ -25,3 +27,4 @@ ADD_SUBDIRECTORY(vst_base)
 ADD_SUBDIRECTORY(vst_effect)
 ADD_SUBDIRECTORY(vibed)
 ADD_SUBDIRECTORY(zynaddsubfx)
+
