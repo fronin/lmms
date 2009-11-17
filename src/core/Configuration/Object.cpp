@@ -32,12 +32,35 @@
 namespace Configuration
 {
 
+class DummyBackend : public Backend
+{
+public:
+    DummyBackend() :
+		Backend( None )
+	{
+	}
+	virtual ~DummyBackend()
+	{
+	}
+
+    virtual void load( Object * )
+	{
+	}
+    virtual void flush( Object * )
+	{
+	}
+
+} ;
+
 
 Object::Object( Backend::Type _type ) :
 	m_backend( NULL )
 {
 	switch( _type )
 	{
+		case Backend::None:
+			m_backend = new DummyBackend();
+			break;
 		case Backend::Native:
 			m_backend = new NativeBackend();
 			break;

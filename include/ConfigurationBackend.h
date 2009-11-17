@@ -35,6 +35,7 @@ class Backend
 public:
 	enum Types
 	{
+		None,	// for storing volatile data in RAM only
 		Native,	// registry or similiar via QSettings
 		XmlFile
 	} ;
