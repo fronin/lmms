@@ -24,6 +24,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 #include <QtGui/QMessageBox>
 #include <QtXml/QDomDocument>
@@ -41,9 +42,15 @@ XmlBackend::XmlBackend( const QString & _fileName ) :
 	Backend( Backend::XmlFile ),
 	m_fileName( _fileName )
 {
-	if( m_fileName.isNull() )
+	const QString configFileDir = QDir::home().absolutePath() +
+							QDir::separator() + ".lmms" + QDir::separator();
+	if( !QDir( configFileDir ).exists() )
 	{
-		m_fileName = QDir::homePath() + QDir::separator() + ".lmmsrc";
+		QDir().mkpath( configFileDir );
+	}
+	if( !QFileInfo( m_fileName ).isAbsolute() )
+	{
+		m_fileName = configFileDir + m_fileName;
 	}
 }
 
@@ -79,6 +86,11 @@ static void loadXmlTree( Object * _obj, QDomNode & _parentNode,
 
 void XmlBackend::load( Object * _obj )
 {
+	if( m_fileName.isEmpty() )
+	{
+		return;
+	}
+
 	QDomDocument doc;
 	QFile xmlFile( m_fileName );
 	if( !xmlFile.open( QFile::ReadOnly ) || !doc.setContent( &xmlFile ) )
@@ -134,15 +146,20 @@ static void saveXmlTree( const Object::DataMap & _dataMap,
 
 void XmlBackend::flush( Object * _obj )
 {
+	if( m_fileName.isEmpty() )
+	{
+		return;
+	}
+
 	QDomDocument doc( "LmmsXmlConfiguration" );
 	const Object::DataMap & data = _obj->data();
 
-	QDomElement root = doc.createElement( "LMMS" );
+	QDomElement root = doc.createElement( QFileInfo( m_fileName ).baseName() );
 	saveXmlTree( data, doc, root, QString() );
 	doc.appendChild( root );
 
 	QFile xmlFile( m_fileName );
-	if( !xmlFile.open( QFile::ReadWrite ) || !doc.setContent( &xmlFile ) )
+	if( !xmlFile.open( QFile::ReadWrite ) )
 	{
 	/*	QMessageBox::information(
 			engine::mainWindow(),
