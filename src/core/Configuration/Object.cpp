@@ -53,7 +53,7 @@ public:
 } ;
 
 
-Object::Object( Backend::Type _type ) :
+Object::Object( Backend::Type _type, const QString & _configName ) :
 	m_backend( NULL )
 {
 	switch( _type )
@@ -65,7 +65,7 @@ Object::Object( Backend::Type _type ) :
 			m_backend = new NativeBackend();
 			break;
 		case Backend::XmlFile:
-			m_backend = new XmlBackend();
+			m_backend = new XmlBackend( _configName );
 			break;
 		default:
 			qCritical( "Invalid Backend::Type %d selected in "

@@ -41,7 +41,7 @@ class Object : public QObject
 public:
 	typedef QMap<QString, QVariant> DataMap;
 
-	Object( Backend::Type _type );
+	Object( Backend::Type _type, const QString & _configName = QString::null );
 	~Object();
 
 	QString value( const QString & _key,
