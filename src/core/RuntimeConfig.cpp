@@ -27,7 +27,7 @@
 
 
 RuntimeConfig::RuntimeConfig() :
-	Configuration::Object( Configuration::Backend::XmlFile )
+	Configuration::Object( Configuration::Backend::None )
 {
 	setHasGui( true );
 }
