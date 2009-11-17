@@ -35,7 +35,7 @@ const QString PathConfig::LocalePath = "locale/";
 
 
 PathConfig::PathConfig() :
-	Configuration::Object( Configuration::Backend::XmlFile ),
+	Configuration::Object( Configuration::Backend::XmlFile, "PathConfig" ),
 	m_workingDir( QDir::home().absolutePath() + QDir::separator() +
 						"lmms" + QDir::separator() ),
 	m_dataDir( QCoreApplication::applicationDirPath()

@@ -26,7 +26,7 @@
 
 
 UserConfig::UserConfig() :
-	Configuration::Object( Configuration::Backend::XmlFile )
+	Configuration::Object( Configuration::Backend::XmlFile, "UserConfig" )
 {
 }
 
