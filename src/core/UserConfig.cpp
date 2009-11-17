@@ -34,6 +34,5 @@ UserConfig::UserConfig() :
 
 UserConfig::~UserConfig()
 {
-	flush();
 }
 

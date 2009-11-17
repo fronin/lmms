@@ -81,6 +81,10 @@ Object::Object( Backend::Type _type, const QString & _configName ) :
 
 Object::~Object()
 {
+	// flush data to backend
+	flush();
+
+	// and delete it
 	delete m_backend;
 }
 
