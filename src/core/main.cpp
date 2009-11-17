@@ -56,9 +56,11 @@
 #include "config_mgr.h"
 #include "embed.h"
 #include "engine.h"
+#include "Global.h"
 #include "ImportFilter.h"
 #include "MainWindow.h"
 #include "ProjectRenderer.h"
+#include "RuntimeConfig.h"
 #include "song.h"
 #include "Cpu.h"
 
@@ -97,7 +99,8 @@ int main( int argc, char * * argv )
 	// init CPU specific optimized operations
 	CPU::init();
 
-	bool core_only = false;
+	RuntimeConfig runtimeConfig;
+
 	bool fullscreen = true;
 	bool exit_after_import = false;
 	QString file_to_load, file_to_save, file_to_import, render_out;
@@ -109,7 +112,7 @@ int main( int argc, char * * argv )
 				( QString( argv[i] ) == "--help" ||
 						QString( argv[i] ) == "-h" ) ) )
 		{
-			core_only = true;
+			runtimeConfig.setHasGui( false );
 		}
 		else if( argc > i && QString( argv[i] ) == "-geometry" )
 		{
@@ -121,9 +124,9 @@ int main( int argc, char * * argv )
 		}
 	}
 
-	QCoreApplication * app = core_only ?
-			new QCoreApplication( argc, argv ) :
-					new QApplication( argc, argv ) ;
+	QCoreApplication * app = runtimeConfig.hasGui() ?
+			new QApplication( argc, argv ) :
+			new QCoreApplication( argc, argv );
 
 
 	mixer::qualitySettings qs( mixer::qualitySettings::Mode_HighQuality );
@@ -388,6 +391,7 @@ int main( int argc, char * * argv )
 #endif
 
 	configManager::inst()->loadConfigFile();
+	Global::init( &runtimeConfig );
 
 	if( render_out.isEmpty() && file_to_save.isEmpty() )
 	{
