@@ -171,11 +171,6 @@ public:
 
 
 	// audio-device-stuff
-	inline const QString & audioDevName() const
-	{
-		return m_audioDevName;
-	}
-
 	void setAudioDevice( AudioDevice * _dev );
 	void setAudioDevice( AudioDevice * _dev,
 				const struct qualitySettings & _qs,
@@ -445,7 +440,6 @@ private:
 
 	AudioDevice * m_audioDev;
 	AudioDevice * m_oldAudioDev;
-	QString m_audioDevName;
 
 
 	MidiClient * m_midiClient;

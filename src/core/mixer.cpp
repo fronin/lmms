@@ -26,6 +26,7 @@
 
 #include "mixer.h"
 #include "FxMixer.h"
+#include "UserConfig.h"
 #include "play_handle.h"
 #include "song.h"
 #include "templates.h"
@@ -34,7 +35,6 @@
 #include "InstrumentTrack.h"
 #include "debug.h"
 #include "engine.h"
-#include "config_mgr.h"
 #include "sample_play_handle.h"
 #include "piano_roll.h"
 #include "Cpu.h"
@@ -305,12 +305,9 @@ mixer::mixer() :
 		m_framesPerPeriod = DEFAULT_BUFFER_SIZE;
 		m_fifo = new fifo( 1 );
 	}
-	else if( configManager::inst()->value( "mixer", "framesperaudiobuffer"
-						).toInt() >= 32 )
+	else if( Global::userConfig().bufferSize() >= 32 )
 	{
-		m_framesPerPeriod =
-			(fpp_t) configManager::inst()->value( "mixer",
-					"framesperaudiobuffer" ).toInt();
+		m_framesPerPeriod = (fpp_t) Global::userConfig().bufferSize();
 
 		if( m_framesPerPeriod > DEFAULT_BUFFER_SIZE )
 		{
@@ -325,9 +322,7 @@ mixer::mixer() :
 	}
 	else
 	{
-		configManager::inst()->setValue( "mixer",
-							"framesperaudiobuffer",
-				QString::number( m_framesPerPeriod ) );
+		Global::userConfig().setBufferSize( m_framesPerPeriod );
 		m_fifo = new fifo( 1 );
 	}
 
@@ -441,8 +436,7 @@ void mixer::stopProcessing()
 
 sample_rate_t mixer::baseSampleRate() const
 {
-	sample_rate_t sr =
-		configManager::inst()->value( "mixer", "samplerate" ).toInt();
+	sample_rate_t sr = Global::userConfig().sampleRate();
 	if( sr < 44100 )
 	{
 		sr = 44100;
@@ -936,20 +930,20 @@ AudioDevice * mixer::tryAudioDevices()
 {
 	bool success_ful = false;
 	AudioDevice * dev = NULL;
-	QString dev_name = configManager::inst()->value( "mixer", "audiodev" );
+	QString backend = Global::userConfig().audioBackend();
 
-	if( dev_name == AudioDummy::name() )
+	if( backend == AudioDummy::name() )
 	{
-		dev_name = "";
+		backend = "";
 	}
 
 #ifdef LMMS_HAVE_ALSA
-	if( dev_name == AudioAlsa::name() || dev_name == "" )
+	if( backend == AudioAlsa::name() || backend.isEmpty() )
 	{
 		dev = new AudioAlsa( success_ful, this );
 		if( success_ful )
 		{
-			m_audioDevName = AudioAlsa::name();
+			Global::userConfig().setAudioBackend( AudioAlsa::name() );
 			return dev;
 		}
 		delete dev;
@@ -958,12 +952,12 @@ AudioDevice * mixer::tryAudioDevices()
 
 
 #ifdef LMMS_HAVE_PORTAUDIO
-	if( dev_name == AudioPortAudio::name() || dev_name == "" )
+	if( backend == AudioPortAudio::name() || backend.isEmpty() )
 	{
 		dev = new AudioPortAudio( success_ful, this );
 		if( success_ful )
 		{
-			m_audioDevName = AudioPortAudio::name();
+			Global::userConfig().setAudioBackend( AudioPortAudio::name() );
 			return dev;
 		}
 		delete dev;
@@ -972,12 +966,12 @@ AudioDevice * mixer::tryAudioDevices()
 
 
 #ifdef LMMS_HAVE_PULSEAUDIO
-	if( dev_name == AudioPulseAudio::name() || dev_name == "" )
+	if( backend == AudioPulseAudio::name() || backend.isEmpty() )
 	{
 		dev = new AudioPulseAudio( success_ful, this );
 		if( success_ful )
 		{
-			m_audioDevName = AudioPulseAudio::name();
+			Global::userConfig().setAudioBackend( AudioPulseAudio::name() );
 			return dev;
 		}
 		delete dev;
@@ -986,12 +980,12 @@ AudioDevice * mixer::tryAudioDevices()
 
 
 #ifdef LMMS_HAVE_OSS
-	if( dev_name == AudioOss::name() || dev_name == "" )
+	if( backend == AudioOss::name() || backend.isEmpty() )
 	{
 		dev = new AudioOss( success_ful, this );
 		if( success_ful )
 		{
-			m_audioDevName = AudioOss::name();
+			Global::userConfig().setAudioBackend( AudioOss::name() );
 			return dev;
 		}
 		delete dev;
@@ -1000,12 +994,12 @@ AudioDevice * mixer::tryAudioDevices()
 
 
 #ifdef LMMS_HAVE_JACK
-	if( dev_name == AudioJack::name() || dev_name == "" )
+	if( backend == AudioJack::name() || backend.isEmpty() )
 	{
 		dev = new AudioJack( success_ful, this );
 		if( success_ful )
 		{
-			m_audioDevName = AudioJack::name();
+			Global::userConfig().setAudioBackend( AudioJack::name() );
 			return dev;
 		}
 		delete dev;
@@ -1014,12 +1008,12 @@ AudioDevice * mixer::tryAudioDevices()
 
 
 #ifdef LMMS_HAVE_SDL
-	if( dev_name == AudioSdl::name() || dev_name == "" )
+	if( backend == AudioSdl::name() || backend.isEmpty() )
 	{
 		dev = new AudioSdl( success_ful, this );
 		if( success_ful )
 		{
-			m_audioDevName = AudioSdl::name();
+			Global::userConfig().setAudioBackend( AudioSdl::name() );
 			return dev;
 		}
 		delete dev;
@@ -1038,8 +1032,6 @@ AudioDevice * mixer::tryAudioDevices()
 		"driver\nYou can render your songs and listen to the output "
 		"files...\n" );
 
-	m_audioDevName = AudioDummy::name();
-
 	return new AudioDummy( success_ful, this );
 }
 
@@ -1048,11 +1040,10 @@ AudioDevice * mixer::tryAudioDevices()
 
 MidiClient * mixer::tryMidiClients()
 {
-	QString client_name = configManager::inst()->value( "mixer",
-								"mididev" );
+	QString clientName = Global::userConfig().midiBackend();
 
 #ifdef LMMS_HAVE_ALSA
-	if( client_name == MidiAlsaSeq::name() || client_name == "" )
+	if( clientName == MidiAlsaSeq::name() || clientName.isEmpty() )
 	{
 		MidiAlsaSeq * malsas = new MidiAlsaSeq;
 		if( malsas->isRunning() )
@@ -1063,7 +1054,7 @@ MidiClient * mixer::tryMidiClients()
 		delete malsas;
 	}
 
-	if( client_name == MidiAlsaRaw::name() || client_name == "" )
+	if( clientName == MidiAlsaRaw::name() || clientName.isEmpty() )
 	{
 		MidiAlsaRaw * malsar = new MidiAlsaRaw;
 		if( malsar->isRunning() )
@@ -1076,7 +1067,7 @@ MidiClient * mixer::tryMidiClients()
 #endif
 
 #ifdef LMMS_HAVE_OSS
-	if( client_name == MidiOss::name() || client_name == "" )
+	if( clientName == MidiOss::name() || clientName.isEmpty() )
 	{
 		MidiOss * moss = new MidiOss;
 		if( moss->isRunning() )
@@ -1089,7 +1080,7 @@ MidiClient * mixer::tryMidiClients()
 #endif
 
 #ifdef LMMS_BUILD_WIN32
-	if( client_name == MidiWinMM::name() || client_name == "" )
+	if( clientName == MidiWinMM::name() || clientName.isEmpty() )
 	{
 		MidiWinMM * mwmm = new MidiWinMM;
 //		if( moss->isRunning() )
