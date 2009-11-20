@@ -22,12 +22,24 @@
  *
  */
 
+#include <QtCore/QDir>
+
 #include "UserConfig.h"
+#include "PathConfig.h"
 
 
 UserConfig::UserConfig() :
 	Configuration::Object( Configuration::Backend::XmlFile, "UserConfig" )
 {
+	if( uiTheme().isEmpty() )
+	{
+		setUiTheme( "default" );
+	}
+
+	QDir::setSearchPaths( "resources",
+		QStringList() << Global::paths().activeThemePath()
+						<< Global::paths().defaultThemePath() );
+
 }
 
 
@@ -35,4 +47,22 @@ UserConfig::UserConfig() :
 UserConfig::~UserConfig()
 {
 }
+
+
+
+
+void UserConfig::addRecentlyOpenedProject( const QString & _file )
+{
+	// TODO
+}
+
+
+
+
+QStringList UserConfig::recentlyOpenedProjects()
+{
+	// TODO
+	return QStringList();
+}
+
 

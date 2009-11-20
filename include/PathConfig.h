@@ -26,6 +26,7 @@
 #define _PATH_CONFIG_H
 
 #include "ConfigurationObject.h"
+#include "Global.h"
 #include "export.h"
 
 
@@ -35,7 +36,6 @@ public:
 	PathConfig();
 	~PathConfig();
 
-	ADD_CONFIG_PROPERTY( artworkDir, setArtworkDir, "ArtworkDirectory", "Paths" );
 	ADD_CONFIG_PROPERTY( vstDir, setVstDir, "VstPluginDirectory", "Paths" );
 	ADD_CONFIG_PROPERTY( flDir, setFlDir, "FlDirectory", "Paths" );
 	ADD_CONFIG_PROPERTY( ladspaDir, setLadspaDir, "LadspaDirectory", "Paths" );
@@ -83,10 +83,18 @@ public:
 		return dataDir() + SamplesPath;
 	}
 
-	QString defaultArtworkDir() const
+	QString themesPath() const
 	{
-		return dataDir() + DefaultThemePath;
+		return dataDir() + ThemesPath;
 	}
+
+	QString defaultThemePath() const
+	{
+		return themesPath() + "default/";
+	}
+
+	QString activeThemePath() const;
+
 	QString localeDir() const
 	{
 		return dataDir() + LocalePath;
@@ -102,7 +110,7 @@ private:
 	static const QString ProjectsPath;
 	static const QString PresetsPath;
 	static const QString SamplesPath;
-	static const QString DefaultThemePath;
+	static const QString ThemesPath;
 	static const QString LocalePath;
 
 	QString m_workingDir;

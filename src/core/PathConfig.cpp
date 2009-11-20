@@ -24,13 +24,19 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
+#include <QtGui/QMessageBox>
 
 #include "PathConfig.h"
+#include "UserConfig.h"
+#include "RuntimeConfig.h"
+#include "MainWindow.h"
+#include "lmmsconfig.h"
+
 
 const QString PathConfig::ProjectsPath = "projects/";
 const QString PathConfig::PresetsPath = "presets/";
 const QString PathConfig::SamplesPath = "samples/";
-const QString PathConfig::DefaultThemePath = "themes/default/";
+const QString PathConfig::ThemesPath = "themes/";
 const QString PathConfig::LocalePath = "locale/";
 
 
@@ -52,6 +58,54 @@ PathConfig::PathConfig() :
 	m_pluginDir( QString( PLUGIN_DIR ) )
 #endif
 {
+	if( vstDir().isEmpty() || vstDir() == QDir::separator() )
+	{
+		setVstDir( QDir::home().absolutePath() + QDir::separator() );
+	}
+
+	if( flDir().isEmpty() || flDir() == QDir::separator() )
+	{
+		setVstDir( QDir::home().absolutePath() + QDir::separator() );
+	}
+
+	if( ladspaDir().isEmpty() || ladspaDir() == QDir::separator() )
+	{
+#ifdef LMMS_BUILD_WIN32
+		setLadspaDir( pluginDir() + "ladspa" + QDir::separator() );
+#else
+		setLadspaDir( QString( LIB_DIR ) + "/ladspa/" );
+#endif
+	}
+
+	if( stkDir().isEmpty() || stkDir() == QDir::separator() )
+	{
+#ifdef LMMS_BUILD_WIN32
+		setStkDir( dataDir() + "stk/rawwaves/" );
+#else
+		setStkDir( "/usr/share/stk/rawwaves/" );
+#endif
+	}
+
+	if( !QDir( workingDir() ).exists() && Global::runtimeConfig().hasGui() )
+	{
+		if( QMessageBox::question( 0,
+			MainWindow::tr( "Working directory" ),
+			MainWindow::tr( "A working directory for LMMS does not "
+				"exist. Create a default one at %1 now? You can change "
+				"the directory later via Edit -> Preferences." ).
+												arg( workingDir() ),
+					QMessageBox::Yes, QMessageBox::No ) ==
+								QMessageBox::Yes )
+		{
+			QDir().mkpath( workingDir() );
+		}
+	}
+	if( QDir( workingDir() ).exists() )
+	{
+		QDir().mkpath( userProjectsDir() );
+		QDir().mkpath( userSamplesDir() );
+		QDir().mkpath( userPresetsDir() );
+	}
 }
 
 
@@ -60,4 +114,13 @@ PathConfig::PathConfig() :
 PathConfig::~PathConfig()
 {
 }
+
+
+
+
+QString PathConfig::activeThemePath() const
+{
+	return themesPath() + Global::userConfig().uiTheme() + QDir::separator();
+}
+
 

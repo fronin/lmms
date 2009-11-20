@@ -26,6 +26,7 @@
 #define _USER_CONFIG_H
 
 #include "ConfigurationObject.h"
+#include "Global.h"
 
 class UserConfig : public Configuration::Object
 {
@@ -33,16 +34,58 @@ public:
 	UserConfig();
 	~UserConfig();
 
-	ADD_CONFIG_INT_PROPERTY( bufferSize, setBufferSize, "BufferSize", "Mixer" );
+	void addRecentlyOpenedProject( const QString & _file );
+	QStringList recentlyOpenedProjects();
 
+	ADD_CONFIG_BOOL_PROPERTY( isConfigured, setIsConfigured, "IsConfigured", "App" );
+
+	ADD_CONFIG_PROPERTY( audioBackend, setAudioBackend, "AudioBackend", "Mixer" );
+	ADD_CONFIG_PROPERTY( midiBackend, setMidiBackend, "MidiBackend", "Mixer" );
+	ADD_CONFIG_INT_PROPERTY( bufferSize, setBufferSize, "BufferSize", "Mixer" );
+	ADD_CONFIG_INT_PROPERTY( sampleRate, setSampleRate, "SampleRate", "Mixer" );
+	ADD_CONFIG_BOOL_PROPERTY( hqAudio, setHqAudio, "HqAudio", "Mixer" );
+
+	ADD_CONFIG_PROPERTY( uiTheme, setUiTheme, "Theme", "UI" );
 	ADD_CONFIG_PROPERTY( backgroundArtwork, setBackgroundArtwork, "BackgroundArtwork", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( toolTips, setToolTips, "ToolTips", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( displayDBV, setDisplayDBV, "DisplayDBV", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( toolTipsEnabled, setToolTipsEnabled, "ToolTipsEnabled", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( displayKnobDBV, setDisplayKnobDBV, "DisplayKnobDBV", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( pianoFeedback, setPianoFeedback, "PianoFeedback", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( instrumentFadeButton, setInstrumentFadeButton, "InstrumentFadeButton", "UI" );
 
 	ADD_CONFIG_PROPERTY( defaultSoundFont, setDefaultSoundfont, "DefaultSoundFont", "Plugins" );
 
 } ;
+
+
+class UserConfigAdaptor
+{
+public:
+	UserConfigAdaptor( const QString & _scope ) :
+		m_scope( _scope )
+	{
+	}
+
+	void setValue( const QString & _key, const QString & _value )
+	{
+		Global::userConfig().setValue( _key, _value, m_scope );
+	}
+
+	QString value( const QString & _key )
+	{
+		return Global::userConfig().value( _key, m_scope );
+	}
+
+
+private:
+	const QString m_scope;
+} ;
+
+
+#define ADD_USER_CONFIG_ADAPTOR(scope)				\
+			static UserConfigAdaptor cfg()			\
+			{										\
+				return UserConfigAdaptor( scope );	\
+			}
+
 
 #endif
