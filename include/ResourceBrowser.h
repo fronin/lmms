@@ -33,6 +33,7 @@
 
 class QAction;
 class QLabel;
+class QLineEdit;
 class ResourceItem;
 class ResourceTreeView;
 
