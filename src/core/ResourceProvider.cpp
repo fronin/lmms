@@ -28,7 +28,7 @@
 
 #include "ResourceProvider.h"
 #include "ResourceDB.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
 
 
 ResourceProvider::ResourceProvider( const QString & _url ) :
@@ -50,7 +50,7 @@ ResourceProvider::~ResourceProvider()
 
 QString ResourceProvider::localCacheFile() const
 {
-	const QString dir = configManager::inst()->workingDir() +
+	const QString dir = Global::paths().workingDir() +
 					".resources" + QDir::separator();
 	if( !QDir( dir ).exists() )
 	{

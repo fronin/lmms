@@ -26,14 +26,15 @@
 #include <QLibrary>
 #include <QtGui/QMessageBox>
 
-
 #include "lame_library.h"
+#include "PathConfig.h"
+
 
 LameLibrary::LameLibrary() : 
 	m_lameLib( NULL )
 {
 	// dynamically load the lame library
-	m_lameLib = new QLibrary(configManager::inst()->lameLibrary());
+	m_lameLib = new QLibrary( Global::paths().lameLibrary() );
 	if( ! m_lameLib->load() ) 
 	{
 		QMessageBox::information( NULL, QObject::tr( "Unable to load LAME" ),

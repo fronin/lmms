@@ -36,6 +36,7 @@
 #include "InstrumentTrack.h"
 #include "InstrumentPlayHandle.h"
 #include "note_play_handle.h"
+#include "PathConfig.h"
 #include "knob.h"
 #include "song.h"
 
@@ -131,7 +132,7 @@ sf2Instrument::sf2Instrument( InstrumentTrack * _instrument_track ) :
 	InstrumentPlayHandle * iph = new InstrumentPlayHandle( this );
 	engine::getMixer()->addPlayHandle( iph );
 
-	//loadFile( configManager::inst()->defaultSoundfont() );
+	//loadFile( Global::paths().defaultSoundfont() );
 
 	updateSampleRate();
 	updateReverbOn();
@@ -1053,10 +1054,10 @@ void sf2InstrumentView::showFileDialog()
 		QString f = k->m_filename;
 		if( QFileInfo( f ).isRelative() )
 		{
-			f = configManager::inst()->userSamplesDir() + f;
+			f = Global::paths().userSamplesDir() + f;
 			if( QFileInfo( f ).exists() == false )
 			{
-				f = configManager::inst()->factorySamplesDir() +
+				f = Global::paths().factorySamplesDir() +
 						k->m_filename;
 			}
 		}
@@ -1065,7 +1066,7 @@ void sf2InstrumentView::showFileDialog()
 	}
 	else
 	{
-		ofd.setDirectory( configManager::inst()->userSamplesDir() );
+		ofd.setDirectory( Global::paths().userSamplesDir() );
 	}
 
 	m_fileDialogButton->setEnabled( false );

@@ -2,7 +2,7 @@
  * VstPlugin.cpp - implementation of VstPlugin class
  *
  * Copyright (c) 2005-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -43,23 +43,23 @@
 #include <windows.h>
 #endif
 
-#include "config_mgr.h"
 #include "engine.h"
 #include "MainWindow.h"
+#include "PathConfig.h"
 #include "song.h"
 #include "templates.h"
 
 
-class vstSubWin : public QMdiSubWindow
+class VstSubWin : public QMdiSubWindow
 {
 public:
-	vstSubWin( QWidget * _parent ) :
+	VstSubWin( QWidget * _parent ) :
 		QMdiSubWindow( _parent )
 	{
 		setAttribute( Qt::WA_DeleteOnClose, false );
 	}
 
-	virtual ~vstSubWin()
+	virtual ~VstSubWin()
 	{
 	}
 
@@ -128,7 +128,7 @@ VstPlugin::VstPlugin( const QString & _plugin ) :
 	QString p = m_plugin;
 	if( QFileInfo( p ).dir().isRelative() )
 	{
-		p = configManager::inst()->vstDir() + QDir::separator() + p;
+		p = Global::paths().vstDir() + QDir::separator() + p;
 	}
 
 	sendMessage( message( IdVstLoadPlugin ).addString( QSTR_TO_STDSTR( p ) ) );
@@ -141,7 +141,7 @@ VstPlugin::VstPlugin( const QString & _plugin ) :
 	if( m_pluginWindowID )
 	{
 		target->setFixedSize( m_pluginGeometry );
-		vstSubWin * sw = new vstSubWin(
+		VstSubWin * sw = new VstSubWin(
 					engine::mainWindow()->workspace() );
 		sw->setWidget( helper );
 		helper->setWindowTitle( name() );
@@ -191,7 +191,7 @@ void VstPlugin::showEditor( QWidget * _parent )
 	m_pluginWidget->setWindowTitle( name() );
 	if( _parent == NULL )
 	{
-		vstSubWin * sw = new vstSubWin(
+		VstSubWin * sw = new VstSubWin(
 					engine::mainWindow()->workspace() );
 		sw->setWidget( m_pluginWidget );
 	}

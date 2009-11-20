@@ -2,7 +2,7 @@
  * vestige.cpp - instrument-plugin for hosting VST-instruments
  *
  * Copyright (c) 2005-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -37,6 +37,7 @@
 #include "InstrumentPlayHandle.h"
 #include "InstrumentTrack.h"
 #include "VstPlugin.h"
+#include "PathConfig.h"
 #include "pixmap_button.h"
 #include "string_pair_drag.h"
 #include "text_float.h"
@@ -333,7 +334,7 @@ void VestigeInstrumentView::openPlugin()
 	}
 	else
 	{
-		dir = configManager::inst()->vstDir();
+		dir = Global::paths().vstDir();
 	}
 	// change dir to position of previously opened file
 	ofd.setDirectory( dir );

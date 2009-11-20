@@ -30,7 +30,6 @@
 #include "automation_recorder.h"
 #include "bb_editor.h"
 #include "bb_track_container.h"
-#include "config_mgr.h"
 #include "ControllerRackView.h"
 #include "FxMixer.h"
 #include "FxMixerView.h"
@@ -149,8 +148,6 @@ void engine::init( const bool _has_gui )
 
 void engine::destroy()
 {
-	configManager::inst()->saveConfigFile();
-
 	s_mixer->stopProcessing();
 
 	delete s_projectNotes;
@@ -182,7 +179,6 @@ void engine::destroy()
 
 	delete s_ladspaManager;
 
-	//delete configManager::inst();
 	delete s_projectJournal;
 	s_projectJournal = NULL;
 	s_mainWindow = NULL;
@@ -195,8 +191,6 @@ void engine::destroy()
 
 	delete s_mergedResourceDB->provider();
 	s_mergedResourceDB = NULL;
-
-	delete configManager::inst();
 }
 
 

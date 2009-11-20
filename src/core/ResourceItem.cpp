@@ -30,7 +30,7 @@
 #include "ResourceItem.h"
 #include "ResourceProvider.h"
 #include "ResourceDB.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
 #include "engine.h"
 
 
@@ -333,11 +333,11 @@ QString ResourceItem::getBaseDirectory( BaseDirectory _bd,
 			break;
 
 		case BaseWorkingDir:
-			d = configManager::inst()->workingDir();
+			d = Global::paths().workingDir();
 			break;
 
 		case BaseDataDir:
-			d = configManager::inst()->dataDir();
+			d = Global::paths().dataDir();
 			break;
 
 		case BaseURL:

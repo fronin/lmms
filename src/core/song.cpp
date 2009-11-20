@@ -37,7 +37,6 @@
 #include "bb_editor.h"
 #include "bb_track.h"
 #include "bb_track_container.h"
-#include "config_mgr.h"
 #include "ControllerRackView.h"
 #include "ControllerConnection.h"
 #include "embed.h"
@@ -51,6 +50,7 @@
 #include "MidiClient.h"
 #include "mmp.h"
 #include "note_play_handle.h"
+#include "PathConfig.h"
 #include "pattern.h"
 #include "piano_roll.h"
 #include "ProjectJournal.h"
@@ -61,7 +61,7 @@
 #include "templates.h"
 #include "text_float.h"
 #include "timeline.h"
-
+#include "UserConfig.h"
 
 tick_t midiTime::s_ticksPerTact = DefaultTicksPerTact;
 
@@ -784,7 +784,7 @@ void song::clearProject()
 // create new file
 void song::createNewProject()
 {
-	QString default_template = configManager::inst()->userProjectsDir()
+	QString default_template = Global::paths().userProjectsDir()
 						+ "templates/default.mpt";
 	if( QFile::exists( default_template ) )
 	{
@@ -792,7 +792,7 @@ void song::createNewProject()
 		return;
 	}
 
-	default_template = configManager::inst()->factoryProjectsDir()
+	default_template = Global::paths().factoryProjectsDir()
 						+ "templates/default.mpt";
 	if( QFile::exists( default_template ) )
 	{
@@ -976,7 +976,7 @@ void song::loadProject( const QString & _file_name )
 
 	engine::getMixer()->unlock();
 
-	configManager::inst()->addRecentlyOpenedProject( _file_name );
+	Global::userConfig().addRecentlyOpenedProject( _file_name );
 
 	engine::projectJournal()->setJournalling( true );
 
@@ -1032,7 +1032,7 @@ bool song::saveProject()
 							).arg( m_fileName ),
 				embed::getIconPixmap( "project_save", 24, 24 ),
 									2000 );
-		configManager::inst()->addRecentlyOpenedProject( m_fileName );
+		Global::userConfig().addRecentlyOpenedProject( m_fileName );
 		m_modified = false;
 		engine::mainWindow()->resetWindowTitle();
 	}
@@ -1073,7 +1073,7 @@ bool song::saveProjectAs( const QString & _file_name )
 void song::importProject()
 {
 	QFileDialog ofd( NULL, tr( "Import file" ),
-			configManager::inst()->userProjectsDir(),
+			Global::paths().userProjectsDir(),
 			tr("MIDI sequences") +
 			" (*.mid *.midi *.rmi);;" +
 			tr("FL Studio projects") +
@@ -1157,7 +1157,7 @@ void song::exportProject()
 	}
 	else
 	{
-		efd.setDirectory( configManager::inst()->userProjectsDir() );
+		efd.setDirectory( Global::paths().userProjectsDir() );
 		base_filename = tr( "untitled" );
 	}
 	efd.selectFile( base_filename + __fileEncodeDevices[0].m_extension );

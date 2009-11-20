@@ -31,7 +31,7 @@
 #include "RemotePlugin.h"
 #include "mixer.h"
 #include "engine.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
 
 #include <QtCore/QDir>
 
@@ -86,7 +86,7 @@ RemotePlugin::RemotePlugin( const QString & _plugin_executable,
 	m_outputCount( DEFAULT_CHANNELS )
 {
 	lock();
-	QString exec = configManager::inst()->pluginDir() +
+	QString exec = Global::paths().pluginDir() +
 					QDir::separator() + _plugin_executable;
 	QStringList args;
 	// swap in and out for bidirectional communication

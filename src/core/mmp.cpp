@@ -33,7 +33,7 @@
 #include <QtGui/QMessageBox>
 
 
-#include "config_mgr.h"
+#include "UserConfig.h"
 #include "project_version.h"
 #include "song_editor.h"
 #include "Effect.h"
@@ -136,8 +136,8 @@ QString multimediaProject::nameWithExtension( const QString & _fn ) const
 					_fn.section( '.', -1 ) != "mpt" &&
 					_fn.section( '.', -1 ) != "mmpz" )
 			{
-				if( configManager::inst()->value( "app",
-						"nommpz" ).toInt() == 0 )
+				// TODO: deprecated
+				if( Global::userConfig().value( "NoMMPZ", "Misc" ).toInt() == 0 )
 				{
 					return _fn + ".mmpz";
 				}

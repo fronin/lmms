@@ -29,19 +29,21 @@
 #include <QtCore/QLibrary>
 
 #include <math.h>
+#include <cstdlib>
 
-#include "config_mgr.h"
+#include "PathConfig.h"
 #include "ladspa_manager.h"
 
 
 
 ladspaManager::ladspaManager()
 {
+	// QT4.6: use QProcessEnvironment::value(...)
 	QStringList ladspaDirectories = QString( getenv( "LADSPA_PATH" ) ).
 								split( ',' );
-	ladspaDirectories += configManager::inst()->ladspaDir().split( ',' );
+	ladspaDirectories += Global::paths().ladspaDir().split( ',' );
 
-	ladspaDirectories.push_back( configManager::inst()->pluginDir() + "ladspa" );
+	ladspaDirectories.push_back( Global::paths().pluginDir() + "ladspa" );
 #ifndef LMMS_BUILD_WIN32
 	ladspaDirectories.push_back( QString( LIB_DIR ) + "ladspa" );
 	ladspaDirectories.push_back( "/usr/lib/lmms/ladspa" );

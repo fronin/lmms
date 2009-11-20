@@ -26,11 +26,11 @@
 #include <QtCore/QLibrary>
 #include <QtGui/QMessageBox>
 
+#include "PathConfig.h"
 #include "Plugin.h"
 #include "embed.h"
 #include "engine.h"
 #include "mixer.h"
-#include "config_mgr.h"
 #include "DummyPlugin.h"
 #include "AutomatableModel.h"
 
@@ -92,9 +92,8 @@ AutomatableModel * Plugin::childModel( const QString & )
 Plugin * Plugin::instantiate( const QString & _plugin_name, Model * _parent,
 								void * _data )
 {
-	QLibrary plugin_lib( configManager::inst()->pluginDir() +
-								_plugin_name );
-	if( plugin_lib.load() == false )
+	QLibrary pluginLib( Global::paths().pluginDir() + _plugin_name );
+	if( pluginLib.load() == false )
 	{
 		if( engine::hasGUI() )
 		{
@@ -103,13 +102,13 @@ Plugin * Plugin::instantiate( const QString & _plugin_name, Model * _parent,
 				tr( "The plugin \"%1\" wasn't found "
 					"or could not be loaded!\n"
 					"Reason: \"%2\"" ).arg( _plugin_name ).
-						arg( plugin_lib.errorString() ),
+						arg( pluginLib.errorString() ),
 					QMessageBox::Ok |
 						QMessageBox::Default );
 		}
 		return new DummyPlugin();
 	}
-	instantiationHook inst_hook = ( instantiationHook ) plugin_lib.resolve(
+	instantiationHook inst_hook = ( instantiationHook ) pluginLib.resolve(
 							"lmms_plugin_main" );
 	if( inst_hook == NULL )
 	{
@@ -131,9 +130,9 @@ Plugin * Plugin::instantiate( const QString & _plugin_name, Model * _parent,
 
 
 
-void Plugin::getDescriptorsOfAvailPlugins( DescriptorList & _plugin_descs )
+void Plugin::getDescriptorsOfAvailPlugins( DescriptorList & _pluginDescs )
 {
-	QDir directory( configManager::inst()->pluginDir() );
+	QDir directory( Global::paths().pluginDir() );
 #ifdef LMMS_BUILD_WIN32
 	QFileInfoList list = directory.entryInfoList(
 						QStringList( "*.dll" ) );
@@ -148,30 +147,30 @@ void Plugin::getDescriptorsOfAvailPlugins( DescriptorList & _plugin_descs )
 
 	foreach( const QFileInfo & f, list )
 	{
-		QLibrary plugin_lib( f.absoluteFilePath() );
-		if( plugin_lib.load() == false ||
-			plugin_lib.resolve( "lmms_plugin_main" ) == NULL )
+		QLibrary pluginLib( f.absoluteFilePath() );
+		if( pluginLib.load() == false ||
+			pluginLib.resolve( "lmms_plugin_main" ) == NULL )
 		{
 			continue;
 		}
-		QString desc_name = f.fileName().section( '.', 0, 0 ) +
+		QString descName = f.fileName().section( '.', 0, 0 ) +
 							"_plugin_descriptor";
-		if( desc_name.left( 3 ) == "lib" )
+		if( descName.left( 3 ) == "lib" )
 		{
-			desc_name = desc_name.mid( 3 );
+			descName = descName.mid( 3 );
 		}
-		Descriptor * plugin_desc =
-			(Descriptor *) plugin_lib.resolve(
-					desc_name.toUtf8().constData() );
-		if( plugin_desc == NULL )
+		Descriptor * pluginDesc =
+			(Descriptor *) pluginLib.resolve(
+					descName.toUtf8().constData() );
+		if( pluginDesc == NULL )
 		{
 			printf( "LMMS plugin %s does not have a "
 				"plugin descriptor named %s!\n",
 				f.absoluteFilePath().toUtf8().constData(),
-					desc_name.toUtf8().constData() );
+					descName.toUtf8().constData() );
 			continue;
 		}
-		_plugin_descs.push_back( *plugin_desc );
+		_pluginDescs.push_back( *pluginDesc );
 	}
 
 }

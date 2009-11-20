@@ -2,7 +2,8 @@
  * mallets.cpp - tuned instruments that one would bang upon
  *
  * Copyright (c) 2006-2008 Danny McRae <khjklujn/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +35,7 @@
 #include "engine.h"
 #include "gui_templates.h"
 #include "InstrumentTrack.h"
+#include "PathConfig.h"
 
 #include "embed.cpp"
 
@@ -76,8 +78,8 @@ malletsInstrument::malletsInstrument( InstrumentTrack * _instrument_track ):
 	m_strikeModel( false, this, tr( "Bowed" ) ),
 	m_presetsModel(this),
 	m_spreadModel(0, 0, 255, 1, this, tr( "Spread" )),
-	m_filesMissing( !QDir( configManager::inst()->stkDir() ).exists() ||
-		!QFileInfo( configManager::inst()->stkDir() + QDir::separator()
+	m_filesMissing( !QDir( Global::paths().stkDir() ).exists() ||
+		!QFileInfo( Global::paths().stkDir() + QDir::separator()
 						+ "sinewave.raw" ).exists() )
 {
 	// try to inform user about missing Stk-installation
@@ -527,7 +529,7 @@ malletsSynth::malletsSynth( const StkFloat _pitch,
 	try
 	{
 		Stk::setSampleRate( _sample_rate );
-		Stk::setRawwavePath( configManager::inst()->stkDir()
+		Stk::setRawwavePath( Global::paths().stkDir()
 						.toAscii().constData() );
 	
 		m_voice = new ModalBar();
@@ -574,7 +576,7 @@ malletsSynth::malletsSynth( const StkFloat _pitch,
 	try
 	{
 		Stk::setSampleRate( _sample_rate );
-		Stk::setRawwavePath( configManager::inst()->stkDir()
+		Stk::setRawwavePath( Global::paths().stkDir()
 						.toAscii().constData() );
 	
 		m_voice = new TubeBell();
@@ -619,7 +621,7 @@ malletsSynth::malletsSynth( const StkFloat _pitch,
 	try
 	{
 		Stk::setSampleRate( _sample_rate );
-		Stk::setRawwavePath( configManager::inst()->stkDir()
+		Stk::setRawwavePath( Global::paths().stkDir()
 						.toAscii().constData() );
 
 		m_voice = new BandedWG();

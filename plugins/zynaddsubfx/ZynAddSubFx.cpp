@@ -37,6 +37,7 @@
 #include "InstrumentPlayHandle.h"
 #include "InstrumentTrack.h"
 #include "gui_templates.h"
+#include "PathConfig.h"
 #include "string_pair_drag.h"
 #include "RemoteZynAddSubFx.h"
 #include "LocalZynAddSubFx.h"
@@ -293,7 +294,7 @@ void ZynAddSubFxInstrument::initPlugin()
 			RemotePlugin::message( IdZasfPresetDirectory ).
 				addString(
 					QSTR_TO_STDSTR(
-						QString( configManager::inst()->factoryPresetsDir() +
+						QString( Global::paths().factoryPresetsDir() +
 								QDir::separator() + "ZynAddSubFX" ) ) ) );
 		m_remotePlugin->showUI();
 		m_remotePlugin->unlock();

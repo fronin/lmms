@@ -53,7 +53,8 @@
 #endif
 
 #include "lmmsversion.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
+#include "UserConfig.h"
 #include "embed.h"
 #include "engine.h"
 #include "Global.h"
@@ -78,7 +79,7 @@ static inline QString baseName( const QString & _file )
 
 
 inline void loadTranslation( const QString & _tname,
-	const QString & _dir = configManager::inst()->localeDir() )
+	const QString & _dir = Global::paths().localeDir() )
 {
 	QTranslator * t = new QTranslator( QCoreApplication::instance() );
 	QString name = _tname + ".qm";
@@ -363,7 +364,7 @@ int main( int argc, char * * argv )
 
 #ifdef LMMS_BUILD_WIN32
 #undef QT_TRANSLATIONS_DIR
-#define QT_TRANSLATIONS_DIR configManager::inst()->localeDir()
+#define QT_TRANSLATIONS_DIR Global::paths().localeDir()
 #endif
 
 #ifdef QT_TRANSLATIONS_DIR
@@ -390,15 +391,13 @@ int main( int argc, char * * argv )
 #endif
 #endif
 
-	configManager::inst()->loadConfigFile();
 	Global::init( &runtimeConfig );
 
 	if( render_out.isEmpty() && file_to_save.isEmpty() )
 	{
 		// init style and palette
-		// TODO, select based on theme.xml!
-		bool useCusis = configManager::inst()->artworkDir().contains(
-				"cusis", Qt::CaseInsensitive );
+		// TODO, select theme plugin based on theme.xml!
+		bool useCusis = Global::userConfig().uiTheme().toLower() == "cusis";
 
 		if( useCusis ) {
 			CusisStyle * style = new CusisStyle();

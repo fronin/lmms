@@ -35,7 +35,7 @@
 #include "bb_track.h"
 #include "bb_track_container.h"
 #include "combobox.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
 #include "debug.h"
 #include "Effect.h"
 #include "engine.h"
@@ -1206,17 +1206,17 @@ if( p.currentEffectChannel <= NumFxChannels )
 				bool foundFile = false;
 				
 				f_name.replace( '\\', QDir::separator() );
-				if( QFileInfo( configManager::inst()->flDir() +
+				if( QFileInfo( Global::paths().flDir() +
 						"/Data/" ).exists() )
 				{
-					f = configManager::inst()->flDir() +
+					f = Global::paths().flDir() +
 								"/Data/" + f_name;
 					foundFile = QFileInfo( f ).exists();
 				}
 				else
 				{
 					// FL 3 compat
-					f = configManager::inst()->flDir() +
+					f = Global::paths().flDir() +
 							"/Samples/" + f_name;
 					foundFile = QFileInfo( f ).exists();
 				}

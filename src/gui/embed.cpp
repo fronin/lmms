@@ -27,7 +27,7 @@
 #include <QHash>
 
 #include "embed.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
 
 
 
@@ -61,20 +61,20 @@ QPixmap getIconPixmap( const char * _name, int _w, int _h )
 		QString name = QString( _name ) + ".png";
 
 #ifdef PLUGIN_NAME
-		QPixmap p( configManager::inst()->artworkDir() + "plugins/" +
+		QPixmap p( Global::paths().activeThemePath() + "plugins/" +
 		           STRINGIFY( PLUGIN_NAME ) + "_" + name );
 		if( p.isNull() )
 		{
-			p = QPixmap( configManager::inst()->artworkDir() + name );
+			p = QPixmap( Global::paths().activeThemePath() + name );
 		}
 #else
 		// look whether icon is in artwork-dir
-		QPixmap p( configManager::inst()->artworkDir() + name );
+		QPixmap p( Global::paths().activeThemePath() + name );
 #endif
 		if( p.isNull() )
 		{
 			// nothing found, so look in default-artwork-dir
-			p = QPixmap( configManager::inst()->defaultArtworkDir() + name );
+			p = QPixmap( Global::paths().defaultThemePath() + name );
 		}
         if( p.isNull() )
         {

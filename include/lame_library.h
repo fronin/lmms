@@ -29,8 +29,6 @@
 #include <QLibrary>
 #include "lame.h"
 
-#include "config_mgr.h"
-
 class LameLibrary {
 	private:
 		// functions we'll be importing from lame

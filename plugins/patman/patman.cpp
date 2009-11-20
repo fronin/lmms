@@ -36,6 +36,7 @@
 #include "gui_templates.h"
 #include "InstrumentTrack.h"
 #include "note_play_handle.h"
+#include "PathConfig.h"
 #include "pixmap_button.h"
 #include "song.h"
 #include "string_pair_drag.h"
@@ -527,18 +528,15 @@ void PatmanView::openFile()
 		}
 		else
 		{
-			ofd.setDirectory(
-				configManager::inst()->userSamplesDir() );
+			ofd.setDirectory( Global::paths().userSamplesDir() );
 		}
 	}
 	else if( QFileInfo( m_pi->m_patchFile ).isRelative() )
 	{
-		QString f = configManager::inst()->userSamplesDir()
-							+ m_pi->m_patchFile;
+		QString f = Global::paths().userSamplesDir() + m_pi->m_patchFile;
 		if( QFileInfo( f ).exists() == false )
 		{
-			f = configManager::inst()->factorySamplesDir()
-							+ m_pi->m_patchFile;
+			f = Global::paths().factorySamplesDir() + m_pi->m_patchFile;
 		}
 
 		ofd.selectFile( f );

@@ -28,7 +28,7 @@
 #include <QtGui/QLabel>
 
 #include "VstSubPluginFeatures.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
 
 
 VstSubPluginFeatures::VstSubPluginFeatures( Plugin::PluginTypes _type ) :
@@ -52,7 +52,7 @@ void VstSubPluginFeatures::fillDescriptionWidget( QWidget * _parent,
 void VstSubPluginFeatures::listSubPluginKeys( const Plugin::Descriptor * _desc,
 														KeyList & _kl ) const
 {
-	QStringList dlls = QDir( configManager::inst()->vstDir() ).
+	QStringList dlls = QDir( Global::paths().vstDir() ).
 				entryList( QStringList() << "*.dll",
 						QDir::Files, QDir::Name );
 	// TODO: eval m_type

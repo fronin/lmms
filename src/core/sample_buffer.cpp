@@ -53,7 +53,7 @@
 
 
 #include "base64.h"
-#include "config_mgr.h"
+#include "PathConfig.h"
 #include "debug.h"
 #include "drumsynth.h"
 #include "endian_handling.h"
@@ -911,10 +911,10 @@ QString sampleBuffer::openAudioFile() const
 		QString f = m_audioFile;
 		if( QFileInfo( f ).isRelative() )
 		{
-			f = configManager::inst()->userSamplesDir() + f;
+			f = Global::paths().userSamplesDir() + f;
 			if( QFileInfo( f ).exists() == false )
 			{
-				f = configManager::inst()->factorySamplesDir() +
+				f = Global::paths().factorySamplesDir() +
 								m_audioFile;
 			}
 		}
@@ -922,7 +922,7 @@ QString sampleBuffer::openAudioFile() const
 	}
 	else
 	{
-		dir = configManager::inst()->userSamplesDir();
+		dir = Global::paths().userSamplesDir();
 	}
 	// change dir to position of previously opened file
 	ofd.setDirectory( dir );
@@ -1317,8 +1317,8 @@ QString sampleBuffer::tryToMakeRelative( const QString & _file )
 	if( QFileInfo( _file ).isRelative() == false )
 	{
 		QString f = QString( _file ).replace( QDir::separator(), '/' );
-		QString fsd = configManager::inst()->factorySamplesDir();
-		QString usd = configManager::inst()->userSamplesDir();
+		QString fsd = Global::paths().factorySamplesDir();
+		QString usd = Global::paths().userSamplesDir();
 		fsd.replace( QDir::separator(), '/' );
 		usd.replace( QDir::separator(), '/' );
 		if( f.startsWith( fsd ) )
@@ -1343,13 +1343,13 @@ QString sampleBuffer::tryToMakeAbsolute( const QString & _file )
 		return _file;
 	}
 
-	QString f = configManager::inst()->userSamplesDir() + _file;
+	QString f = Global::paths().userSamplesDir() + _file;
 	if( QFileInfo( f ).exists() )
 	{
 		return f;
 	}
 
-	return configManager::inst()->factorySamplesDir() + _file;
+	return Global::paths().factorySamplesDir() + _file;
 }
 
 
