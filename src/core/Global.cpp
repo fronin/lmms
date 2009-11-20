@@ -41,6 +41,11 @@ void Global::init( RuntimeConfig * _runtimeConfig )
 	__runtimeConfig = _runtimeConfig;
 	__paths = new PathConfig;
 	__userConfig = new UserConfig;
+
+	QDir::setSearchPaths( "resources",
+		QStringList() << paths().activeThemePath()
+						<< paths().defaultThemePath() );
+
 }
 
 

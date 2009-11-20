@@ -22,10 +22,7 @@
  *
  */
 
-#include <QtCore/QDir>
-
 #include "UserConfig.h"
-#include "PathConfig.h"
 
 
 UserConfig::UserConfig() :
@@ -35,11 +32,6 @@ UserConfig::UserConfig() :
 	{
 		setUiTheme( "default" );
 	}
-
-	QDir::setSearchPaths( "resources",
-		QStringList() << Global::paths().activeThemePath()
-						<< Global::paths().defaultThemePath() );
-
 }
 
 

@@ -359,6 +359,7 @@ int main( int argc, char * * argv )
 		}
 	}
 
+	Global::init( &runtimeConfig );
 
 	QString pos = QLocale::system().name().left( 2 );
 
@@ -390,8 +391,6 @@ int main( int argc, char * * argv )
 #endif
 #endif
 #endif
-
-	Global::init( &runtimeConfig );
 
 	if( render_out.isEmpty() && file_to_save.isEmpty() )
 	{

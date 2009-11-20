@@ -25,6 +25,8 @@
 #ifndef _USER_CONFIG_H
 #define _USER_CONFIG_H
 
+#include <QtCore/QStringList>
+
 #include "ConfigurationObject.h"
 #include "Global.h"
 
