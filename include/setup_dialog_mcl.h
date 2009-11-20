@@ -30,13 +30,13 @@
 #include "DummyMidiEventProcessor.h"
 #include "Piano.h"
 
-class setupDialog;
+class PreferencesDialog;
 
 class setupDialogMCL : public QDialog
 {
 	Q_OBJECT
 public:
-	setupDialogMCL( setupDialog * _parent );
+	setupDialogMCL( PreferencesDialog * _parent );
 	virtual ~setupDialogMCL();
 
 
@@ -48,7 +48,7 @@ private slots:
 	void clickedControllerBox();
 
 private:
-	setupDialog * m_parent;
+	PreferencesDialog * m_parent;
 	
 	bool m_keysActive; // true: configure key, false: configure controller
 	

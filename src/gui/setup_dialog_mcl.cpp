@@ -2,7 +2,7 @@
  * setup_dialog_mcl.cpp - dialog for setting up MIDI Control Listener
  *
  * Copyright (c) 2009 Achim Settelmeier <lmms/at/m1.sirlab.de>
- * 
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -31,12 +31,13 @@
 #include "group_box.h"
 #include "lcd_spinbox.h"
 
-#include "setup_dialog.h"
 #include "setup_dialog_mcl.h"
+#include "MidiControlListener.h"
 #include "PianoView.h"
+#include "PreferencesDialog.h"
 
 
-setupDialogMCL::setupDialogMCL( setupDialog * _parent ) :
+setupDialogMCL::setupDialogMCL( PreferencesDialog * _parent ) :
 	m_parent( _parent ),
 	m_keysActive( true ),
 	m_mep(),
@@ -88,7 +89,7 @@ setupDialogMCL::setupDialogMCL( setupDialog * _parent ) :
 						settings );
 	m_actionKeyGroupBox->setFixedHeight( 160 );
 	m_actionKeyGroupBox->ledButton()->setChecked( m_keysActive );
-	connect( m_actionKeyGroupBox->ledButton(), SIGNAL( clicked() ), 
+	connect( m_actionKeyGroupBox->ledButton(), SIGNAL( clicked() ),
 		this, SLOT( clickedKeyBox() ) );
 	
 	// controller group
@@ -96,7 +97,7 @@ setupDialogMCL::setupDialogMCL( setupDialog * _parent ) :
 							settings );
 	m_actionControllerGroupBox->setFixedHeight( 100 );
 	m_actionControllerGroupBox->ledButton()->setChecked( ! m_keysActive );
-	connect( m_actionControllerGroupBox->ledButton(), SIGNAL( clicked() ), 
+	connect( m_actionControllerGroupBox->ledButton(), SIGNAL( clicked() ),
 		this, SLOT( clickedControllerBox() ) );
 	
 	// put settings box together
@@ -146,7 +147,7 @@ setupDialogMCL::setupDialogMCL( setupDialog * _parent ) :
 		MidiControlListener::ActionNameMap action =
 			MidiControlListener::action2ActionNameMap(
 				(MidiControlListener::EventAction) i );
-		if( !action.name.isEmpty() && 
+		if( !action.name.isEmpty() &&
 			action.action != MidiControlListener::ActionControl )
 		{
 			m_actionsControllerBox->addItem( action.name );
@@ -189,8 +190,8 @@ void setupDialogMCL::accept()
 			MidiControlListener::actionName2ActionNameMap(
 				m_actionsKeyBox->currentText() );
 		
-		m_parent->mclAddKeyAction( m_mep.baseNoteModel()->value(), 
-					  action.action );
+		/*m_parent->mclAddKeyAction( m_mep.baseNoteModel()->value(),
+					  action.action );*/
 	}
 	else
 	{
@@ -198,8 +199,8 @@ void setupDialogMCL::accept()
 			MidiControlListener::actionName2ActionNameMap(
 				m_actionsControllerBox->currentText() );
 		
-		m_parent->mclAddControllerAction( m_controllerSbModel->value(), 
-						 action.action );
+		/*m_parent->mclAddControllerAction( m_controllerSbModel->value(),
+						 action.action );*/
 	}
 	QDialog::accept();
 }
