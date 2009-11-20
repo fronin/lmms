@@ -36,6 +36,7 @@
 #include <QtCore/QMap>
 
 #include "AudioDevice.h"
+#include "UserConfig.h"
 
 
 class QLineEdit;
@@ -46,6 +47,8 @@ class AudioJack : public QObject, public AudioDevice
 {
 	Q_OBJECT
 public:
+	ADD_USER_CONFIG_ADAPTOR( "AudioJack" );
+
 	AudioJack( bool & _success_ful, mixer * _mixer );
 	virtual ~AudioJack();
 

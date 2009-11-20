@@ -26,7 +26,6 @@
 #include <QtGui/QLineEdit>
 
 #include "MidiWinMM.h"
-#include "config_mgr.h"
 #include "engine.h"
 #include "gui_templates.h"
 #include "MidiPort.h"

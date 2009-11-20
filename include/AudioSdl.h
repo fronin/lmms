@@ -33,6 +33,7 @@
 #include <SDL/SDL_audio.h>
 
 #include "AudioDevice.h"
+#include "UserConfig.h"
 
 class QLineEdit;
 
@@ -40,6 +41,8 @@ class QLineEdit;
 class AudioSdl : public AudioDevice
 {
 public:
+	ADD_USER_CONFIG_ADAPTOR( "AudioSdl" );
+
 	AudioSdl( bool & _success_ful, mixer * _mixer );
 	virtual ~AudioSdl();
 

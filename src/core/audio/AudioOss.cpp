@@ -61,8 +61,6 @@
 #endif
 
 
-#include "config_mgr.h"
-
 
 #ifndef _PATH_DEV_DSP
 #ifdef __OpenBSD__
@@ -75,8 +73,7 @@
 
 
 AudioOss::AudioOss( bool & _success_ful, mixer * _mixer ) :
-	AudioDevice( tLimit<ch_cnt_t>(
-		configManager::inst()->value( "audiooss", "channels" ).toInt(),
+	AudioDevice( tLimit<ch_cnt_t>( cfg().value( "Channels" ).toInt(),
 					DEFAULT_CHANNELS, SURROUND_CHANNELS ),
 								_mixer ),
 	m_convertEndian( false )
@@ -205,7 +202,7 @@ AudioOss::~AudioOss()
 
 QString AudioOss::probeDevice()
 {
-	QString dev = configManager::inst()->value( "AudioOss", "Device" );
+	QString dev = cfg().value( "Device" );
 	if( dev.isEmpty() )
 	{
 		char * adev = getenv( "AUDIODEV" );	// Is there a standard
@@ -351,8 +348,7 @@ AudioOss::setupWidget::setupWidget( QWidget * _parent ) :
 	lcdSpinBoxModel * m = new lcdSpinBoxModel( /* this */ );	
 	m->setRange( DEFAULT_CHANNELS, SURROUND_CHANNELS );
 	m->setStep( 2 );
-	m->setValue( configManager::inst()->value( "audiooss",
-							"channels" ).toInt() );
+	m->setValue( cfg().value( "Channels" ).toInt() );
 
 	m_channels = new lcdSpinBox( 1, this );
 	m_channels->setModel( m );
@@ -374,10 +370,8 @@ AudioOss::setupWidget::~setupWidget()
 
 void AudioOss::setupWidget::saveSettings()
 {
-	configManager::inst()->setValue( "audiooss", "device",
-							m_device->text() );
-	configManager::inst()->setValue( "audiooss", "channels",
-				QString::number( m_channels->value<int>() ) );
+	cfg().setValue( "Device", m_device->text() );
+	cfg().setValue( "Channels", QString::number( m_channels->value<int>() ) );
 }
 
 

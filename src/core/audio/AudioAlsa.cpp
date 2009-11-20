@@ -31,7 +31,7 @@
 
 #include "AlsaDeviceListModel.h"
 #include "endian_handling.h"
-#include "config_mgr.h"
+#include "UserConfig.h"
 #include "engine.h"
 #include "lcd_spinbox.h"
 #include "gui_templates.h"
@@ -41,8 +41,7 @@
 
 
 AudioAlsa::AudioAlsa( bool & _success_ful, mixer * _mixer ) :
-	AudioDevice( tLimit<ch_cnt_t>(
-		configManager::inst()->value( "audioalsa", "channels" ).toInt(),
+	AudioDevice( tLimit<ch_cnt_t>( cfg().value( "Channels" ).toInt(),
 					DEFAULT_CHANNELS, SURROUND_CHANNELS ),
 								_mixer ),
 	m_handle( NULL ),
@@ -125,8 +124,8 @@ AudioAlsa::~AudioAlsa()
 
 QString AudioAlsa::probeDevice()
 {
-	QString dev = configManager::inst()->value( "audioalsa", "device" );
-	if( dev == "" )
+	QString dev = cfg().value( "Device" );
+	if( dev.isEmpty() )
 	{
 		if( getenv( "AUDIODEV" ) != NULL )
 		{
@@ -511,8 +510,7 @@ AudioAlsa::setupWidget::setupWidget( QWidget * _parent ) :
 	lcdSpinBoxModel * m = new lcdSpinBoxModel( /* this */ );
 	m->setRange( DEFAULT_CHANNELS, SURROUND_CHANNELS );
 	m->setStep( 2 );
-	m->setValue( configManager::inst()->value( "audioalsa",
-							"channels" ).toInt() );
+	m->setValue( cfg().value( "Channels" ).toInt() );
 
 	m_channels = new lcdSpinBox( 1, this );
 	m_channels->setModel( m );
@@ -534,10 +532,8 @@ AudioAlsa::setupWidget::~setupWidget()
 
 void AudioAlsa::setupWidget::saveSettings()
 {
-	configManager::inst()->setValue( "audioalsa", "device",
-							m_device->currentText() );
-	configManager::inst()->setValue( "audioalsa", "channels",
-				QString::number( m_channels->value<int>() ) );
+	cfg().setValue( "Device", m_device->currentText() );
+	cfg().setValue( "Channels", QString::number( m_channels->value<int>() ) );
 }
 
 

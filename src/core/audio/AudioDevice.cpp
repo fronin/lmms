@@ -23,7 +23,7 @@
  */
 
 #include "AudioDevice.h"
-#include "config_mgr.h"
+#include "UserConfig.h"
 #include "debug.h"
 #include "Cpu.h"
 
@@ -202,7 +202,7 @@ void AudioDevice::clearS16Buffer( intSampleFrameA * _outbuf, const fpp_t _frames
 
 bool AudioDevice::hqAudio() const
 {
-	return configManager::inst()->value( "mixer", "hqaudio" ).toInt();
+	return Global::userConfig().hqAudio();
 }
 
 

@@ -36,6 +36,7 @@
 
 
 #include "MidiClient.h"
+#include "UserConfig.h"
 
 
 struct pollfd;
@@ -46,6 +47,8 @@ class MidiAlsaSeq : public QThread, public MidiClient
 {
 	Q_OBJECT
 public:
+	ADD_USER_CONFIG_ADAPTOR( "MidiAlsaSeq" );
+
 	MidiAlsaSeq();
 	virtual ~MidiAlsaSeq();
 

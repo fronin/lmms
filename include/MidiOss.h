@@ -33,6 +33,7 @@
 #include <QtCore/QFile>
 
 #include "MidiClient.h"
+#include "UserConfig.h"
 
 
 class QLineEdit;
@@ -41,6 +42,8 @@ class QLineEdit;
 class MidiOss : public MidiClientRaw, public QThread
 {
 public:
+	ADD_USER_CONFIG_ADAPTOR( "MidiOss" );
+
 	MidiOss();
 	virtual ~MidiOss();
 

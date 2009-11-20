@@ -27,7 +27,6 @@
 
 #include "AlsaDeviceListModel.h"
 #include "MidiAlsaRaw.h"
-#include "config_mgr.h"
 #include "gui_templates.h"
 
 
@@ -81,8 +80,8 @@ MidiAlsaRaw::~MidiAlsaRaw()
 
 QString MidiAlsaRaw::probeDevice()
 {
-	QString dev = configManager::inst()->value( "MidiAlsaRaw", "Device" );
-	if( dev == "" )
+	QString dev = cfg().value( "Device" );
+	if( dev.isEmpty() )
 	{
 		if( getenv( "MIDIDEV" ) != NULL )
 		{
@@ -206,8 +205,7 @@ MidiAlsaRaw::setupWidget::~setupWidget()
 
 void MidiAlsaRaw::setupWidget::saveSettings()
 {
-	configManager::inst()->setValue( "MidiAlsaRaw", "Device",
-							m_device->currentText() );
+	cfg().setValue( "Device", m_device->currentText() );
 }
 
 

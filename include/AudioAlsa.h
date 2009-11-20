@@ -35,6 +35,7 @@
 #include <alsa/asoundlib.h>
 
 #include "AudioDevice.h"
+#include "UserConfig.h"
 
 
 class lcdSpinBox;
@@ -44,6 +45,8 @@ class QComboBox;
 class AudioAlsa : public AudioDevice, public QThread
 {
 public:
+	ADD_USER_CONFIG_ADAPTOR( "AudioAlsa" );
+
 	AudioAlsa( bool & _success_ful, mixer * _mixer );
 	virtual ~AudioAlsa();
 

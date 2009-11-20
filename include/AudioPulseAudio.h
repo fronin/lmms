@@ -32,6 +32,7 @@
 #include <pulse/pulseaudio.h>
 
 #include "AudioDevice.h"
+#include "UserConfig.h"
 
 
 class lcdSpinBox;
@@ -41,6 +42,8 @@ class QLineEdit;
 class AudioPulseAudio : public AudioDevice, public QThread
 {
 public:
+	ADD_USER_CONFIG_ADAPTOR( "AudioPulseAudio" );
+
 	AudioPulseAudio( bool & _success_ful, mixer * _mixer );
 	virtual ~AudioPulseAudio();
 

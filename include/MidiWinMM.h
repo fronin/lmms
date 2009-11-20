@@ -34,6 +34,7 @@
 
 #include "MidiClient.h"
 #include "MidiPort.h"
+#include "UserConfig.h"
 
 
 class QLineEdit;
@@ -43,6 +44,8 @@ class MidiWinMM : public QObject, public MidiClient
 {
 	Q_OBJECT
 public:
+	ADD_USER_CONFIG_ADAPTOR( "MidiWinMM" );
+
 	MidiWinMM();
 	virtual ~MidiWinMM();
 

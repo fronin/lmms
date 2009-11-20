@@ -39,7 +39,6 @@
 #endif
 
 
-#include "config_mgr.h"
 #include "gui_templates.h"
 
 
@@ -76,7 +75,7 @@ MidiOss::~MidiOss()
 
 QString MidiOss::probeDevice()
 {
-	QString dev = configManager::inst()->value( "midioss", "device" );
+	QString dev = cfg().value( "Device" );
 	if( dev.isEmpty() )
 	{
 		if( getenv( "MIDIDEV" ) != NULL )
@@ -145,8 +144,7 @@ MidiOss::setupWidget::~setupWidget()
 
 void MidiOss::setupWidget::saveSettings()
 {
-	configManager::inst()->setValue( "midioss", "device",
-							m_device->text() );
+	cfg().setValue( "Device", m_device->text() );
 }
 
 

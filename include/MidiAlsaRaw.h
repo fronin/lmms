@@ -34,6 +34,7 @@
 #include <QtCore/QThread>
 
 #include "MidiClient.h"
+#include "UserConfig.h"
 
 
 struct pollfd;
@@ -43,6 +44,8 @@ class QComboBox;
 class MidiAlsaRaw : public MidiClientRaw , public QThread
 {
 public:
+	ADD_USER_CONFIG_ADAPTOR( "MidiAlsaRaw" );
+
 	MidiAlsaRaw();
 	virtual ~MidiAlsaRaw();
 

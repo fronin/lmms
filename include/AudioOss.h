@@ -30,6 +30,7 @@
 #ifdef LMMS_HAVE_OSS
 
 #include "AudioDevice.h"
+#include "UserConfig.h"
 
 
 class lcdSpinBox;
@@ -39,6 +40,8 @@ class QLineEdit;
 class AudioOss : public AudioDevice, public QThread
 {
 public:
+	ADD_USER_CONFIG_ADAPTOR( "AudioOss" );
+
 	AudioOss( bool & _success_ful, mixer * _mixer );
 	virtual ~AudioOss();
 

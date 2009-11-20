@@ -36,7 +36,6 @@
 #include "engine.h"
 #include "templates.h"
 #include "gui_templates.h"
-#include "config_mgr.h"
 #include "lcd_spinbox.h"
 #include "AudioPort.h"
 #include "MainWindow.h"
@@ -46,8 +45,7 @@
 
 
 AudioJack::AudioJack( bool & _success_ful, mixer * _mixer ) :
-	AudioDevice( tLimit<int>( configManager::inst()->value(
-					"audiojack", "channels" ).toInt(),
+	AudioDevice( tLimit<int>( cfg().value( "Channels" ).toInt(),
 					DEFAULT_CHANNELS, SURROUND_CHANNELS ),
 								_mixer ),
 	m_client( NULL ),
@@ -127,8 +125,7 @@ void AudioJack::restartAfterZombified()
 
 bool AudioJack::initJackClient()
 {
-	QString clientName = configManager::inst()->value( "audiojack",
-								"clientname" );
+	QString clientName = cfg().value( "ClientName" );
 	if( clientName.isEmpty() )
 	{
 		clientName = "lmms";
@@ -436,7 +433,7 @@ void AudioJack::shutdownCallback( void * _udata )
 AudioJack::setupWidget::setupWidget( QWidget * _parent ) :
 	AudioDevice::setupWidget( AudioJack::name(), _parent )
 {
-	QString cn = configManager::inst()->value( "audiojack", "clientname" );
+	QString cn = cfg().value( "ClientName" );
 	if( cn.isEmpty() )
 	{
 		cn = "lmms";
@@ -451,8 +448,7 @@ AudioJack::setupWidget::setupWidget( QWidget * _parent ) :
 	lcdSpinBoxModel * m = new lcdSpinBoxModel( /* this */ );	
 	m->setRange( DEFAULT_CHANNELS, SURROUND_CHANNELS );
 	m->setStep( 2 );
-	m->setValue( configManager::inst()->value( "audiojack",
-							"channels" ).toInt() );
+	m->setValue( cfg().value( "Channels" ).toInt() );
 
 	m_channels = new lcdSpinBox( 1, this );
 	m_channels->setModel( m );
@@ -473,10 +469,8 @@ AudioJack::setupWidget::~setupWidget()
 
 void AudioJack::setupWidget::saveSettings()
 {
-	configManager::inst()->setValue( "audiojack", "clientname",
-							m_clientName->text() );
-	configManager::inst()->setValue( "audiojack", "channels",
-				QString::number( m_channels->value<int>() ) );
+	cfg().setValue( "ClientName", m_clientName->text() );
+	cfg().setValue( "Channels", QString::number( m_channels->value<int>() ) );
 }
 
 
