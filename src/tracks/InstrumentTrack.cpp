@@ -45,7 +45,6 @@
 #include "AudioPort.h"
 #include "automation_pattern.h"
 #include "bb_track.h"
-#include "config_mgr.h"
 #include "debug.h"
 #include "EffectChain.h"
 #include "EffectRackView.h"
@@ -67,6 +66,7 @@
 #include "MidiPortMenu.h"
 #include "mmp.h"
 #include "note_play_handle.h"
+#include "PathConfig.h"
 #include "pattern.h"
 #include "PluginView.h"
 #include "sample_play_handle.h"
@@ -76,6 +76,7 @@
 #include "tab_widget.h"
 #include "tooltip.h"
 #include "track_label_button.h"
+#include "UserConfig.h"
 
 
 
@@ -231,8 +232,7 @@ void InstrumentTrack::processInEvent( const midiEvent & _me,
 			{
 				if( m_notes[_me.key()] == NULL )
 				{
-					if( !configManager::inst()->value( "ui",
-						"manualchannelpiano" ).toInt() )
+					if( Global::userConfig().pianoFeedback() )
 					{
 						m_piano.setKeyState(
 							_me.key(), true );
@@ -348,13 +348,11 @@ void InstrumentTrack::processOutEvent( const midiEvent & _me,
 	switch( _me.m_type )
 	{
 		case MidiNoteOn:
-			if( !configManager::inst()->value( "ui",
-						"manualchannelpiano" ).toInt() )
+			if( Global::userConfig().pianoFeedback() )
 			{
 				m_piano.setKeyState( _me.key(), true );
 			}
-			if( !configManager::inst()->value( "ui",
-				"disablechannelactivityindicators" ).toInt() )
+			if( Global::userConfig().instrumentFadeButton() )
 			{
 				if( m_notes[_me.key()] == NULL )
 				{
@@ -378,8 +376,7 @@ void InstrumentTrack::processOutEvent( const midiEvent & _me,
 			break;
 
 		case MidiNoteOff:
-			if( !configManager::inst()->value( "ui",
-						"manualchannelpiano" ).toInt() )
+			if( Global::userConfig().pianoFeedback() )
 			{
 				m_piano.setKeyState( _me.key(), false );
 			}
@@ -1357,7 +1354,7 @@ void InstrumentTrackWindow::saveSettingsBtnClicked()
 	QFileDialog sfd( this, tr( "Save preset" ), "",
 				tr( "XML preset file (*.xpf)" ) );
 
-	QString preset_root = configManager::inst()->userPresetsDir();
+	QString preset_root = Global::paths().userPresetsDir();
 	if( !QDir( preset_root ).exists() )
 	{
 		QDir().mkdir( preset_root );

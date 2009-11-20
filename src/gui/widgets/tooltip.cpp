@@ -26,12 +26,12 @@
 #include <QtGui/QToolTip>
 
 #include "tooltip.h"
-#include "config_mgr.h"
+#include "UserConfig.h"
 
 
 void toolTip::add( QWidget * _w, const QString & _txt )
 {
-	if( !configManager::inst()->value( "tooltips", "disabled" ).toInt() )
+	if( Global::userConfig().toolTipsEnabled() )
 	{
 		_w->setToolTip( _txt );
 	}

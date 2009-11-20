@@ -37,7 +37,6 @@
 
 #include "knob.h"
 #include "caption_menu.h"
-#include "config_mgr.h"
 #include "ControllerConnection.h"
 #include "embed.h"
 #include "engine.h"
@@ -48,6 +47,7 @@
 #include "string_pair_drag.h"
 #include "templates.h"
 #include "text_float.h"
+#include "UserConfig.h"
 
 
 textFloat * knob::s_textFloat = NULL;
@@ -592,7 +592,7 @@ void knob::enterValue()
 	bool ok;
 	float new_val;
 	if( isVolumeKnob() &&
-		configManager::inst()->value( "app", "displaydbv" ).toInt() )
+		Global::userConfig().displayKnobDBV() )
 	{
 		new_val = QInputDialog::getDouble(
 			this, accessibleName(),
@@ -648,7 +648,7 @@ void knob::friendlyUpdate()
 QString knob::displayValue() const
 {
 	if( isVolumeKnob() &&
-		configManager::inst()->value( "app", "displaydbv" ).toInt() )
+		Global::userConfig().displayKnobDBV() )
 	{
 		return m_description.trimmed() + QString( " %1 dBV" ).
 				arg( 20.0 * log10( model()->value() / 100.0 ),
