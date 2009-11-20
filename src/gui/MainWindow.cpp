@@ -22,7 +22,6 @@
  *
  */
 
-#include <QtXml/QDomElement>
 #include <QtCore/QUrl>
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>
@@ -39,6 +38,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QPixmapCache>
+#include <QtXml/QDomElement>
 
 #include "lmmsversion.h"
 #include "MainWindow.h"
@@ -54,11 +54,11 @@
 #include "PreferencesDialog.h"
 #include "ControllerRackView.h"
 #include "plugin_browser.h"
+#include "PathConfig.h"
+#include "UserConfig.h"
 #include "SideBar.h"
-#include "config_mgr.h"
 #include "mixer.h"
 #include "project_notes.h"
-#include "setup_dialog.h"
 #include "AudioDummy.h"
 #include "ToolPlugin.h"
 #include "ToolPluginView.h"
@@ -103,7 +103,6 @@ MainWindow::MainWindow() :
 	QSplitter * splitter = new QSplitter( Qt::Horizontal, w );
 	splitter->setChildrenCollapsible( false );
 
-	QString wdir = configManager::inst()->workingDir();
 	sideBar->appendTab( new pluginBrowser( splitter ) );
 
 	// add a resource browser to sidebar
@@ -114,7 +113,7 @@ MainWindow::MainWindow() :
 	m_workspace = new QMdiArea( splitter );
 
 	// Load background
-	QString bgArtwork = configManager::inst()->backgroundArtwork();
+	QString bgArtwork = Global::userConfig().backgroundArtwork();
 	QImage bgImage;
 	if( !bgArtwork.isEmpty() )
 	{
@@ -256,11 +255,7 @@ void MainWindow::finalize()
 					Qt::CTRL + Qt::Key_L );
 	edit_menu->addSeparator();
 	edit_menu->addAction( embed::getIconPixmap( "setup_general" ),
-					tr( "Settings" ),
-					this, SLOT( showSettingsDialog() ) );
-	edit_menu->addSeparator();
-	edit_menu->addAction( embed::getIconPixmap( "setup_general" ),
-					tr( "Preferences (premature dialog)" ),
+					tr( "Preferences" ),
 					this, SLOT( showPreferencesDialog() ) );
 
 
@@ -749,19 +744,17 @@ void MainWindow::finalize()
 
 
 	// setup-dialog opened before?
-	if( !configManager::inst()->value( "app", "configured" ).toInt() )
+	if( !Global::userConfig().isConfigured() )
 	{
-		configManager::inst()->setValue( "app", "configured", "1" );
 		// no, so show it that user can setup everything
-		setupDialog sd;
-		sd.exec();
+		showPreferencesDialog();
+		Global::userConfig().setIsConfigured( true );
 	}
 	// look whether mixer could use a audio-interface beside AudioDummy
-	else if( engine::getMixer()->audioDevName() == AudioDummy::name() )
+	else if( Global::userConfig().audioBackend() == AudioDummy::name() )
 	{
-		// no, so we offer setup-dialog with audio-settings...
-		setupDialog sd( setupDialog::AudioSettings );
-		sd.exec();
+		// no, so we offer preferences dialog with audio-settings...
+		PreferencesDialog( PreferencesDialog::AudioSettings ).exec();
 	}
 }
 
@@ -926,8 +919,8 @@ void MainWindow::createNewProjectFromTemplate( QAction * _idx )
 	{
 		QString dir_base = m_templatesMenu->actions().indexOf( _idx )
 						>= m_custom_templates_count ?
-				configManager::inst()->factoryProjectsDir() :
-				configManager::inst()->userProjectsDir();
+				Global::paths().factoryProjectsDir() :
+				Global::paths().userProjectsDir();
 		engine::getSong()->createNewProjectFromTemplate(
 			dir_base + "templates/" + _idx->text() + ".mpt" );
 	}
@@ -943,7 +936,7 @@ void MainWindow::openProject()
 	{
 		QFileDialog ofd( this, tr( "Open project" ), "",
 			tr( "MultiMedia Project (*.mmp *.mmpz *.xml)" ) );
-		ofd.setDirectory( configManager::inst()->userProjectsDir() );
+		ofd.setDirectory( Global::paths().userProjectsDir() );
 		ofd.setFileMode( QFileDialog::ExistingFiles );
 		if( ofd.exec () == QDialog::Accepted &&
 						!ofd.selectedFiles().isEmpty() )
@@ -962,7 +955,7 @@ void MainWindow::openProject()
 void MainWindow::updateRecentlyOpenedProjectsMenu()
 {
 	m_recentlyOpenedProjectsMenu->clear();
-	QStringList rup = configManager::inst()->recentlyOpenedProjects();
+	QStringList rup = Global::userConfig().recentlyOpenedProjects();
 	for( QStringList::iterator it = rup.begin(); it != rup.end(); ++it )
 	{
 		m_recentlyOpenedProjectsMenu->addAction(
@@ -992,7 +985,7 @@ void MainWindow::openRecentlyOpenedProject( QAction * _action )
 	const QString & f = _action->text();
 	setCursor( Qt::WaitCursor );
 	engine::getSong()->loadProject( f );
-	configManager::inst()->addRecentlyOpenedProject( f );
+	Global::userConfig().addRecentlyOpenedProject( f );
 	setCursor( Qt::ArrowCursor );
 }
 
@@ -1030,7 +1023,7 @@ bool MainWindow::saveProjectAs()
 	}
 	else
 	{
-		sfd.setDirectory( configManager::inst()->userProjectsDir() );
+		sfd.setDirectory( Global::paths().userProjectsDir() );
 	}
 
 	if( sfd.exec () == QFileDialog::Accepted &&
@@ -1041,15 +1034,6 @@ bool MainWindow::saveProjectAs()
 		return true;
 	}
 	return false;
-}
-
-
-
-
-void MainWindow::showSettingsDialog()
-{
-	setupDialog sd;
-	sd.exec();
 }
 
 
@@ -1412,7 +1396,7 @@ void MainWindow::fillTemplatesMenu()
 {
 	m_templatesMenu->clear();
 
-	QDir user_d( configManager::inst()->userProjectsDir() + "templates" );
+	QDir user_d( Global::paths().userProjectsDir() + "templates" );
 	QStringList templates = user_d.entryList( QStringList( "*.mpt" ),
 						QDir::Files | QDir::Readable );
 
@@ -1425,7 +1409,7 @@ void MainWindow::fillTemplatesMenu()
 					( *it ).left( ( *it ).length() - 4 ) );
 	}
 
-	QDir d( configManager::inst()->factoryProjectsDir() + "templates" );
+	QDir d( Global::paths().factoryProjectsDir() + "templates" );
 	templates = d.entryList( QStringList( "*.mpt" ),
 						QDir::Files | QDir::Readable );
 
