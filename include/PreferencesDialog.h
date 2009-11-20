@@ -32,7 +32,18 @@ namespace Ui { class PreferencesDialog; }
 class PreferencesDialog : public QDialog
 {
 public:
-	PreferencesDialog();
+	enum ConfigTabs
+	{
+		GeneralSettings,
+		PathSettings,
+		AudioSettings,
+		MidiSettings,
+		PluginSettings,
+		NumTabs
+	} ;
+	typedef ConfigTabs ConfigTab;
+
+	PreferencesDialog( ConfigTab _tabToOpen = GeneralSettings );
 
 private:
 	Ui::PreferencesDialog * ui;

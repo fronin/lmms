@@ -29,25 +29,30 @@
 #include "ui_PreferencesDialog.h"
 
 
-PreferencesDialog::PreferencesDialog() :
+PreferencesDialog::PreferencesDialog( ConfigTab _tabToOpen ) :
 	QDialog( engine::mainWindow() ),
 	ui( new Ui::PreferencesDialog )
 {
 	ui->setupUi( this );
 
 	// set up icons in page selector view on the left side
-	static const char * icons[] = {
+	static const char * icons[NumTabs] = {
 		"preferences-system",
 		"folder-64",
 		"preferences-desktop-sound",
 		"setup-midi",
 		"setup-plugins"
 	} ;
-	for( int i = 0; i < qMin<int>( sizeof( icons ),
+	for( int i = 0; i < qMin<int>( NumTabs,
 								ui->configPageSelector->count() ); ++i )
 	{
 		ui->configPageSelector->item( i )->setIcon(
 									embed::getIconPixmap( icons[i] ) );
+	}
+
+	if( _tabToOpen != GeneralSettings )
+	{
+		ui->configPageSelector->setCurrentRow( _tabToOpen );
 	}
 }
 
