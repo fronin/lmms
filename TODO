@@ -1,4 +1,4 @@
-Short List
+TNG Short List
 ==========
 - replace SampleSegment -> SampleTrackSegment
 - replace tco -> segment, TCO -> Segment, Tco -> Segment
@@ -9,6 +9,18 @@ used to generate BeatLists
 - Make TimeLine display
 - Add insert meter/tempo support to TimeLine
 - Start working on sequencer code
+
+SongEditor:
+- Better clone support
+- Ability to place markers on the time-line
+- Key-signature in the time-line??
+- Better copying of Segments.
+- Slice through all TCOs at a specific time?
+
+PianoRoll:
+- Add slicer(march, swing, 16ths,..) and arp-recording
+- Gray out notes not in the key-signature
+- Allow placing chords
 
 Version 1
 =========
