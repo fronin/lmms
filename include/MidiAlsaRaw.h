@@ -37,7 +37,7 @@
 
 
 struct pollfd;
-class QLineEdit;
+class QComboBox;
 
 
 class MidiAlsaRaw : public MidiClientRaw , public QThread
@@ -65,7 +65,7 @@ public:
 		virtual void saveSettings();
 
 	private:
-		QLineEdit * m_device;
+		QComboBox * m_device;
 
 	} ;
 

@@ -58,7 +58,9 @@ public:
 	bool loadProject();
 	bool loadByPlugin( InstrumentTrack * _target );
 	bool loadPreset( InstrumentTrack * _target );
-	bool importProject( TrackContainer * _target );
+	bool importProject( trackContainer * _target );
+	// most actions can be triggered without any further information
+	bool defaultTrigger();
 
 
 private:

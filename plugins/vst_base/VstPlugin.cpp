@@ -420,6 +420,8 @@ void VstPlugin::loadChunk( const QByteArray & _chunk )
 	if( tf.open() )
 	{
 		tf.write( _chunk );
+		tf.flush();
+
 		lock();
 		sendMessage( message( IdLoadSettingsFromFile ).
 				addString(
