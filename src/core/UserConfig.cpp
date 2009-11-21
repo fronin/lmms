@@ -28,9 +28,9 @@
 UserConfig::UserConfig() :
 	Configuration::Object( Configuration::Backend::XmlFile, "UserConfig" )
 {
-	if( uiTheme().isEmpty() )
+	if( uiTheme().value().isEmpty() )
 	{
-		setUiTheme( "default" );
+		uiTheme() = "default";
 	}
 }
 

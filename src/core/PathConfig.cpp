@@ -58,31 +58,32 @@ PathConfig::PathConfig() :
 	m_pluginDir( QString( PLUGIN_DIR ) )
 #endif
 {
-	if( vstDir().isEmpty() || vstDir() == QDir::separator() )
+	if( vstDir().value().isEmpty() || vstDir().value() == QDir::separator() )
 	{
-		setVstDir( QDir::home().absolutePath() + QDir::separator() );
+		vstDir() = QDir::home().absolutePath() + QDir::separator();
 	}
 
-	if( flDir().isEmpty() || flDir() == QDir::separator() )
+	if( flDir().value().isEmpty() || flDir().value() == QDir::separator() )
 	{
-		setVstDir( QDir::home().absolutePath() + QDir::separator() );
+		flDir() = QDir::home().absolutePath() + QDir::separator();
 	}
 
-	if( ladspaDir().isEmpty() || ladspaDir() == QDir::separator() )
+	if( ladspaDir().value().isEmpty() ||
+			ladspaDir().value() == QDir::separator() )
 	{
 #ifdef LMMS_BUILD_WIN32
-		setLadspaDir( pluginDir() + "ladspa" + QDir::separator() );
+		ladspaDir() = pluginDir() + "ladspa" + QDir::separator();
 #else
-		setLadspaDir( QString( LIB_DIR ) + "/ladspa/" );
+		ladspaDir() = QString( LIB_DIR ) + "/ladspa/";
 #endif
 	}
 
-	if( stkDir().isEmpty() || stkDir() == QDir::separator() )
+	if( stkDir().value().isEmpty() || stkDir().value() == QDir::separator() )
 	{
 #ifdef LMMS_BUILD_WIN32
-		setStkDir( dataDir() + "stk/rawwaves/" );
+		stkDir() = dataDir() + "stk/rawwaves/";
 #else
-		setStkDir( "/usr/share/stk/rawwaves/" );
+		stkDir() = "/usr/share/stk/rawwaves/";
 #endif
 	}
 

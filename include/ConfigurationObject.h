@@ -71,60 +71,6 @@ private:
 
 } ;
 
-
-#define ADD_CONFIG_PROPERTY(get,set,key,parentKey)		\
-	public slots:										\
-		inline void set( const QString & val )			\
-		{												\
-			setValue( key, val, parentKey );			\
-		}												\
-	public:												\
-		inline QString get() const						\
-		{												\
-			return value( key, parentKey );				\
-		}
-
-#define ADD_CONFIG_INT_PROPERTY(get,set,key,parentKey)	\
-	public slots:										\
-		inline void set( int val )						\
-		{												\
-			setValue( key, QString::number( val ),		\
-						parentKey );					\
-		}												\
-	public:												\
-		inline int get() const							\
-		{												\
-			return value( key, parentKey ).toInt();		\
-		}
-
-#define ADD_CONFIG_FLOAT_PROPERTY(get,set,key,parentKey)\
-	public slots:										\
-		inline void set( float val )					\
-		{												\
-			setValue( key, QString::number( val ),		\
-						parentKey );					\
-		}												\
-	public:												\
-		inline float get() const						\
-		{												\
-			return value( key, parentKey ).toFloat();	\
-		}
-
-#define ADD_CONFIG_BOOL_PROPERTY(get,set,key,parentKey)	\
-	public slots:										\
-		inline void set( bool val )						\
-		{												\
-			setValue( key, QString::number( val ),		\
-						parentKey );					\
-		}												\
-	public:												\
-		inline bool get() const							\
-		{												\
-			return static_cast<bool>(					\
-					value( key, parentKey ).toInt() );	\
-		}
-
-
 }
 
 #endif

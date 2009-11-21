@@ -113,7 +113,7 @@ int main( int argc, char * * argv )
 				( QString( argv[i] ) == "--help" ||
 						QString( argv[i] ) == "-h" ) ) )
 		{
-			runtimeConfig.setHasGui( false );
+			runtimeConfig.hasGui() = false;
 		}
 		else if( argc > i && QString( argv[i] ) == "-geometry" )
 		{
@@ -396,7 +396,7 @@ int main( int argc, char * * argv )
 	{
 		// init style and palette
 		// TODO, select theme plugin based on theme.xml!
-		bool useCusis = Global::userConfig().uiTheme().toLower() == "cusis";
+		bool useCusis = Global::userConfig().uiTheme().value().toLower() == "cusis";
 
 		if( useCusis ) {
 			CusisStyle * style = new CusisStyle();

@@ -1,7 +1,7 @@
 /*
- * RuntimeConfig.h - runtime specific configuration
+ * ConfigurationProperty.cpp - implementation of ConfigurationProperty
  *
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users/dot/sf/dot/net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -17,41 +17,47 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this program (see COPYING); if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA.
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-#ifndef _RUNTIME_CONFIG_H
-#define _RUNTIME_CONFIG_H
-
-#include "ConfigurationObject.h"
 #include "ConfigurationProperty.h"
-#include "export.h"
 
-class EXPORT RuntimeConfig : public Configuration::Object
+
+namespace Configuration
 {
-public:
-	RuntimeConfig();
-	virtual ~RuntimeConfig();
 
-	ADD_CONFIG_BOOL_PROPERTY( hasGui, "HasGui", "Runtime" );
-	ADD_CONFIG_BOOL_PROPERTY( suppressMessages, "SuppressMessages", "Runtime" );
+// specializations for common types
+template<> Property<QString>::operator QString() const
+{
+	return value();
+}
 
-	// TODO
-/*
-	static bool suppressMessages()
-	{
-		return !s_hasGUI || s_suppressMessages;
-	}*/
-
-	// core
-	ADD_CONFIG_FLOAT_PROPERTY( framesPerTick, "FramesPerTick", "Runtime" );
+template<> QString Property<QString>::operator=( const QString & _val )
+{
+	setValue( _val );
+	return _val;
+}
 
 
-} ;
+template<> Property<int>::operator int() const
+{
+	return value().toInt();
+}
 
 
+template<> Property<bool>::operator bool() const
+{
+	return static_cast<bool>( value().toInt() );
+}
 
 
-#endif
+template<> Property<float>::operator float() const
+{
+	return value().toFloat();
+}
+
+
+}
+

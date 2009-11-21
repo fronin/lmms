@@ -529,8 +529,7 @@ malletsSynth::malletsSynth( const StkFloat _pitch,
 	try
 	{
 		Stk::setSampleRate( _sample_rate );
-		Stk::setRawwavePath( Global::paths().stkDir()
-						.toAscii().constData() );
+		Stk::setRawwavePath( Global::paths().stkDir().value().toUtf8().constData() );
 	
 		m_voice = new ModalBar();
 	
@@ -576,8 +575,7 @@ malletsSynth::malletsSynth( const StkFloat _pitch,
 	try
 	{
 		Stk::setSampleRate( _sample_rate );
-		Stk::setRawwavePath( Global::paths().stkDir()
-						.toAscii().constData() );
+		Stk::setRawwavePath( Global::paths().stkDir().value().toUtf8().constData() );
 	
 		m_voice = new TubeBell();
 	
@@ -621,8 +619,7 @@ malletsSynth::malletsSynth( const StkFloat _pitch,
 	try
 	{
 		Stk::setSampleRate( _sample_rate );
-		Stk::setRawwavePath( Global::paths().stkDir()
-						.toAscii().constData() );
+		Stk::setRawwavePath( Global::paths().stkDir().value().toUtf8().constData() );
 
 		m_voice = new BandedWG();
 	

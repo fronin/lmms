@@ -192,7 +192,6 @@ void Object::setValue( const QString & _key,
 	m_data = insertSubValue( _key, _value, subLevels, m_data );
 }
 
-
 }
 
 

@@ -41,7 +41,7 @@ ladspaManager::ladspaManager()
 	// QT4.6: use QProcessEnvironment::value(...)
 	QStringList ladspaDirectories = QString( getenv( "LADSPA_PATH" ) ).
 								split( ',' );
-	ladspaDirectories += Global::paths().ladspaDir().split( ',' );
+	ladspaDirectories += Global::paths().ladspaDir().value().split( ',' );
 
 	ladspaDirectories.push_back( Global::paths().pluginDir() + "ladspa" );
 #ifndef LMMS_BUILD_WIN32

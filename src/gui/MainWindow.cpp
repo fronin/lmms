@@ -748,10 +748,11 @@ void MainWindow::finalize()
 	{
 		// no, so show it that user can setup everything
 		showPreferencesDialog();
-		Global::userConfig().setIsConfigured( true );
+		Global::userConfig().isConfigured() = true;
 	}
 	// look whether mixer could use a audio-interface beside AudioDummy
-	else if( Global::userConfig().audioBackend() == AudioDummy::name() )
+	else if( Global::userConfig().audioBackend().value() ==
+				AudioDummy::name() )
 	{
 		// no, so we offer preferences dialog with audio-settings...
 		PreferencesDialog( PreferencesDialog::AudioSettings ).exec();

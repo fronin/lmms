@@ -29,7 +29,7 @@
 RuntimeConfig::RuntimeConfig() :
 	Configuration::Object( Configuration::Backend::None )
 {
-	setHasGui( true );
+	hasGui() = true;
 }
 
 

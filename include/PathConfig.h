@@ -26,6 +26,7 @@
 #define _PATH_CONFIG_H
 
 #include "ConfigurationObject.h"
+#include "ConfigurationProperty.h"
 #include "Global.h"
 #include "export.h"
 
@@ -36,11 +37,11 @@ public:
 	PathConfig();
 	~PathConfig();
 
-	ADD_CONFIG_PROPERTY( vstDir, setVstDir, "VstPluginDirectory", "Paths" );
-	ADD_CONFIG_PROPERTY( flDir, setFlDir, "FlDirectory", "Paths" );
-	ADD_CONFIG_PROPERTY( ladspaDir, setLadspaDir, "LadspaDirectory", "Paths" );
-	ADD_CONFIG_PROPERTY( stkDir, setStkDir, "StkDirectory", "Paths" );
-	ADD_CONFIG_PROPERTY( lameLibrary, setLameLibrary, "LameLibrary", "Paths" );
+	ADD_CONFIG_PROPERTY( vstDir, "VstPluginDirectory", "Paths" );
+	ADD_CONFIG_PROPERTY( flDir, "FlDirectory", "Paths" );
+	ADD_CONFIG_PROPERTY( ladspaDir, "LadspaDirectory", "Paths" );
+	ADD_CONFIG_PROPERTY( stkDir, "StkDirectory", "Paths" );
+	ADD_CONFIG_PROPERTY( lameLibrary, "LameLibrary", "Paths" );
 
 
 	const QString & dataDir() const

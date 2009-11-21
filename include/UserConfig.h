@@ -28,6 +28,7 @@
 #include <QtCore/QStringList>
 
 #include "ConfigurationObject.h"
+#include "ConfigurationProperty.h"
 #include "Global.h"
 
 class UserConfig : public Configuration::Object
@@ -39,22 +40,22 @@ public:
 	void addRecentlyOpenedProject( const QString & _file );
 	QStringList recentlyOpenedProjects();
 
-	ADD_CONFIG_BOOL_PROPERTY( isConfigured, setIsConfigured, "IsConfigured", "App" );
+	ADD_CONFIG_BOOL_PROPERTY( isConfigured, "IsConfigured", "App" );
 
-	ADD_CONFIG_PROPERTY( audioBackend, setAudioBackend, "AudioBackend", "Mixer" );
-	ADD_CONFIG_PROPERTY( midiBackend, setMidiBackend, "MidiBackend", "Mixer" );
-	ADD_CONFIG_INT_PROPERTY( bufferSize, setBufferSize, "BufferSize", "Mixer" );
-	ADD_CONFIG_INT_PROPERTY( sampleRate, setSampleRate, "SampleRate", "Mixer" );
-	ADD_CONFIG_BOOL_PROPERTY( hqAudio, setHqAudio, "HqAudio", "Mixer" );
+	ADD_CONFIG_PROPERTY( audioBackend, "AudioBackend", "Mixer" );
+	ADD_CONFIG_PROPERTY( midiBackend, "MidiBackend", "Mixer" );
+	ADD_CONFIG_INT_PROPERTY( bufferSize, "BufferSize", "Mixer" );
+	ADD_CONFIG_INT_PROPERTY( sampleRate, "SampleRate", "Mixer" );
+	ADD_CONFIG_BOOL_PROPERTY( hqAudio, "HqAudio", "Mixer" );
 
-	ADD_CONFIG_PROPERTY( uiTheme, setUiTheme, "Theme", "UI" );
-	ADD_CONFIG_PROPERTY( backgroundArtwork, setBackgroundArtwork, "BackgroundArtwork", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( toolTipsEnabled, setToolTipsEnabled, "ToolTipsEnabled", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( displayKnobDBV, setDisplayKnobDBV, "DisplayKnobDBV", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( pianoFeedback, setPianoFeedback, "PianoFeedback", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( instrumentFadeButton, setInstrumentFadeButton, "InstrumentFadeButton", "UI" );
+	ADD_CONFIG_PROPERTY( uiTheme, "Theme", "UI" );
+	ADD_CONFIG_PROPERTY( backgroundArtwork, "BackgroundArtwork", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( toolTipsEnabled, "ToolTipsEnabled", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( displayKnobDBV, "DisplayKnobDBV", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( pianoFeedback, "PianoFeedback", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( instrumentFadeButton, "InstrumentFadeButton", "UI" );
 
-	ADD_CONFIG_PROPERTY( defaultSoundFont, setDefaultSoundfont, "DefaultSoundFont", "Plugins" );
+	ADD_CONFIG_PROPERTY( defaultSoundFont, "DefaultSoundFont", "Plugins" );
 
 } ;
 

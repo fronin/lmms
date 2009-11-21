@@ -322,7 +322,7 @@ mixer::mixer() :
 	}
 	else
 	{
-		Global::userConfig().setBufferSize( m_framesPerPeriod );
+		Global::userConfig().bufferSize() = m_framesPerPeriod;
 		m_fifo = new fifo( 1 );
 	}
 
@@ -943,7 +943,7 @@ AudioDevice * mixer::tryAudioDevices()
 		dev = new AudioAlsa( success_ful, this );
 		if( success_ful )
 		{
-			Global::userConfig().setAudioBackend( AudioAlsa::name() );
+			Global::userConfig().audioBackend() = AudioAlsa::name();
 			return dev;
 		}
 		delete dev;
@@ -957,7 +957,7 @@ AudioDevice * mixer::tryAudioDevices()
 		dev = new AudioPortAudio( success_ful, this );
 		if( success_ful )
 		{
-			Global::userConfig().setAudioBackend( AudioPortAudio::name() );
+			Global::userConfig().audioBackend() = AudioPortAudio::name();
 			return dev;
 		}
 		delete dev;
@@ -971,7 +971,7 @@ AudioDevice * mixer::tryAudioDevices()
 		dev = new AudioPulseAudio( success_ful, this );
 		if( success_ful )
 		{
-			Global::userConfig().setAudioBackend( AudioPulseAudio::name() );
+			Global::userConfig().audioBackend() = AudioPulseAudio::name();
 			return dev;
 		}
 		delete dev;
@@ -985,7 +985,7 @@ AudioDevice * mixer::tryAudioDevices()
 		dev = new AudioOss( success_ful, this );
 		if( success_ful )
 		{
-			Global::userConfig().setAudioBackend( AudioOss::name() );
+			Global::userConfig().audioBackend() = AudioOss::name();
 			return dev;
 		}
 		delete dev;
@@ -999,7 +999,7 @@ AudioDevice * mixer::tryAudioDevices()
 		dev = new AudioJack( success_ful, this );
 		if( success_ful )
 		{
-			Global::userConfig().setAudioBackend( AudioJack::name() );
+			Global::userConfig().audioBackend() = AudioJack::name();
 			return dev;
 		}
 		delete dev;
@@ -1013,7 +1013,7 @@ AudioDevice * mixer::tryAudioDevices()
 		dev = new AudioSdl( success_ful, this );
 		if( success_ful )
 		{
-			Global::userConfig().setAudioBackend( AudioSdl::name() );
+			Global::userConfig().audioBackend() = AudioSdl::name();
 			return dev;
 		}
 		delete dev;
