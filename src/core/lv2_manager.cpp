@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-#include "config_mgr.h"
+#include "PathConfig.h"
 #include "lv2_manager.h"
 
 #ifdef LMMS_HAVE_LV2
@@ -87,7 +87,7 @@ lv2Manager::lv2Manager()
 	}
 	printf( "Initialized slv2_world\n" );
 
-	m_cacheFile = configManager::inst()->workingDir() + ".lv2_cache.txt";
+	m_cacheFile = Global::paths().workingDir() + ".lv2_cache.txt";
 
 	loadFromCacheFile();
 

@@ -30,7 +30,6 @@
 #include <QtDebug>
 
 #include "lmms_basics.h"
-#include "config_mgr.h"
 
 using namespace std;
 

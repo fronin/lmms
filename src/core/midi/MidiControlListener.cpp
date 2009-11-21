@@ -37,7 +37,6 @@
 #include "note.h"
 #include "song.h"
 #include "timeline.h"
-#include "config_mgr.h"
 
 const QString MidiControlListener::configClass = "MidiControlListener";
 QDomElement MidiControlListener::s_configTree;

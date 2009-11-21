@@ -42,7 +42,6 @@ void AudioPortAudioSetupUtil::updateChannels()
 
 #include "engine.h"
 #include "debug.h"
-#include "config_mgr.h"
 #include "gui_templates.h"
 #include "templates.h"
 #include "combobox.h"
@@ -51,9 +50,8 @@ void AudioPortAudioSetupUtil::updateChannels()
 
 AudioPortAudio::AudioPortAudio( bool & _success_ful, mixer * _mixer ) :
 	AudioDevice( tLimit<ch_cnt_t>(
-		configManager::inst()->value( "audioportaudio",
-							"channels" ).toInt(),
-					DEFAULT_CHANNELS, SURROUND_CHANNELS ),
+		cfg().value( "Channels" ).toInt(),
+			DEFAULT_CHANNELS, SURROUND_CHANNELS ),
 								_mixer ),
 	m_wasPAInitError( false ),
 	m_outBuf( CPU::allocFrames( getMixer()->framesPerPeriod() ) ),
@@ -77,10 +75,8 @@ AudioPortAudio::AudioPortAudio( bool & _success_ful, mixer * _mixer ) :
 		return;
 	}
 	
-	const QString& backend = configManager::inst()->value( "audioportaudio",
-		"backend" );
-	const QString& device = configManager::inst()->value( "audioportaudio",
-		"device" );
+	const QString& backend = cfg().value( "Backend" );
+	const QString& device = cfg().value( "Device" );
 		
 	PaDeviceIndex inDevIdx = -1;
 	PaDeviceIndex outDevIdx = -1;
@@ -450,8 +446,7 @@ AudioPortAudio::setupWidget::setupWidget( QWidget * _parent ) :
 	lcdSpinBoxModel * m = new lcdSpinBoxModel(  );
 	m->setRange( DEFAULT_CHANNELS, SURROUND_CHANNELS );
 	m->setStep( 2 );
-	m->setValue( configManager::inst()->value( "audioportaudio",
-							"channels" ).toInt() );
+	m->setValue( cfg().value( "Channels" ) );
 
 	m_channels = new lcdSpinBox( 1, this );
 	m_channels->setModel( m );
@@ -479,10 +474,8 @@ AudioPortAudio::setupWidget::setupWidget( QWidget * _parent ) :
 	Pa_Terminate();
 
 
-	const QString& backend = configManager::inst()->value( "audioportaudio",
-		"backend" );
-	const QString& device = configManager::inst()->value( "audioportaudio",
-		"device" );
+	const QString& backend = cfg().value( "Backend" );
+	const QString& device = cfg().value( "Device" );
 	
 	int i = qMax( 0, m_setupUtil.m_backendModel.findText( backend ) );
 	m_setupUtil.m_backendModel.setValue( i );
@@ -520,12 +513,9 @@ AudioPortAudio::setupWidget::~setupWidget()
 void AudioPortAudio::setupWidget::saveSettings()
 {
 
-	configManager::inst()->setValue( "audioportaudio", "backend",
-							m_setupUtil.m_backendModel.currentText() );
-	configManager::inst()->setValue( "audioportaudio", "device",
-							m_setupUtil.m_deviceModel.currentText() );
-	configManager::inst()->setValue( "audioportaudio", "channels",
-				QString::number( m_channels->value<int>() ) );
+	cfg().setValue( "Backend", m_setupUtil.m_backendModel.currentText() );
+	cfg().setValue( "Device", m_setupUtil.m_deviceModel.currentText() );
+	cfg().setValue( "Channels", QString::number( m_channels->value<int>() ) );
 
 }
 

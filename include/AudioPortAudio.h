@@ -29,6 +29,7 @@
 
 #include "lmmsconfig.h"
 #include "ComboBoxModel.h"
+#include "UserConfig.h"
 
 class AudioPortAudioSetupUtil : public QObject
 {
@@ -63,6 +64,8 @@ class lcdSpinBox;
 class AudioPortAudio : public AudioDevice
 {
 public:
+	ADD_USER_CONFIG_ADAPTOR( "AudioPortAudio" );
+
 	AudioPortAudio( bool & _success_ful, mixer * _mixer );
 	virtual ~AudioPortAudio();
 
