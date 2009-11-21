@@ -64,7 +64,8 @@ static void loadXmlTree( Object * _obj, QDomNode & _parentNode,
 
 	while( !node.isNull() )
 	{
-		if( node.hasChildNodes() )
+		if( node.hasChildNodes() &&
+				node.firstChild().nodeType() != QDomNode::TextNode )
 		{
 			const QString subParentKey = _parentKey +
 				( _parentKey.isEmpty() ? "" : "/" ) +
