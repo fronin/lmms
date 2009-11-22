@@ -29,6 +29,26 @@ namespace Configuration
 {
 
 // specializations for common types
+template<> PropertyBase::DataType Property<QString>::templateDataType() const
+{
+	return String;
+}
+
+template<> PropertyBase::DataType Property<int>::templateDataType() const
+{
+	return Integer;
+}
+
+template<> PropertyBase::DataType Property<bool>::templateDataType() const
+{
+	return Boolean;
+}
+
+template<> PropertyBase::DataType Property<float>::templateDataType() const
+{
+	return Float;
+}
+
 template<> Property<QString>::operator QString() const
 {
 	return value();
