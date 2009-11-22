@@ -82,6 +82,7 @@ private:
 	virtual void applyQualitySettings();
 	virtual void run();
 
+	volatile bool m_quit;
 
 	bool m_convertEndian;
 
