@@ -35,27 +35,51 @@
 namespace Configuration
 {
 
+/*! \brief The Configuration::Object class loads and stores configuration properties with their respective values.
+ *
+ * A configuration object is a container for a key-based hierarchical data set.
+ * It loads and stores this set from/to a given backend.
+ */
+
 class Object : public QObject
 {
 	Q_OBJECT
 public:
+	/*! \brief Type of our data container */
 	typedef QMap<QString, QVariant> DataMap;
 
-	Object( Backend::Type _type, const QString & _configName = QString::null );
+	/*! \brief Constructs a Configuration::Object object
+	*
+	* \param backendType The desired Configuration::Backend
+	* \param configName A name for this configuration object (used as scope or filename)
+	*/
+	Object( Backend::Type backendType, const QString & configName = QString::null );
 	~Object();
 
-	QString value( const QString & _key,
-			const QString & _parentKey = QString() ) const;
+	/*! \brief Reads value of a given configuration property
+	* \param key The configuration property key
+	* \param parentKey The configuration property parent key
+	* \return Value of the given configuration property
+	*/
+	QString value( const QString & key,
+			const QString & parentKey = QString() ) const;
 
-	void setValue( const QString & _key,
-			const QString & _value,
-			const QString & _parentKey = QString() );
+	/*! \brief Sets value of a given configuration property
+	* \param key The configuration property key
+	* \param value The actual value to be set
+	* \param parentKey The configuration property parent key
+	*/
+	void setValue( const QString & key,
+			const QString & value,
+			const QString & parentKey = QString() );
 
+	/*! \brief Flushes all configuration data to backend */
 	void flush()
 	{
 		m_backend->flush( this );
 	}
 
+	/*! \brief Returns const reference to data - used by Configuration::Backend */
 	const DataMap & data() const
 	{
 		return m_data;
@@ -63,8 +87,9 @@ public:
 
 
 private:
-	DataMap insertSubValue( const QString & _key, const QString & _value,
-								QStringList & subLevels, DataMap & _map );
+	/*! \brief Recursive helper function for inserting with nested parent keys */
+	DataMap insertSubValue( const QString & key, const QString & value,
+								QStringList & subLevels, DataMap & map );
 
 	Configuration::Backend * m_backend;
 	DataMap m_data;
