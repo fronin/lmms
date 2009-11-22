@@ -25,27 +25,40 @@
 #ifndef _PREFERENCES_DIALOG_H
 #define _PREFERENCES_DIALOG_H
 
+#include <QtCore/QList>
 #include <QtGui/QDialog>
 
 namespace Ui { class PreferencesDialog; }
 
+class ConfigUiAdaptor;
+
 class PreferencesDialog : public QDialog
 {
 public:
+	/*! An enumeration listing all available configuration tabs */
 	enum ConfigTabs
 	{
-		GeneralSettings,
-		PathSettings,
-		AudioSettings,
-		MidiSettings,
-		PluginSettings,
+		GeneralSettings,	/*!< tab with general settings */
+		PathSettings,		/*!< tab with various path settings */
+		AudioSettings,		/*!< all audio related settings such as backend, device, buffersize etc */
+		MidiSettings,		/*!< all MIDI related settings such as backend and device */
+		PluginSettings,		/*!< settings for individual plugins */
 		NumTabs
 	} ;
 	typedef ConfigTabs ConfigTab;
 
 	PreferencesDialog( ConfigTab _tabToOpen = GeneralSettings );
+	virtual ~PreferencesDialog();
+
+	virtual void accept();
+
 
 private:
+	void loadConfig();
+	void storeConfig();
+
+	QList<ConfigUiAdaptor *> m_configUiAdaptors;
+
 	Ui::PreferencesDialog * ui;
 
 } ;
