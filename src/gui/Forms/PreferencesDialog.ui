@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>577</width>
-    <height>478</height>
+    <height>543</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -131,11 +131,11 @@
        <item>
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
-          <string>User interface</string>
+          <string>User interface &amp;&amp; performance</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
-           <widget class="QCheckBox" name="enableToolTips">
+           <widget class="QCheckBox" name="toolTipsEnabled">
             <property name="text">
              <string>Enable tooltips</string>
             </property>
@@ -152,6 +152,20 @@
            <widget class="QCheckBox" name="showWelcomeScreen">
             <property name="text">
              <string>Show welcome screen</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="pianoFeedback">
+            <property name="text">
+             <string>Enable feedback in piano widgets</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="instrumentActivityFeedback">
+            <property name="text">
+             <string>Enable instrument activity LEDs</string>
             </property>
            </widget>
           </item>
