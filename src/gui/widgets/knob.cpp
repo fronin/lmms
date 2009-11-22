@@ -592,7 +592,7 @@ void knob::enterValue()
 	bool ok;
 	float new_val;
 	if( isVolumeKnob() &&
-		Global::userConfig().displayKnobDBV() )
+		Global::userConfig().showVolumeAsDBV() )
 	{
 		new_val = QInputDialog::getDouble(
 			this, accessibleName(),
@@ -648,7 +648,7 @@ void knob::friendlyUpdate()
 QString knob::displayValue() const
 {
 	if( isVolumeKnob() &&
-		Global::userConfig().displayKnobDBV() )
+		Global::userConfig().showVolumeAsDBV() )
 	{
 		return m_description.trimmed() + QString( " %1 dBV" ).
 				arg( 20.0 * log10( model()->value() / 100.0 ),

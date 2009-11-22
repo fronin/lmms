@@ -352,7 +352,7 @@ void InstrumentTrack::processOutEvent( const midiEvent & _me,
 			{
 				m_piano.setKeyState( _me.key(), true );
 			}
-			if( Global::userConfig().instrumentFadeButton() )
+			if( Global::userConfig().instrumentActivityFeedback() )
 			{
 				if( m_notes[_me.key()] == NULL )
 				{

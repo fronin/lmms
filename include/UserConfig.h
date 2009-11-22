@@ -51,9 +51,10 @@ public:
 	ADD_CONFIG_PROPERTY( uiTheme, "Theme", "UI" );
 	ADD_CONFIG_PROPERTY( backgroundArtwork, "BackgroundArtwork", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( toolTipsEnabled, "ToolTipsEnabled", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( displayKnobDBV, "DisplayKnobDBV", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( showVolumeAsDBV, "ShowVolumeAsDBV", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( pianoFeedback, "PianoFeedback", "UI" );
-	ADD_CONFIG_BOOL_PROPERTY( instrumentFadeButton, "InstrumentFadeButton", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( instrumentActivityFeedback, "InstrumentActivityFeedback", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( showWelcomeScreen, "ShowWelcomeScreen", "UI" );
 
 	ADD_CONFIG_PROPERTY( defaultSoundFont, "DefaultSoundFont", "Plugins" );
 
