@@ -30,29 +30,48 @@ namespace Configuration
 
 class Object;
 
+/*! \brief The Configuration::Backend class is the storage backend for Configuration::Object
+ *
+ * The Configuration::Backend class is responsible for storing the data of a
+ * Configuration::Object. This is just an abstract base class. Functionality is
+ * provided by the individual subclasses.
+ */
+
 class Backend
 {
 public:
+	/*! Lists all configuration backends. */
 	enum Types
 	{
-		None,	// for storing volatile data in RAM only
-		Native,	// registry or similiar via QSettings
-		XmlFile
+		None,	/*!< for storing volatile data in RAM only */
+		Native,	/*!< registry or similiar via QSettings */
+		XmlFile	/*!< a QtXml-based XML file IO backend */
 	} ;
 	typedef Types Type;
 
-	Backend( Type _type ) :
-		m_type( _type )
+	/*! \brief Constructs a Backend object
+	* \param type The type of this backend instance
+	*/
+	Backend( Type type ) :
+		m_type( type )
 	{
 	}
 
+	/*! \brief Returns type of this backend instance */
 	inline Type type() const
 	{
 		return m_type;
 	}
 
-	virtual void load( Object * _obj ) = 0;
-	virtual void flush( Object * _obj ) = 0;
+	/*! \brief Loads data to a given Configuration::Object
+	* \param obj The Configuration::Object to load data to
+	*/
+	virtual void load( Object * obj ) = 0;
+
+	/*! \brief Saves data of a given Configuration::Object
+	* \param obj The Configuration::Object to save data from
+	*/
+	virtual void flush( Object * obj ) = 0;
 
 
 private:
