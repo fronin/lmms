@@ -29,21 +29,23 @@
 
 #ifdef LMMS_HAVE_SDL
 
+#include <QtCore/QSemaphore>
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_audio.h>
 
-#include "AudioDevice.h"
+#include "AudioBackend.h"
 #include "UserConfig.h"
 
 class QLineEdit;
 
 
-class AudioSdl : public AudioDevice
+class AudioSdl : public AudioBackend
 {
 public:
 	ADD_USER_CONFIG_ADAPTOR( "AudioSdl" );
 
-	AudioSdl( bool & _success_ful, mixer * _mixer );
+	AudioSdl( bool & _success_ful, AudioOutputContext * context );
 	virtual ~AudioSdl();
 
 	inline static QString name()
@@ -53,7 +55,7 @@ public:
 	}
 
 
-	class setupWidget : public AudioDevice::setupWidget
+	class setupWidget : public AudioBackend::setupWidget
 	{
 	public:
 		setupWidget( QWidget * _parent );

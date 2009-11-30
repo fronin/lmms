@@ -25,13 +25,14 @@
 
 #include <QtGui/QMessageBox>
 
+#include "AudioBackend.h"
+#include "AudioOutputContext.h"
 #include "LadspaEffect.h"
 #include "mmp.h"
-#include "AudioDevice.h"
 #include "ladspa_2_lmms.h"
 #include "LadspaControl.h"
 #include "LadspaSubPluginFeatures.h"
-#include "mixer.h"
+#include "Mixer.h"
 #include "EffectChain.h"
 #include "Cpu.h"
 #include "automation_pattern.h"
@@ -86,7 +87,7 @@ LadspaEffect::LadspaEffect( Model * _parent,
 
 	pluginInstantiation();
 
-	connect( engine::getMixer(), SIGNAL( sampleRateChanged() ),
+	connect( engine::mixer(), SIGNAL( sampleRateChanged() ),
 					this, SLOT( changeSampleRate() ) );
 }
 
@@ -143,13 +144,13 @@ bool LadspaEffect::processAudioBuffer( sampleFrame * _buf,
 	int frames = _frames;
 	sampleFrame * o_buf = NULL;
 
-	if( m_maxSampleRate < engine::getMixer()->processingSampleRate() )
+	if( m_maxSampleRate < engine::mixer()->processingSampleRate() )
 	{
 		o_buf = _buf;
 		_buf = CPU::allocFrames( _frames );
 		sampleDown( o_buf, _buf, m_maxSampleRate );
 		frames = _frames * m_maxSampleRate /
-				engine::getMixer()->processingSampleRate();
+				engine::mixer()->processingSampleRate();
 	}
 
 	// Copy the LMMS audio buffer to the LADSPA input buffer and initialize
@@ -297,7 +298,8 @@ void LadspaEffect::pluginInstantiation()
 	ladspa2LMMS * manager = engine::getLADSPAManager();
 
 	// Calculate how many processing units are needed.
-	const ch_cnt_t lmms_chnls = engine::getMixer()->audioDev()->channels();
+	const ch_cnt_t lmms_chnls = engine::mixer()->audioOutputContext()->
+													audioBackend()->channels();
 	int effect_channels = manager->getDescription( m_key )->inputChannels;
 	setProcessorCount( lmms_chnls / effect_channels );
 
@@ -324,7 +326,7 @@ void LadspaEffect::pluginInstantiation()
 		// during cleanup.  It was easier to troubleshoot with the
 		// memory management all taking place in one file.
 				p->buffer = 
-		new LADSPA_Data[engine::getMixer()->framesPerPeriod()];
+		new LADSPA_Data[engine::mixer()->framesPerPeriod()];
 
 				if( p->name.toUpper().contains( "IN" ) &&
 					manager->isPortInput( m_key, port ) )
@@ -565,7 +567,7 @@ sample_rate_t LadspaEffect::maxSamplerate( const QString & _name )
 	{
 		return __buggy_plugins[_name];
 	}
-	return engine::getMixer()->processingSampleRate();
+	return engine::mixer()->processingSampleRate();
 }
 
 

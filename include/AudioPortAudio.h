@@ -48,7 +48,7 @@ public:
 
 #include <portaudio.h>
 
-#include "AudioDevice.h"
+#include "AudioBackend.h"
 
 #if defined paNeverDropInput || defined paNonInterleaved
 #	define PORTAUDIO_V19
@@ -61,7 +61,7 @@ class comboBox;
 class lcdSpinBox;
 
 
-class AudioPortAudio : public AudioDevice
+class AudioPortAudio : public AudioBackend
 {
 public:
 	ADD_USER_CONFIG_ADAPTOR( "AudioPortAudio" );
@@ -80,7 +80,7 @@ public:
 		unsigned long _framesPerBuffer );
 
 
-	class setupWidget : public AudioDevice::setupWidget
+	class setupWidget : public AudioBackend::setupWidget
 	{
 	public:
 		setupWidget( QWidget * _parent );

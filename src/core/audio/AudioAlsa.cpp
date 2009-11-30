@@ -40,10 +40,10 @@
 
 
 
-AudioAlsa::AudioAlsa( bool & _success_ful, mixer * _mixer ) :
-	AudioDevice( tLimit<ch_cnt_t>( cfg().value( "Channels" ).toInt(),
+AudioAlsa::AudioAlsa( bool & _success_ful, AudioOutputContext * context ) :
+	AudioBackend( tLimit<ch_cnt_t>( cfg().value( "Channels" ).toInt(),
 					DEFAULT_CHANNELS, SURROUND_CHANNELS ),
-								_mixer ),
+								context ),
 	m_handle( NULL ),
 	m_hwParams( NULL ),
 	m_swParams( NULL ),
@@ -200,7 +200,7 @@ void AudioAlsa::applyQualitySettings()
 {
 	if( hqAudio() )
 	{
-		setSampleRate( engine::getMixer()->processingSampleRate() );
+		setSampleRate( mixer()->processingSampleRate() );
 
 		if( m_handle != NULL )
 		{
@@ -232,8 +232,6 @@ void AudioAlsa::applyQualitySettings()
 			return;
 		}
 	}
-
-	AudioDevice::applyQualitySettings();
 }
 
 
@@ -241,16 +239,15 @@ void AudioAlsa::applyQualitySettings()
 
 void AudioAlsa::run()
 {
-	sampleFrameA * temp = CPU::allocFrames(
-					getMixer()->framesPerPeriod() );
+	sampleFrameA * temp = CPU::allocFrames( mixer()->framesPerPeriod() );
 	intSampleFrameA * outbuf = (intSampleFrameA *)
 		CPU::memAlloc( sizeof( intSampleFrameA ) * channels() /
-			DEFAULT_CHANNELS * getMixer()->framesPerPeriod() );
+			DEFAULT_CHANNELS * mixer()->framesPerPeriod() );
 
 	int_sample_t * pcmbuf = new int_sample_t[m_periodSize * channels()];
 
 
-	int outbuf_size = getMixer()->framesPerPeriod() * channels();
+	int outbuf_size = mixer()->framesPerPeriod() * channels();
 	int outbuf_pos = 0;
 	int pcmbuf_size = m_periodSize * channels();
 
@@ -273,7 +270,7 @@ void AudioAlsa::run()
 				outbuf_size = frames * channels();
 
 				CPU::convertToS16( temp, outbuf, frames,
-						getMixer()->masterGain(),
+						mixer()->masterGain(),
 							m_convertEndian );
 			}
 			int min_len = qMin( len, outbuf_size - outbuf_pos );
@@ -373,7 +370,7 @@ int AudioAlsa::setHWParams( const ch_cnt_t _channels, snd_pcm_access_t _access )
 						sampleRate(), 0 ) ) < 0 )
 	{
 		if( ( err = snd_pcm_hw_params_set_rate( m_handle, m_hwParams,
-				getMixer()->baseSampleRate(), 0 ) ) < 0 )
+				mixer()->baseSampleRate(), 0 ) ) < 0 )
 		{
 			printf( "Could not set sample rate: %s\n",
 							snd_strerror( err ) );
@@ -381,7 +378,7 @@ int AudioAlsa::setHWParams( const ch_cnt_t _channels, snd_pcm_access_t _access )
 		}
 	}
 
-	m_periodSize = getMixer()->framesPerPeriod();
+	m_periodSize = mixer()->framesPerPeriod();
 	m_bufferSize = m_periodSize * 8;
 	dir = 0;
 	err = snd_pcm_hw_params_set_period_size_near( m_handle, m_hwParams,
@@ -492,7 +489,7 @@ int AudioAlsa::setSWParams()
 
 
 AudioAlsa::setupWidget::setupWidget( QWidget * _parent ) :
-	AudioDevice::setupWidget( AudioAlsa::name(), _parent )
+	AudioBackend::setupWidget( AudioAlsa::name(), _parent )
 {
 
 	m_device = new QComboBox( this );

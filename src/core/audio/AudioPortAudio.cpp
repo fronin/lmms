@@ -48,11 +48,9 @@ void AudioPortAudioSetupUtil::updateChannels()
 #include "lcd_spinbox.h"
 
 
-AudioPortAudio::AudioPortAudio( bool & _success_ful, mixer * _mixer ) :
-	AudioDevice( tLimit<ch_cnt_t>(
-		cfg().value( "Channels" ).toInt(),
-			DEFAULT_CHANNELS, SURROUND_CHANNELS ),
-								_mixer ),
+AudioPortAudio::AudioPortAudio( bool & _success_ful, AudioOutputContext * context ) :
+	AudioBackend( tLimit<ch_cnt_t>( cfg().value( "Channels" ).toInt(),
+					DEFAULT_CHANNELS, SURROUND_CHANNELS ), context ),
 	m_wasPAInitError( false ),
 	m_outBuf( CPU::allocFrames( getMixer()->framesPerPeriod() ) ),
 	m_outBufPos( 0 ),
@@ -280,8 +278,6 @@ void AudioPortAudio::applyQualitySettings()
 			return;
 		}
 	}
-
-	audioDevice::applyQualitySettings();
 }
 
 int AudioPortAudio::process_callback(

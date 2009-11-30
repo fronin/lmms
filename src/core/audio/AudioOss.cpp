@@ -72,10 +72,10 @@
 
 
 
-AudioOss::AudioOss( bool & _success_ful, mixer * _mixer ) :
-	AudioDevice( tLimit<ch_cnt_t>( cfg().value( "Channels" ).toInt(),
+AudioOss::AudioOss( bool & _success_ful, AudioOutputContext * context ) :
+	AudioBackend( tLimit<ch_cnt_t>( cfg().value( "Channels" ).toInt(),
 					DEFAULT_CHANNELS, SURROUND_CHANNELS ),
-								_mixer ),
+								context ),
 	m_convertEndian( false )
 {
 	_success_ful = false;
@@ -103,7 +103,7 @@ AudioOss::AudioOss( bool & _success_ful, mixer * _mixer ) :
 
 	int frag_spec;
 	for( frag_spec = 0; static_cast<int>( 0x01 << frag_spec ) <
-		getMixer()->framesPerPeriod() * channels() *
+		mixer()->framesPerPeriod() * channels() *
 							BYTES_PER_INT_SAMPLE;
 		++frag_spec )
 	{
@@ -175,7 +175,7 @@ AudioOss::AudioOss( bool & _success_ful, mixer * _mixer ) :
 	}
 	if( value != sampleRate() )
 	{
-		value = getMixer()->baseSampleRate();
+		value = mixer()->baseSampleRate();
 		if ( ioctl( m_audioFD, SNDCTL_DSP_SPEED, &value ) < 0 )
 		{
 			perror( "SNDCTL_DSP_SPEED" );
@@ -268,7 +268,7 @@ void AudioOss::applyQualitySettings()
 {
 	if( hqAudio() )
 	{
-		setSampleRate( engine::getMixer()->processingSampleRate() );
+		setSampleRate( mixer()->processingSampleRate() );
 
 		unsigned int value = sampleRate();
 		if ( ioctl( m_audioFD, SNDCTL_DSP_SPEED, &value ) < 0 )
@@ -279,7 +279,7 @@ void AudioOss::applyQualitySettings()
 		}
 		if( value != sampleRate() )
 		{
-			value = getMixer()->baseSampleRate();
+			value = mixer()->baseSampleRate();
 			if ( ioctl( m_audioFD, SNDCTL_DSP_SPEED, &value ) < 0 )
 			{
 				perror( "SNDCTL_DSP_SPEED" );
@@ -289,8 +289,6 @@ void AudioOss::applyQualitySettings()
 			setSampleRate( value );
 		}
 	}
-
-	AudioDevice::applyQualitySettings();
 }
 
 
@@ -299,10 +297,10 @@ void AudioOss::applyQualitySettings()
 void AudioOss::run()
 {
 	sampleFrameA * temp = CPU::allocFrames(
-						getMixer()->framesPerPeriod() );
+						mixer()->framesPerPeriod() );
 	intSampleFrameA * outbuf = (intSampleFrameA *)
 			CPU::memAlloc( sizeof( intSampleFrameA ) *
-						getMixer()->framesPerPeriod() );
+						mixer()->framesPerPeriod() );
 
 	while( true )
 	{
@@ -313,7 +311,7 @@ void AudioOss::run()
 		}
 
 		int bytes = CPU::convertToS16( temp, outbuf, frames,
-						getMixer()->masterGain(),
+						mixer()->masterGain(),
 							m_convertEndian );
 		if( write( m_audioFD, outbuf, bytes ) != bytes )
 		{
@@ -329,7 +327,7 @@ void AudioOss::run()
 
 
 AudioOss::setupWidget::setupWidget( QWidget * _parent ) :
-	AudioDevice::setupWidget( AudioOss::name(), _parent )
+	AudioBackend::setupWidget( AudioOss::name(), _parent )
 {
 	m_device = new QLineEdit( probeDevice(), this );
 	m_device->setGeometry( 10, 20, 160, 20 );
