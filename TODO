@@ -22,6 +22,8 @@ PianoRoll:
 - Gray out notes not in the key-signature
 - Allow placing chords
 
+Look for all TODO! and TODO{TNG} comments.
+
 Version 1
 =========
 

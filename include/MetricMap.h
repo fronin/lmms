@@ -38,7 +38,7 @@ public:
 
 	// TODO: move remove and replace functions..
 
-	// TODO: Add direction parameter?  and a NearestDivisionOfBeat?
+	// TODO: Add a NearestDivisionOfBeat param?
 	f_cnt_t toNearestBar( f_cnt_t _frame, Rounding _round );
 	f_cnt_t toNearestBeat( f_cnt_t _frame, Rounding _round );
 	f_cnt_t toNearestTick( f_cnt_t _frame, Rounding _round );
@@ -66,6 +66,9 @@ public:
 		return s_defaultMeter;
 	}
 
+	// TODO!: MetricMap changes will probably be pretty rare,
+	// probably a good idea to calculate on-change and just
+	// share a single instance of MeatList
 	MeatList meats( f_cnt_t _begin, f_cnt_t _end ) const;
 
 signals:
@@ -102,6 +105,14 @@ public:
 		tempo( _tempo ),
 		meter( _meter )
 	{}
+
+
+	static bool ascendingPredicate(
+			const MetricBeat & _l, const MetricBeat & _r )
+	{
+		return _l.frame < _r.frame;
+	}
+
 
 	bar_t bar;
 	beat_t beat;

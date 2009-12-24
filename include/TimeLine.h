@@ -40,7 +40,6 @@ public:
 
 	TimeLine( QWidget * _parent, MetricMap & _metric );
 	virtual ~TimeLine();
-	void scroll( int _dx, int _dy );
 
 public slots:
 	// TODO: use MV instead?
@@ -64,7 +63,6 @@ protected:
 
 	MetricMap & m_metricMap;
 	MeatList m_meats;
-	int m_x;
 
 } ;
 

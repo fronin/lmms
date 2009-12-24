@@ -27,6 +27,7 @@
 
 #include <QtGui/QGraphicsView>
 
+#include "MetricMap.h"			// For MeatList
 #include "gui/SongEditor.h"
 #include "gui/tracks/track_container_scene.h"
 
@@ -50,6 +51,7 @@ public:
 protected:
 	void resizeEvent( QResizeEvent * _re );
 	void scrollContentsBy( int _dx, int _dy );
+	void updateView( f_cnt_t _begin, f_cnt_t _end );
 	void drawBackground ( QPainter * painter, const QRectF & rect );
 
 	Song * m_song;
@@ -59,6 +61,7 @@ protected:
 	QGraphicsView * m_left;
 	TimeLine * m_timeLine;
 
+	MeatList m_meats;
 };
 
 #endif

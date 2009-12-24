@@ -24,10 +24,11 @@
 
 
 #include <QApplication>
+#include <QGraphicsScene>
 #include <QLayout>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QGraphicsScene>
+#include <QScrollBar>
 
 #include "TimeLine.h"
 #include "MetricMap.h"
@@ -52,18 +53,17 @@ public:
 
 TimeLine::TimeLine( QWidget * _parent, MetricMap & _metric ) :
 	QGraphicsView( _parent ),
-	m_metricMap( _metric ),
-	m_x( 0 )
+	m_metricMap( _metric )
 {
 	TimeLineScene * tls = new TimeLineScene( this );
 	setScene( tls );
 
+	setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
 	setAttribute( Qt::WA_OpaquePaintEvent, true );
 	setFrameStyle( QFrame::NoFrame );
 	setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	setAlignment( Qt::AlignLeft | Qt::AlignTop );
-	//setAutoFillBackground();//setAutoFillBackground();
 	updateView( 0, m_metricMap.length() );
 }
 
@@ -75,25 +75,14 @@ TimeLine::~TimeLine()
 
 
 
-void TimeLine::scroll ( int dx, int dy )
-{
-	m_x += dx;
-	QWidget::scroll( dx, dy );
-}
-
-
 void TimeLine::updateView( f_cnt_t _begin, f_cnt_t _end )
-{	
+{
 	// TODO: Perhaps optimize
 	m_meats = m_metricMap.meats(0, m_metricMap.length());
 	update();
 }
 
 
-bool meatPredicate(const MetricBeat & _l, const MetricBeat & _r)
-{
-	return _l.frame < _r.frame;
-}
 
 void TimeLine::drawBackground ( QPainter * _p, const QRectF & _rect )
 {
@@ -112,7 +101,7 @@ void TimeLine::drawBackground ( QPainter * _p, const QRectF & _rect )
 
 	// Draw splitter
 	_p->setPen( gridPen );
-	_p->drawLine( 0, RowHeight - 1, width() - 1, RowHeight - 1);
+	_p->drawLine( _rect.left(), RowHeight - 1, _rect.right(), RowHeight - 1);
 
 	// Draw Seconds Bar
 	// Latest 10-second time before the region
@@ -120,9 +109,9 @@ void TimeLine::drawBackground ( QPainter * _p, const QRectF & _rect )
 	//pixels * second
 	//----------------------------
 	//pixels
-	int sec = _rect.left() / (PixelsPerSecond * SecStep);
+	int sec = (int)( _rect.left() / (PixelsPerSecond * SecStep) );
 	sec *= SecStep;
-	int x;
+	float x;
 	do
 	{
 		x = (sec * PixelsPerSecond);
@@ -133,40 +122,30 @@ void TimeLine::drawBackground ( QPainter * _p, const QRectF & _rect )
 				QString("00:00:") + QString::number(sec).rightJustified(2, '0') );
 		sec += SecStep;
 	}
-	while( x < width() );
+	while( x < _rect.right() );
 
 
-	// Find the first visible beat, then go back two
+	// Find the first visible beat, then go back one
 	MetricBeat beatToFind = MetricBeat( 0, 0,
-			(- m_x) * FramesPerPixel,
+			(- _rect.left()) * FramesPerPixel,
 			Tempo(0), Meter(0,0) );
 
 	MeatList::iterator i = qLowerBound(
-			m_meats.begin(), m_meats.end(), beatToFind, meatPredicate );
+			m_meats.begin(), m_meats.end(),
+			beatToFind, MetricBeat::ascendingPredicate );
 	if( i != m_meats.begin() )
 	{
 		i--;
-		if( i != m_meats.begin() )
-		{
-			i--;
-			if( i != m_meats.begin() )
-			{
-				i--;
-			}
-		}
 	}
-
-	x = 0;
 
 	Tempo lastTempo(i->tempo);
 	Meter lastMeter(i->meter);
 
+	x = 0;
 	while( i != m_meats.end() && x <= _rect.right() )
 	{
 		MetricBeat b = *i;
-		x = m_x + ( b.frame / FramesPerPixel );
-
-		//printf("%d:%d:  %d,  %.2f bpm, %d / %d \n", b.bar, b.beat, b.frame, b.tempo.bpm(), b.meter.beatsPerBar(), b.meter.noteType());
+		x = b.frame / FramesPerPixel;
 
 		// Grid Line
 		_p->setPen(gridPen);

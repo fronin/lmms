@@ -44,11 +44,7 @@ public:
 		setAttribute( Qt::WA_OpaquePaintEvent, true );
 	}
 
-	void paintEvent ( QPaintEvent * _pe );
-};
-
-
-void CornerWidget::paintEvent ( QPaintEvent * _pe )
+	void paintEvent ( QPaintEvent * _pe )
 	{
 		const int RowHeight = 16;
 
@@ -64,12 +60,18 @@ void CornerWidget::paintEvent ( QPaintEvent * _pe )
 		p.drawLine( width() - 1, 0, width() - 1, height() - 1);
 
 		p.setPen( textPen );
-		p.drawText( 0, RowHeight*0 - 2, width() - 5, RowHeight, Qt::AlignRight, "Time" );
-		p.drawText( 0, RowHeight*1 - 2, width() - 5, RowHeight, Qt::AlignRight, "Bar,Beat" );
-		p.drawText( 0, RowHeight*2 - 2, width() - 5, RowHeight, Qt::AlignRight, "Tempo" );
-		p.drawText( 0, RowHeight*3 - 2, width() - 5, RowHeight, Qt::AlignRight, "Meter" );
+		p.drawText( 0, RowHeight*0 - 2, width() - 5, RowHeight,
+				Qt::AlignRight, "Time" );
+		p.drawText( 0, RowHeight*1 - 2, width() - 5, RowHeight,
+				Qt::AlignRight, "Bar,Beat" );
+		p.drawText( 0, RowHeight*2 - 2, width() - 5, RowHeight,
+				Qt::AlignRight, "Tempo" );
+		p.drawText( 0, RowHeight*3 - 2, width() - 5, RowHeight,
+				Qt::AlignRight, "Meter" );
 	}
-//};
+};
+
+
 
 SongEditor::SongEditor( Song * _song, QWidget * _parent ) :
 		QGraphicsView( NULL, _parent ),
@@ -96,17 +98,11 @@ SongEditor::SongEditor( Song * _song, QWidget * _parent ) :
 	m_left->setStyleSheet( "QWidget { border: none }" );
 	m_left->show();
 
-	QPixmap * sceneBg = new QPixmap( 16*4*2, 32 );
-	QPainter * sceneBgPainter = new QPainter( sceneBg );
-	engine::getLmmsStyle()->drawTrackContentBackground(
-			sceneBgPainter,
-			QSize( 16*4, 32 ),
-			16 );
-
 	setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
+	setAttribute( Qt::WA_OpaquePaintEvent, true );
 	setDragMode( QGraphicsView::RubberBandDrag );
 	setAlignment( Qt::AlignLeft | Qt::AlignTop );
-	setBackgroundBrush( QBrush(*sceneBg) );
+	int x;
 
 	// Just some scrolling fun
 	m_scene->setSceneRect( 0, 0, 5000, 5000 );
@@ -119,7 +115,7 @@ SongEditor::SongEditor( Song * _song, QWidget * _parent ) :
 	connect( m_timeLine->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 		 horizontalScrollBar(), SLOT( setValue(int) ) );
 
-
+	updateView( 0, m_song->metricMap().length() );
 }
 
 
@@ -150,11 +146,58 @@ void SongEditor::scrollContentsBy( int _dx, int _dy )
 	}
 }
 
-void SongEditor::drawBackground ( QPainter * painter, const QRectF & rect )
-{
-	int clr = 0xC0C0C0; //rand();
 
-	painter->fillRect( rect, QColor(clr&0xff, (clr>>8)&0xff, (clr>>16)&0xff) );
+
+void SongEditor::updateView( f_cnt_t _begin, f_cnt_t _end )
+{
+	// TODO: Perhaps optimize
+	m_meats = m_song->metricMap().meats( 0, m_song->metricMap().length() );
+	update();
 }
+
+
+
+void SongEditor::drawBackground ( QPainter * _p, const QRectF & _rect )
+{
+	const int FramesPerPixel = 800;
+	const double PixelsPerSecond = 44100.0f / FramesPerPixel;
+	int x;
+
+	// Init pens
+	QPen gridPen( QColor(128, 128, 128), 1 );
+	_p->fillRect( _rect, QColor(224, 224, 224) );
+
+	// Find the first visible beat, then go back two
+	MetricBeat beatToFind = MetricBeat( 0, 0,
+			(- _rect.left()) * FramesPerPixel,
+			Tempo(0), Meter(0,0) );
+
+	MeatList::iterator i = qLowerBound(
+			m_meats.begin(), m_meats.end(),
+			beatToFind, MetricBeat::ascendingPredicate );
+	if( i != m_meats.begin() )
+	{
+		i--;
+		if( i != m_meats.begin() )
+		{
+			i--;
+		}
+	}
+
+	x = 0;
+	while( i != m_meats.end() && x <= _rect.right() )
+	{
+		MetricBeat b = *i;
+		x = b.frame / FramesPerPixel;
+
+		// Grid Line
+		_p->setPen(gridPen);
+		_p->drawLine( x, _rect.top(), x, _rect.bottom() );
+
+		++i;
+	}
+
+}
+
 
 #include "gui/moc_SongEditor.cxx"
