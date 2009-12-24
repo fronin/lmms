@@ -51,12 +51,12 @@ TrackItem::TrackItem( TrackContainerScene * _scene, Track * _track )
 	}
 
 	QObject * obj = _track;
-	connect( obj, SIGNAL( trackContentObjectAdded( trackContentObject * ) ),
-	         this, SLOT( addTCO( trackContentObject * ) ),
+	connect( obj, SIGNAL( trackSegmentAdded( TrackSegment * ) ),
+	         this, SLOT( addSegment( TrackSegment * ) ),
 	         Qt::QueuedConnection );
 
-	connect( obj, SIGNAL( trackContentObjectRemoved( trackContentObject * ) ),
-	         this, SLOT( removeTCO( trackContentObject * ) ) );
+	connect( obj, SIGNAL( trackSegmentRemoved( TrackSegment * ) ),
+	         this, SLOT( removeSegment( TrackSegment * ) ) );
 }
 
 

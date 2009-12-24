@@ -131,8 +131,15 @@ void TrackContainerScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent * _me 
 	else
 	{
 		printf("clk (%.4f %.4f)  (%.4f %.4f)\n", p.x(), p.y(), sp.x(), sp.y());
-		Track * t = m_trackContainer->tracks().at(0);
-		TrackSegment * seg = t->createSegment( midiTime(0, 0) );
+		// Determine which track was hit - assumes equal height tracks
+		int trackIdx = sp.y() / DEFAULT_CELL_HEIGHT;
+		if( m_trackContainer->tracks().size() > trackIdx )
+		{
+			Track * t = m_trackContainer->tracks().at(trackIdx);
+			{
+				TrackSegment * seg = t->createSegment( midiTime(0, 0) );
+			}
+		}
 	}
 }
 

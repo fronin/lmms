@@ -31,6 +31,7 @@
 
 #include "gui/SongEditor.h"
 #include "gui/tracks/track_container_scene.h"
+#include "gui/tracks/TrackOperationsScene.h"
 
 
 class CornerWidget : public QWidget
@@ -84,8 +85,15 @@ SongEditor::SongEditor( Song * _song, QWidget * _parent ) :
 	m_corner = new CornerWidget( this );
 	m_corner->show();
 
-	m_left = new QLabel( "Left\nLeft\nLeft\nLeft", this );
-	m_left->setStyleSheet("QLabel { background: red }");
+	m_left = new QGraphicsView( this );
+
+	TrackOperationsScene * operationsScene =
+		new TrackOperationsScene( m_left, _song );
+	
+	m_left->setScene( operationsScene );
+	m_left->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_left->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_left->setStyleSheet( "QWidget { border: none }" );
 	m_left->show();
 
 	QPixmap * sceneBg = new QPixmap( 16*4*2, 32 );
@@ -102,6 +110,16 @@ SongEditor::SongEditor( Song * _song, QWidget * _parent ) :
 
 	// Just some scrolling fun
 	m_scene->setSceneRect( 0, 0, 5000, 5000 );
+	m_left->setSceneRect( 0, 0, 300, 5000 );
+
+	// Connections for mouse-wheel on the margins
+	connect( m_left->verticalScrollBar(), SIGNAL( valueChanged(int) ),
+		 verticalScrollBar(), SLOT( setValue(int) ) );
+
+	connect( m_timeLine->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+		 horizontalScrollBar(), SLOT( setValue(int) ) );
+
+
 }
 
 
@@ -113,29 +131,30 @@ void SongEditor::resizeEvent( QResizeEvent * _re )
 	QRect vg = viewport()->geometry();
 
 	m_timeLine->setGeometry( vg.left(), vg.top() - 64, vg.width(), 64 );
-	m_left->setGeometry( cg.left(), vg.top(), vg.left() - cg.left(), vg.height());
 	m_corner->setGeometry( cg.left(), cg.top(), vg.left() - cg.left(), 64 );
+	m_left->setGeometry( cg.left(), vg.top(), 300, vg.height() );
 }
 
 
 void SongEditor::scrollContentsBy( int _dx, int _dy )
 {
 	QGraphicsView::scrollContentsBy( _dx, _dy );
-	// I *think* this is a good thing to do...
-	//m_timeLine->setSceneRect( m_timeLine->sceneRect().translated( -_dx, 0 ) );
-	m_timeLine->horizontalScrollBar()->setValue(
-			horizontalScrollBar()->value() );
-	//m_timeLine->translate( _dx, 0 );
-	//m_timeLine->scroll( _dx, 0 );
-	m_left->scroll( 0, _dy );
+	// Avoid recursion
+	if( _dx != 0 ) {
+		m_timeLine->horizontalScrollBar()->setValue(
+				horizontalScrollBar()->value() );
+	}
+	if( _dy != 0 ) {
+		m_left->verticalScrollBar()->setValue(
+				verticalScrollBar()->value() );
+	}
 }
 
 void SongEditor::drawBackground ( QPainter * painter, const QRectF & rect )
 {
-	int clr = rand();
+	int clr = 0xC0C0C0; //rand();
 
 	painter->fillRect( rect, QColor(clr&0xff, (clr>>8)&0xff, (clr>>16)&0xff) );
-
 }
 
 #include "gui/moc_SongEditor.cxx"

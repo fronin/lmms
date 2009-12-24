@@ -33,7 +33,7 @@
 class Song;
 class TrackContainerScene;
 class TimeLine;
-class QLabel;
+class QGraphicsView;
 
 
 class SongEditor : public QGraphicsView
@@ -56,7 +56,7 @@ protected:
 	TrackContainerScene * m_scene;
 
 	QWidget * m_corner;
-	QLabel * m_left;
+	QGraphicsView * m_left;
 	TimeLine * m_timeLine;
 
 };

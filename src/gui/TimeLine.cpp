@@ -1,5 +1,5 @@
 /*
- * timeline.cpp - class timeLine, representing a time-line with position marker
+ * timeline.cpp - class timeLine, represents a time-line with position marker
  *
  * Copyright (c) 2009 Paul Giblock <pgib/at/users/sourceforge/net>
  *
@@ -109,7 +109,6 @@ void TimeLine::drawBackground ( QPainter * _p, const QRectF & _rect )
 	QPen beatPen( QColor(0, 0, 255), 2 );
 	QPen secPen( QColor(0, 255, 0), 2 );
 	_p->fillRect( _rect, QColor(255, 255, 255) );
-	printf("%f %f %f %f\n", _rect.left(), _rect.top(), _rect.width(), _rect.height());
 
 	// Draw splitter
 	_p->setPen( gridPen );
