@@ -90,8 +90,11 @@ public slots:
 	// file management
 	void createNewProjectFromTemplate( const QString & _template );
 	void loadProject( const QString & _file_name );
-	bool saveProject( void );
-	bool saveProjectAs( const QString & _file_name );
+	bool saveProjectFile( const QString & _filename );
+
+	bool guiSaveProject();
+	bool guiSaveProjectAs( const QString & _file_name );
+
 
 	void createNewProject( void );
 	void importProject( void );

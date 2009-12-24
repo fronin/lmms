@@ -34,7 +34,7 @@
 #include "InstrumentTrack.h"
 #include "ladspa_2_lmms.h"
 #include "MainWindow.h"
-#include "mixer.h"
+#include "Mixer.h"
 #include "Pattern.h"
 #include "project_notes.h"
 #include "Plugin.h"
@@ -51,7 +51,7 @@
 bool engine::s_hasGUI = true;
 bool engine::s_suppressMessages = false;
 float engine::s_framesPerTick;
-mixer * engine::s_mixer = NULL;
+Mixer * engine::s_mixer = NULL;
 FxMixer * engine::s_fxMixer = NULL;
 FxMixerView * engine::s_fxMixerView = NULL;
 MainWindow * engine::s_mainWindow = NULL;
@@ -79,10 +79,11 @@ void engine::init( const bool _has_gui )
 
 	initPluginFileHandling();
 
-	s_mixer = new mixer;
 	s_sequencer = new Sequencer();
 	s_song = new Song();
+	s_mixer = new Mixer;
 
+	s_mixer->initDevices();
 
 	// init resource framework
 	s_workingDirResourceDB =

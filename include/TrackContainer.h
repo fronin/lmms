@@ -4,6 +4,7 @@
  * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * Copyright (c) 2009 Paul Giblock <pgib/at/users.sourceforge.net>
  * 
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -23,11 +24,10 @@
  *
  */
 
+#ifndef _TRACK_CONTAINER_H
+#define _TRACK_CONTAINER_H
 
-#ifndef _TRACK_CONTAINER_TNG_H
-#define _TRACK_CONTAINER_TNG_H
-
-#include <QReadWriteLock>
+#include <QtCore/QReadWriteLock>
 
 #include "Track.h"
 #include "SerializingObject.h"

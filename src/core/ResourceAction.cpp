@@ -105,7 +105,7 @@ bool ResourceAction::defaultTrigger()
 		case LoadProject:
 			return loadProject();
 		case ImportFile:
-			return importProject( engine::getSong() );
+			return importProject( engine::song() );
 		default:
 			break;
 	}

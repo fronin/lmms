@@ -22,7 +22,7 @@
  *
  */
 
-
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QLocale>
 #include <QtCore/QProcess>
@@ -155,9 +155,10 @@ int main( int argc, char * * argv )
 					new QApplication( argc, argv ) ;
 
 
-	mixer::qualitySettings qs( mixer::qualitySettings::Mode_HighQuality );
-	ProjectRenderer::OutputSettings os( 44100, false, 160,
-						ProjectRenderer::Depth_16Bit );
+	AudioOutputContext::QualitySettings qs(
+					AudioOutputContext::QualitySettings::Preset_HighQuality );
+	ProjectRenderer::EncoderSettings es( 44100, false, 160,
+											ProjectRenderer::Depth_16Bit );
 	ProjectRenderer::ExportFileFormats eff = ProjectRenderer::WaveFile;
 
 
@@ -280,7 +281,7 @@ int main( int argc, char * * argv )
 			sample_rate_t sr = QString( argv[i + 1] ).toUInt();
 			if( sr >= 44100 && sr <= 192000 )
 			{
-				os.samplerate = sr;
+				es.samplerate = sr;
 			}
 			else
 			{
@@ -297,7 +298,7 @@ int main( int argc, char * * argv )
 			int br = QString( argv[i + 1] ).toUInt();
 			if( br >= 64 && br <= 384 )
 			{
-				os.bitrate = br;
+				es.bitrate = br;
 			}
 			else
 			{
@@ -314,19 +315,23 @@ int main( int argc, char * * argv )
 			const QString ip = QString( argv[i + 1] );
 			if( ip == "linear" )
 			{
-		qs.interpolation = mixer::qualitySettings::Interpolation_Linear;
+				qs.setInterpolation( AudioOutputContext::QualitySettings::
+													Interpolation_Linear );
 			}
 			else if( ip == "sincfastest" )
 			{
-		qs.interpolation = mixer::qualitySettings::Interpolation_SincFastest;
+				qs.setInterpolation( AudioOutputContext::QualitySettings::
+													Interpolation_SincFastest );
 			}
 			else if( ip == "sincmedium" )
 			{
-		qs.interpolation = mixer::qualitySettings::Interpolation_SincMedium;
+				qs.setInterpolation( AudioOutputContext::QualitySettings::
+													Interpolation_SincMedium );
 			}
 			else if( ip == "sincbest" )
 			{
-		qs.interpolation = mixer::qualitySettings::Interpolation_SincBest;
+				qs.setInterpolation( AudioOutputContext::QualitySettings::
+													Interpolation_SincBest );
 			}
 			else
 			{
@@ -344,21 +349,25 @@ int main( int argc, char * * argv )
 			switch( o )
 			{
 				case 1:
-		qs.oversampling = mixer::qualitySettings::Oversampling_None;
-		break;
+					qs.setOversampling( AudioOutputContext::QualitySettings::
+															Oversampling_None );
+					break;
 				case 2:
-		qs.oversampling = mixer::qualitySettings::Oversampling_2x;
-		break;
+					qs.setOversampling( AudioOutputContext::QualitySettings::
+															Oversampling_2x );
+					break;
 				case 4:
-		qs.oversampling = mixer::qualitySettings::Oversampling_4x;
-		break;
+					qs.setOversampling( AudioOutputContext::QualitySettings::
+															Oversampling_4x );
+					break;
 				case 8:
-		qs.oversampling = mixer::qualitySettings::Oversampling_8x;
-		break;
+					qs.setOversampling( AudioOutputContext::QualitySettings::
+															Oversampling_8x );
+					break;
 				default:
-				printf( "\nInvalid oversampling %s.\n\n"
+					printf( "\nInvalid oversampling %s.\n\n"
 	"Try \"%s --help\" for more information.\n\n", argv[i + 1], argv[0] );
-				return( EXIT_FAILURE );
+					return EXIT_FAILURE;
 			}
 			++i;
 		}
@@ -485,6 +494,13 @@ int main( int argc, char * * argv )
 		// srandom() calls in their init procedure
 		srand( getpid() + time( 0 ) );
 
+		// recover a file?
+		QString recoveryFile = QDir(configManager::inst()->workingDir()).absoluteFilePath("recover.mmp");
+		if( QFileInfo(recoveryFile).exists() )
+		{
+			file_to_load = recoveryFile;
+		}
+
 		// we try to load given file
 		if( !file_to_load.isEmpty() )
 		{
@@ -493,7 +509,7 @@ int main( int argc, char * * argv )
 			{
 				engine::mainWindow()->showMaximized();
 			}
-			engine::getSong()->loadProject( file_to_load );
+			engine::song()->loadProject( file_to_load );
 
 			// don't show welcome screen
 			engine::mainWindow()->showWelcomeScreen( false );
@@ -544,7 +560,7 @@ int main( int argc, char * * argv )
 		if( !render_out.isEmpty() )
 		{
 			// create renderer
-			ProjectRenderer * r = new ProjectRenderer( qs, os, eff,
+			ProjectRenderer * r = new ProjectRenderer( qs, es, eff,
 				render_out + QString( ProjectRenderer::EFF_ext[eff] ) );
 			QCoreApplication::instance()->connect( r,
 					SIGNAL( finished() ), SLOT( quit() ) );
@@ -561,7 +577,7 @@ int main( int argc, char * * argv )
 		}
 		else
 		{
-			engine::song()->saveProjectAs( file_to_save );
+			engine::song()->saveProjectFile( file_to_save );
 			return( 0 );
 		}
 	}

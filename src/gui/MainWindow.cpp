@@ -48,9 +48,10 @@
 #include "PreferencesDialog.h"
 #include "ControllerRackView.h"
 #include "plugin_browser.h"
+#include "Sequencer.h"
 #include "SideBar.h"
 #include "config_mgr.h"
-#include "mixer.h"
+#include "Mixer.h"
 #include "project_notes.h"
 #include "setup_dialog.h"
 #include "AudioDummy.h"
@@ -76,7 +77,8 @@ MainWindow::MainWindow() :
 	m_workspace( NULL ),
 	m_templatesMenu( NULL ),
 	m_recentlyOpenedProjectsMenu( NULL ),
-	m_toolsMenu( NULL )
+	m_toolsMenu( NULL ),
+	m_autoSaveTimer( this )
 {
 	setAttribute( Qt::WA_DeleteOnClose );
 
@@ -155,6 +157,10 @@ MainWindow::MainWindow() :
 	//setMainWidgetVisible( engine::devMode() );
 
 	m_updateTimer.start( 1000 / 20, this );	// 20 fps
+
+	// connect auto save
+	connect(&m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
+	m_autoSaveTimer.start(1000 * 60); // 1 minute
 
 	m_welcomeScreen = new WelcomeScreen( this );
 	m_welcomeScreen->setVisible( false );
@@ -824,6 +830,7 @@ void MainWindow::resetWindowTitle()
 
 bool MainWindow::mayChangeProject()
 {
+	engine::sequencer()->stop();
 	if( !engine::song()->isModified() )
 	{
 		return true;
@@ -1013,7 +1020,7 @@ bool MainWindow::saveProject()
 	}
 	else
 	{
-		engine::song()->saveProject();
+		engine::song()->guiSaveProject();
 	}
 	return true;
 }
@@ -1042,7 +1049,7 @@ bool MainWindow::saveProjectAs()
 	if( sfd.exec () == QFileDialog::Accepted &&
 		!sfd.selectedFiles().isEmpty() && sfd.selectedFiles()[0] != "" )
 	{
-		engine::song()->saveProjectAs(
+		engine::song()->guiSaveProjectAs(
 						sfd.selectedFiles()[0] );
 		return true;
 	}
@@ -1209,6 +1216,9 @@ void MainWindow::closeEvent( QCloseEvent * _ce )
 {
 	if( mayChangeProject() )
 	{
+		// delete recovery file
+		QDir working(configManager::inst()->workingDir());
+		working.remove("recover.mmp");
 		_ce->accept();
 	}
 	else
@@ -1424,7 +1434,7 @@ void MainWindow::keyReleaseEvent( QKeyEvent * _ke )
 
 
 
-void MainWindow::timerEvent( QTimerEvent * )
+void MainWindow::timerEvent( QTimerEvent * _te)
 {
 	emit periodicUpdate();
 }
@@ -1494,9 +1504,9 @@ void MainWindow::browseHelp()
 
 void MainWindow::setHighQuality( bool _hq )
 {
-	engine::getMixer()->changeQuality( mixer::qualitySettings(
-			_hq ? mixer::qualitySettings::Mode_HighQuality :
-				mixer::qualitySettings::Mode_Draft ) );
+	/*engine::getMixer()->changeQuality( Mixer::qualitySettings(
+			_hq ? Mixer::qualitySettings::Mode_HighQuality :
+				Mixer::qualitySettings::Mode_Draft ) );*/
 }
 
 
@@ -1594,6 +1604,13 @@ void MainWindow::toggleRecordAutomation( bool _recording )
 	*/
 }
 
+
+
+void MainWindow::autoSave()
+{
+	QDir work(configManager::inst()->workingDir());
+	engine::song()->guiSaveProjectAs(work.absoluteFilePath("recover.mmp"));
+}
 
 
 #include "moc_MainWindow.cxx"

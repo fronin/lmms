@@ -258,6 +258,8 @@ void Song::clearProject( void )
 	}
 
 	engine::getMixer()->lock();
+	engine::fxMixer()->clear();
+
 	if( engine::getBBEditor() )
 	{
 		engine::getBBEditor()->clearAllTracks();
@@ -266,15 +268,15 @@ void Song::clearProject( void )
 	{
 		engine::songEditor()->clearAllTracks();
 	}
-	if( engine::getFxMixerView() )
+	// depends on the fxMixer being cleared
+	if( engine::fxMixerView() )
 	{
 		engine::getFxMixerView()->clear();
 	}
+
 	QCoreApplication::sendPostedEvents();
 	engine::getBBTrackContainer()->clearAllTracks();
 	clearAllTracks();
-
-	engine::getFxMixer()->clear();
 
 	if( engine::getAutomationEditor() )
 	{
@@ -433,6 +435,26 @@ void Song::loadProject( const QString & _file_name )
 		*/
 	}
 	QDomNode node = mmp.content().firstChild();
+
+	// walk through and fix up the mixer
+	while( !node.isNull() )
+	{
+		if( node.nodeName() == engine::fxMixer()->nodeName() )
+		{
+			engine::fxMixer()->restoreState( node.toElement() );
+
+			if( engine::hasGUI() )
+			{
+				// refresh FxMixerView
+				engine::fxMixerView()->refreshDisplay();
+			}
+		}
+
+		node = node.nextSibling();
+	}
+
+	node = mmp.content().firstChild();
+
 	while( !node.isNull() )
 	{
 		if( node.isElement() )
@@ -509,7 +531,6 @@ void Song::loadProject( const QString & _file_name )
 	// TODO{TNG} Bring back automation
 	//automationPattern::resolveAllIDs();
 
-
 	engine::getMixer()->unlock();
 
 	configManager::inst()->addRecentlyOpenedProject( _file_name );
@@ -524,10 +545,8 @@ void Song::loadProject( const QString & _file_name )
 }
 
 
-
-
-// save current song
-bool Song::saveProject( void )
+// only save current song as _filename and do nothing else
+bool Song::saveProjectFile( const QString & _filename )
 {
 	multimediaProject mmp( multimediaProject::SongProject );
 
@@ -560,8 +579,17 @@ bool Song::saveProject( void )
 
 	saveControllerStates( mmp, mmp.content() );
 
+    return mmp.writeFile( _filename );
+}
+
+
+
+// save current song and update the gui
+bool Song::guiSaveProject()
+{
+	multimediaProject mmp( multimediaProject::SongProject );
 	m_fileName = mmp.nameWithExtension( m_fileName );
-	if( mmp.writeFile( m_fileName ) == true && engine::hasGUI() )
+	if( saveProjectFile( m_fileName ) && engine::hasGUI() )
 	{
 		textFloat::displayMessage( tr( "Project saved" ),
 					tr( "The project %1 is now saved."
@@ -588,12 +616,12 @@ bool Song::saveProject( void )
 
 
 // save current song in given filename
-bool Song::saveProjectAs( const QString & _file_name )
+bool Song::guiSaveProjectAs( const QString & _file_name )
 {
 	QString o = m_oldFileName;
 	m_oldFileName = m_fileName;
 	m_fileName = _file_name;
-	if( saveProject() == false )
+	if( guiSaveProject() == false )
 	{
 		m_fileName = m_oldFileName;
 		m_oldFileName = o;

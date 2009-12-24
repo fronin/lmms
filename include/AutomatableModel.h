@@ -280,8 +280,7 @@ signals:
 	inline type maxValue() const								\
 	{															\
 		return AutomatableModel::maxValue<type>();				\
-	}															\
-
+	}
 
 // some typed AutomatableModel-definitions
 
