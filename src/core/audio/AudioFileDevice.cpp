@@ -2,7 +2,7 @@
  * AudioFileDevice.cpp - base-class for audio-device-classes which write
  *                       their output into a file
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -48,6 +48,8 @@ AudioFileDevice::AudioFileDevice( const sample_rate_t _sample_rate,
 	m_maxBitrate( _max_bitrate ),
 	m_depth( _depth )
 {
+	setOutputMethod( AudioBackend::ActiveOutput );
+
 	setSampleRate( _sample_rate );
 
 	if( m_outputFile.open( QFile::WriteOnly | QFile::Truncate ) == false )

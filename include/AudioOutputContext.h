@@ -1,7 +1,7 @@
 /*
  * AudioOutputContext.h - centralize all audio output related functionality
  *
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -220,6 +220,12 @@ public:
 		BufferFifo( int size, int bufferSize );
 		~BufferFifo();
 
+		/*! \brief Enable or disable support for realtime reading */
+		void setRealtimeReading( bool enabled )
+		{
+			m_realtimeReading = enabled;
+		}
+
 		/*! \brief Pushes a new buffer into the FIFO.
 		 *
 		 * You can also push NULL which will set the according buffer state
@@ -241,7 +247,7 @@ public:
 			return m_bufferStates[m_readerIndex];
 		}
 
-		/*! \brief Finish the current buffer read operation.
+		/*! \brief Finishes the read operation for the current buffer.
 		 *
 		* The buffer returned by currentReadBuffer() is not guaranteed to
 		* be valid anymore after calling this function. */
@@ -250,11 +256,13 @@ public:
 		/*! \brief Returns whether FIFO is empty. */
 		bool isEmpty() const
 		{
-			return m_readerSem.available() == false;
+			return m_fillState == 0;
 		}
 
 
 	private:
+		bool m_realtimeReading;
+		volatile int m_fillState;
 		QSemaphore m_readerSem;
 		QSemaphore m_writerSem;
 		int m_readerIndex;

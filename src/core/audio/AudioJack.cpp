@@ -1,7 +1,7 @@
 /*
  * AudioJack.cpp - support for JACK-transport
  *
- * Copyright (c) 2005-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2005-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -58,6 +58,8 @@ AudioJack::AudioJack( bool & _success_ful, AudioOutputContext * context ) :
 	m_framesDoneInCurBuf( 0 ),
 	m_framesToDoInCurBuf( 0 )
 {
+	setOutputMethod( AudioBackend::CallbackOutput );
+
 	_success_ful = initJackClient();
 	if( _success_ful )
 	{

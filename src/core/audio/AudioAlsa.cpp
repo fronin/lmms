@@ -1,7 +1,7 @@
 /*
  * audio_alsa.cpp - device-class which implements ALSA-PCM-output
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -50,6 +50,8 @@ AudioAlsa::AudioAlsa( bool & _success_ful, AudioOutputContext * context ) :
 	m_swParams( NULL ),
 	m_convertEndian( false )
 {
+	setOutputMethod( AudioBackend::ActiveOutput );
+
 	_success_ful = false;
 
 	int err;

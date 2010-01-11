@@ -1,7 +1,7 @@
 /*
  * AudioPulseAudio.cpp - device-class which implements PulseAudio-output
  *
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2008-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -55,6 +55,8 @@ AudioPulseAudio::AudioPulseAudio( bool & _success_ful, AudioOutputContext * cont
 	m_quit( false ),
 	m_convertEndian( false )
 {
+	setOutputMethod( AudioBackend::CallbackOutput );
+
 	_success_ful = false;
 
 	m_sampleSpec.format = PA_SAMPLE_S16LE;

@@ -1,7 +1,7 @@
 /*
  * AudioBackend.h - base-class for audio-devices, used by LMMS-mixer
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -42,6 +42,16 @@ class AudioPort;
 class AudioBackend
 {
 public:
+	/*! Lists all known methods for output of audio data. */
+	enum OutputMethods
+	{
+		ActiveOutput,		/*!< Data is pushed via the API of the backend */
+		CallbackOutput,		/*!< Data is fetched via a callback by the
+								according backend */
+		NumOutputMethods
+	} ;
+	typedef OutputMethods OutputMethod;
+
 	/*! \brief Constructs an AudioBackend object for the given AudioOutputContext. */
 	AudioBackend( const ch_cnt_t _channels, AudioOutputContext * context );
 	virtual ~AudioBackend();
@@ -55,6 +65,17 @@ public:
 	virtual void unregisterPort( AudioPort * _port );
 	virtual void renamePort( AudioPort * _port );
 
+	/*! \brief Returns output method of backend.
+	 *
+	 * This is merely important for AudioOutputContext::BufferFifo which
+	 * optimizes its behaviour accordingly. When operating in #CallbackOutput
+	 * mode, reading from the FIFO should be realtime safe, i.e. use spinlocks
+	 * rather than semaphores.
+	 */
+	OutputMethod outputMethod() const
+	{
+		return m_outputMethod;
+	}
 
 	inline bool supportsCapture() const
 	{
@@ -152,6 +173,15 @@ protected:
 		return m_context;
 	}
 
+	/*! \brief Allows the backend to set its preferred output method.
+	 *
+	 * \sa outputMethod()
+	 */
+	void setOutputMethod( OutputMethod method )
+	{
+		m_outputMethod = method;
+	}
+
 	Mixer * mixer();
 
 
@@ -163,6 +193,8 @@ private:
 	AudioOutputContext * m_context;
 	sample_rate_t m_sampleRate;
 	ch_cnt_t m_channels;
+
+	OutputMethod m_outputMethod;
 
 	sampleFrameA * m_buffer;
 

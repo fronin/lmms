@@ -1,7 +1,7 @@
 /*
  * AudioSdl.cpp - device-class that performs PCM-output via SDL
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -45,6 +45,8 @@ AudioSdl::AudioSdl( bool & _success_ful, AudioOutputContext * context ) :
 	m_convertEndian( false ),
 	m_stopSemaphore( 1 )
 {
+	setOutputMethod( AudioBackend::CallbackOutput );
+
 	_success_ful = false;
 
 	m_convertedBufSize = mixer()->framesPerPeriod() *

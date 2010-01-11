@@ -1,7 +1,7 @@
 /*
  * AudioOss.cpp - device-class that implements OSS-PCM-output
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -81,6 +81,8 @@ AudioOss::AudioOss( bool & _success_ful, AudioOutputContext * context ) :
 								context ),
 	m_convertEndian( false )
 {
+	setOutputMethod( AudioBackend::ActiveOutput );
+
 	_success_ful = false;
 
 	m_audioFD = open( probeDevice().toAscii().constData(), O_WRONLY, 0 );

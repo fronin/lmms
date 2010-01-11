@@ -1,7 +1,7 @@
 /*
  * AudioOutputContext.cpp - centralize all audio output related functionality
  *
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -29,7 +29,10 @@
 #include "config_mgr.h"
 #include "engine.h"
 
+
 AudioOutputContext::BufferFifo::BufferFifo( int _size, int _bufferSize ) :
+	m_realtimeReading( false ),
+	m_fillState( 0 ),
 	m_readerSem( _size ),
 	m_writerSem( _size ),
 	m_readerIndex( 0 ),
@@ -68,7 +71,25 @@ AudioOutputContext::BufferFifo::~BufferFifo()
 
 void AudioOutputContext::BufferFifo::write( sampleFrameA * _buffer )
 {
-	m_writerSem.acquire();
+	if( m_realtimeReading )
+	{
+		while( m_fillState >= m_size )
+		{
+#if QT_VERSION >= 0x040500
+			QThread::yieldCurrentThread();
+#else
+#ifdef LMMS_BUILD_LINUX
+			usleep( 1 );
+#elif defined(LMMS_HOST_X86) || defined(LMMS_HOST_X86_64)
+			asm( "pause" );
+#endif
+#endif
+		}
+	}
+	else
+	{
+		m_writerSem.acquire();
+	}
 
 	if( _buffer != NULL )
 	{
@@ -83,7 +104,11 @@ void AudioOutputContext::BufferFifo::write( sampleFrameA * _buffer )
 
 	m_writerIndex = ( m_writerIndex + 1 ) % m_size;
 
-	m_readerSem.release();
+	++m_fillState;
+	if( m_realtimeReading == false )
+	{
+		m_readerSem.release();
+	}
 }
 
 
@@ -91,7 +116,19 @@ void AudioOutputContext::BufferFifo::write( sampleFrameA * _buffer )
 
 void AudioOutputContext::BufferFifo::startRead()
 {
-	m_readerSem.acquire();
+	if( m_realtimeReading )
+	{
+		while( m_fillState == 0 )
+		{
+#if defined(LMMS_HOST_X86) || defined(LMMS_HOST_X86_64)
+			asm( "pause" );
+#endif
+		}
+	}
+	else
+	{
+		m_readerSem.acquire();
+	}
 }
 
 
@@ -100,7 +137,11 @@ void AudioOutputContext::BufferFifo::startRead()
 void AudioOutputContext::BufferFifo::finishRead()
 {
 	m_readerIndex = ( m_readerIndex + 1 ) % m_size;
-	m_writerSem.release();
+	--m_fillState;
+	if( m_realtimeReading == false )
+	{
+		m_writerSem.release();
+	}
 }
 
 
@@ -183,6 +224,8 @@ void AudioOutputContext::startProcessing()
 {
 	if( !isProcessing() )
 	{
+		m_fifo->setRealtimeReading( m_audioBackend->outputMethod() ==
+											AudioBackend::CallbackOutput );
 		m_fifoWriter = new FifoWriter( this );
 		m_fifoWriter->start( QThread::HighPriority );
 

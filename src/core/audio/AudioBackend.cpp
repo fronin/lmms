@@ -1,7 +1,7 @@
 /*
  * AudioBackend.cpp - base-class for audio-devices used by LMMS-mixer
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -36,6 +36,7 @@ AudioBackend::AudioBackend( const ch_cnt_t _channels,
 	m_context( context ),
 	m_sampleRate( mixer()->processingSampleRate() ),
 	m_channels( _channels ),
+	m_outputMethod( ActiveOutput ),
 	m_buffer( CPU::allocFrames( mixer()->framesPerPeriod() ) )
 {
 }
