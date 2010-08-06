@@ -105,13 +105,14 @@ private:
 	QSemaphore m_stopSemaphore;
 
 	QVector<jack_port_t *> m_outputPorts;
+	jack_default_audio_sample_t * * m_tempOutBufs;
 	sampleFrameA * m_outBuf;
-
 
 	f_cnt_t m_framesDoneInCurBuf;
 	f_cnt_t m_framesToDoInCurBuf;
 
 
+#ifdef AUDIO_PORT_SUPPORT
 	struct StereoPort
 	{
 		jack_port_t * ports[2];
@@ -119,6 +120,7 @@ private:
 
 	typedef QMap<AudioPort *, StereoPort> JackPortMap;
 	JackPortMap m_portMap;
+#endif
 #endif
 
 signals:

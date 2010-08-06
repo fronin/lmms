@@ -1,7 +1,7 @@
 /*
  * MainWindow.cpp - implementation of LMMS' main window
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -50,6 +50,8 @@
 #include "embed.h"
 #include "engine.h"
 #include "FxMixerView.h"
+#include "InstrumentTrack.h"
+#include "PianoView.h"
 #include "AboutDialog.h"
 #include "PreferencesDialog.h"
 #include "ControllerRackView.h"
@@ -817,6 +819,8 @@ void MainWindow::resetWindowTitle()
 
 bool MainWindow::mayChangeProject()
 {
+	engine::getSong()->stop();
+
 	if( !engine::getSong()->isModified() )
 	{
 		return true;
@@ -827,17 +831,17 @@ bool MainWindow::mayChangeProject()
 					"last saving. Do you want to save it "
 								"now?" ),
 				QMessageBox::Question,
-				QMessageBox::Yes,
-				QMessageBox::No,
+				QMessageBox::Save,
+				QMessageBox::Discard,
 				QMessageBox::Cancel,
 				this );
 	int answer = mb.exec();
 
-	if( answer == QMessageBox::Yes )
+	if( answer == QMessageBox::Save )
 	{
 		return saveProject();
 	}
-	else if( answer == QMessageBox::No )
+	else if( answer == QMessageBox::Discard )
 	{
 		return true;
 	}
@@ -1224,7 +1228,15 @@ void MainWindow::keyPressEvent( QKeyEvent * _ke )
 		case Qt::Key_Shift: m_keyMods.m_shift = true; break;
 		case Qt::Key_Alt: m_keyMods.m_alt = true; break;
 		default:
-			QMainWindow::keyPressEvent( _ke );
+			if( InstrumentTrackView::topLevelInstrumentTrackWindow() )
+			{
+				InstrumentTrackView::topLevelInstrumentTrackWindow()->
+					pianoView()->keyPressEvent( _ke );
+			}
+			if( !_ke->isAccepted() )
+			{
+				QMainWindow::keyPressEvent( _ke );
+			}
 	}
 }
 
@@ -1386,7 +1398,15 @@ void MainWindow::keyReleaseEvent( QKeyEvent * _ke )
 		case Qt::Key_Shift: m_keyMods.m_shift = false; break;
 		case Qt::Key_Alt: m_keyMods.m_alt = false; break;
 		default:
-			QMainWindow::keyReleaseEvent( _ke );
+			if( InstrumentTrackView::topLevelInstrumentTrackWindow() )
+			{
+				InstrumentTrackView::topLevelInstrumentTrackWindow()->
+					pianoView()->keyReleaseEvent( _ke );
+			}
+			if( !_ke->isAccepted() )
+			{
+				QMainWindow::keyReleaseEvent( _ke );
+			}
 	}
 }
 
