@@ -162,10 +162,17 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QCheckBox" name="instrumentActivityFeedback">
             <property name="text">
              <string>Enable instrument activity LEDs</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="oneITWindowMode">
+            <property name="text">
+             <string>Enable one-window-mode for instrument tracks</string>
             </property>
            </widget>
           </item>

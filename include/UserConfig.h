@@ -1,7 +1,7 @@
 /*
  * UserConfig.h - class UserConfig
  *
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users/dot/sf/dot/net>
+ * Copyright (c) 2009-2010 Tobias Doerffel <tobydox/at/users/dot/sf/dot/net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -53,6 +53,7 @@ public:
 	ADD_CONFIG_BOOL_PROPERTY( toolTipsEnabled, "ToolTipsEnabled", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( showVolumeAsDBV, "ShowVolumeAsDBV", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( pianoFeedback, "PianoFeedback", "UI" );
+	ADD_CONFIG_BOOL_PROPERTY( oneITWindowMode, "OneInstrumentTrackWindowMode", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( instrumentActivityFeedback, "InstrumentActivityFeedback", "UI" );
 	ADD_CONFIG_BOOL_PROPERTY( showWelcomeScreen, "ShowWelcomeScreen", "UI" );
 

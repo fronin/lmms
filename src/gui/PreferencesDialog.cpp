@@ -1,7 +1,7 @@
 /*
  * PreferencesDialog.cpp - implementation of PreferencesDialog
  *
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -164,6 +164,7 @@ PreferencesDialog::PreferencesDialog( ConfigTab _tabToOpen ) :
 	ADD_USER_CONFIG_UI_ADAPTOR(showVolumeAsDBV);
 	ADD_USER_CONFIG_UI_ADAPTOR(showWelcomeScreen);
 	ADD_USER_CONFIG_UI_ADAPTOR(pianoFeedback);
+	ADD_USER_CONFIG_UI_ADAPTOR(oneITWindowMode);
 	ADD_USER_CONFIG_UI_ADAPTOR(instrumentActivityFeedback);
 
 	ADD_USER_CONFIG_UI_ADAPTOR(bufferSize);
