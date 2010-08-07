@@ -999,7 +999,7 @@ void InstrumentTrackView::freeInstrumentTrackWindow()
 		}
 		m_lastPos = m_window->parentWidget()->pos();
 
-		if( Global::userConfig()->oneITWindowMode() ||
+		if( Global::userConfig().oneITWindowMode() ||
 						s_windowCache.count() < INSTRUMENT_WINDOW_CACHE_SIZE )
 		{
 			model()->setHook( NULL );
@@ -1048,7 +1048,7 @@ InstrumentTrackWindow * InstrumentTrackView::getInstrumentTrackWindow()
 		m_window->updateInstrumentView();
 		model()->setHook( m_window );
 
-		if( Global::userConfig()->oneITWindowMode() )
+		if( Global::userConfig().oneITWindowMode() )
 		{
 			s_windowCache << m_window;
 		}
@@ -1060,7 +1060,7 @@ InstrumentTrackWindow * InstrumentTrackView::getInstrumentTrackWindow()
 	else
 	{
 		m_window = new InstrumentTrackWindow( this );
-		if( Global::userConfig()->oneITWindowMode() )
+		if( Global::userConfig().oneITWindowMode() )
 		{
 			// first time, an InstrumentTrackWindow is opened
 			s_windowCache << m_window;
