@@ -49,7 +49,7 @@
 #include "Clipboard.h"
 #include "combobox.h"
 #include "debug.h"
-#include "detuning_helper.h"
+#include "DetuningHelper.h"
 #include "embed.h"
 #include "gui_templates.h"
 #include "InstrumentTrack.h"
@@ -69,7 +69,7 @@
 #include "fluiq/collapsible_widget.h"
 
 
-typedef automationPattern::timeMap timeMap;
+typedef AutomationPattern::timeMap timeMap;
 
 
 extern Keys whiteKeys[];	// defined in piano_widget.cpp
@@ -254,13 +254,10 @@ pianoRoll::pianoRoll() :
 
 
 	m_toolBar = new QWidget( this );
+	m_toolBar->setObjectName( "toolbar" );
 	m_toolBar->setFixedHeight( 32 );
 	m_toolBar->move( 0, 0 );
 	m_toolBar->setAutoFillBackground( true );
-	QPalette pal;
-	pal.setBrush( m_toolBar->backgroundRole(),
-					embed::getIconPixmap( "toolbar_bg" ) );
-	m_toolBar->setPalette( pal );
 
 	QHBoxLayout * tb_layout = new QHBoxLayout( m_toolBar );
 	tb_layout->setMargin( 0 );
@@ -729,7 +726,7 @@ inline void pianoRoll::drawDetuningInfo( QPainter & _p, note * _n, int _x,
 	int middle_y = _y + KeyLineHeight / 2;
 	_p.setPen( QColor( 0xFF, 0xDF, 0x20 ) );
 
-	timeMap & map = _n->detuning()->getAutomationPattern()->getTimeMap();
+	timeMap & map = _n->detuning()->automationPattern()->getTimeMap();
 	for( timeMap::ConstIterator it = map.begin(); it != map.end(); ++it )
 	{
 		Sint32 pos_ticks = it.key();

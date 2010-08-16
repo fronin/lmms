@@ -107,7 +107,7 @@ CHECK_INCLUDE_FILES(process.h LMMS_HAVE_PROCESS_H)
 CHECK_INCLUDE_FILES(locale.h LMMS_HAVE_LOCALE_H)
 
 # check for Qt4
-SET(QT_MIN_VERSION "4.4.0")
+SET(QT_MIN_VERSION "4.6.0")
 FIND_PACKAGE(Qt4 REQUIRED)
 SET(QT_USE_QTXML 1)
 SET(QT_USE_QTNETWORK 1)
@@ -216,7 +216,7 @@ IF(WANT_STK)
 	ELSE(STK_FOUND)
 		SET(STK_INCLUDE_DIR "")
 		SET(STATUS_STK "not found, please install libstk0-dev (or similiar) "
-			"if you require the Vibed Instrument")
+			"if you require the Mallets instrument")
 	ENDIF(STK_FOUND)
 ENDIF(WANT_STK)
 

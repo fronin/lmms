@@ -44,8 +44,9 @@
 
 #include "InstrumentTrack.h"
 #include "AudioPort.h"
-#include "automation_pattern.h"
+#include "AutomationPattern.h"
 #include "bb_track.h"
+#include "ControllerConnection.h"
 #include "debug.h"
 #include "EffectChain.h"
 #include "EffectRackView.h"
@@ -825,9 +826,8 @@ void InstrumentTrack::loadTrackSpecificSettings( const QDomElement & _this )
 			// compat code - if node-name doesn't match any known
 			// one, we assume that it is an instrument-plugin
 			// which we'll try to load
-			else if( node.nodeName() != "connection" &&
-					automationPattern::classNodeName() !=
-							node.nodeName() &&
+			else if( AutomationPattern::classNodeName() != node.nodeName() &&
+					ControllerConnection::classNodeName() != node.nodeName() &&
 					!node.toElement().hasAttribute( "id" ) )
 			{
 				delete m_instrument;
@@ -1362,8 +1362,8 @@ void InstrumentTrackWindow::modelChanged()
 
 	m_nameLineEdit->setText( m_track->name() );
 
-	disconnect( m_track, SIGNAL( nameChanged() ) );
-	disconnect( m_track, SIGNAL( instrumentChanged() ) );
+	m_track->disconnect( SIGNAL( nameChanged() ), this );
+	m_track->disconnect( SIGNAL( instrumentChanged() ), this );
 
 	connect( m_track, SIGNAL( nameChanged() ),
 			this, SLOT( updateName() ) );
