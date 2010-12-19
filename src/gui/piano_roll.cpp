@@ -2687,7 +2687,14 @@ void pianoRoll::paintEvent( QPaintEvent * _pe )
 				!noteLabel.key.isEmpty() ? noteLabel.key + octave: "",
 				!noteLabel.minor.isEmpty() ? noteLabel.minor + octave: "",
 				!noteLabel.major.isEmpty() ? noteLabel.major + octave: ""};
-			p.drawText( WHITE_KEY_WIDTH, y, notes.key);
+			const int drawWidth( width() - WHITE_KEY_WIDTH );
+			const int subOffset(25);
+			for(int x = drawWidth/3; x<drawWidth; x+=drawWidth/3)
+			{
+				p.drawText( WHITE_KEY_WIDTH + x, y, notes.key);
+				p.drawText( WHITE_KEY_WIDTH + x - subOffset, y, notes.minor);
+				p.drawText( WHITE_KEY_WIDTH + x + subOffset, y, notes.major);
+			}
 		}
 	}
 
