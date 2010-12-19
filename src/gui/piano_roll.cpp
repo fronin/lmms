@@ -2651,6 +2651,45 @@ void pianoRoll::paintEvent( QPaintEvent * _pe )
 		}
 	}
 
+	{
+		assert(Key_C == 0);
+		assert(Key_H == 11);
+		
+		struct KeyLabel
+		{
+			QString key, minor, major;
+		};
+		const KeyLabel labels[12] = {
+			{"C"},
+			{"", "Des", "C#"},
+			{"D"},
+			{"", "Es", "D#"},
+			{"E", "Fes"},
+			{"F"},
+			{"", "Ges", "F#"},
+			{"G"},
+			{"", "As", "G#"},
+			{"A"},
+			{"", "B", "A#"},
+			{"H"}
+		};
+		// draw keys in the grid
+		p.setFont( pointSize<KEY_LINE_HEIGHT>( p.font() ) );
+		p.setPen( QColor( 255, 255, 0 ) );
+		for( int y = keyAreaBottom(), key = m_startKey; y > PR_TOP_MARGIN;
+				y -= KEY_LINE_HEIGHT, key++)
+		{
+			const unsigned note = key % KeysPerOctave;
+			assert( note < ( sizeof( labels ) / sizeof( *labels) ));
+			const KeyLabel& noteLabel( labels[note] );
+			const QString octave = QString::number( key / KeysPerOctave );
+			const KeyLabel notes = {
+				!noteLabel.key.isEmpty() ? noteLabel.key + octave: "",
+				!noteLabel.minor.isEmpty() ? noteLabel.minor + octave: "",
+				!noteLabel.major.isEmpty() ? noteLabel.major + octave: ""};
+			p.drawText( WHITE_KEY_WIDTH, y, notes.key);
+		}
+	}
 
 
 	// following code draws all notes in visible area 
