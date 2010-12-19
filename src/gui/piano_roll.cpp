@@ -2692,7 +2692,7 @@ void pianoRoll::paintEvent( QPaintEvent * _pe )
 			for(int col = 0; col < columnCount; col++)
 			{
 				const int subOffset(42);
-				const int x = drawWidth * col / columnCount;
+				const int x = drawWidth * ( double( col ) + 0.5 ) / columnCount;
 				p.drawText( WHITE_KEY_WIDTH + x, y, notes.key);
 				p.drawText( WHITE_KEY_WIDTH + x - subOffset, y, notes.minor);
 				p.drawText( WHITE_KEY_WIDTH + x + subOffset, y, notes.major);
