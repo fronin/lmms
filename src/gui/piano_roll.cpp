@@ -2674,7 +2674,7 @@ void pianoRoll::paintEvent( QPaintEvent * _pe )
 			{"H"}
 		};
 		// draw keys in the grid
-		p.setFont( pointSize<KEY_LINE_HEIGHT>( p.font() ) );
+		p.setFont( pointSize<8>( p.font() ) );
 		p.setPen( QColor( 255, 255, 0 ) );
 		for( int y = keyAreaBottom(), key = m_startKey; y > PR_TOP_MARGIN;
 				y -= KEY_LINE_HEIGHT, key++)
@@ -2688,9 +2688,11 @@ void pianoRoll::paintEvent( QPaintEvent * _pe )
 				!noteLabel.minor.isEmpty() ? noteLabel.minor + octave: "",
 				!noteLabel.major.isEmpty() ? noteLabel.major + octave: ""};
 			const int drawWidth( width() - WHITE_KEY_WIDTH );
-			const int subOffset(25);
-			for(int x = drawWidth/3; x<drawWidth; x+=drawWidth/3)
+			const int columnCount = 3;
+			for(int col = 0; col < columnCount; col++)
 			{
+				const int subOffset(42);
+				const int x = drawWidth * col / columnCount;
 				p.drawText( WHITE_KEY_WIDTH + x, y, notes.key);
 				p.drawText( WHITE_KEY_WIDTH + x - subOffset, y, notes.minor);
 				p.drawText( WHITE_KEY_WIDTH + x + subOffset, y, notes.major);
