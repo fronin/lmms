@@ -495,12 +495,15 @@ void knob::mouseMoveEvent( QMouseEvent * _me )
 
 
 
-void knob::mouseReleaseEvent( QMouseEvent * /* _me*/ )
+void knob::mouseReleaseEvent( QMouseEvent *mouseEv )
 {
-	AutomatableModel *thisModel = model();
-	if( thisModel )
+	if( mouseEv && mouseEv->button() == Qt::LeftButton )
 	{
-		thisModel->restoreJournallingState();
+		AutomatableModel *thisModel = model();
+		if( thisModel )
+		{
+			thisModel->restoreJournallingState();
+		}
 	}
 
 	m_buttonPressed = false;
