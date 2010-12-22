@@ -1201,6 +1201,15 @@ void pianoRoll::keyReleaseEvent( QKeyEvent * _ke )
 			m_editMode = m_ctrlMode;
 			update();
 			break;
+
+		// update after undo/redo
+		case Qt::Key_Z:
+		case Qt::Key_R:
+			if( validPattern() && _ke->modifiers() == Qt::ControlModifier )
+			{
+				update();
+			}
+			break;
 	}
 }
 
@@ -1367,6 +1376,7 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 			// area
 			if( edit_note == true )
 			{
+				m_pattern->addJournalCheckPoint();
 				// scribble note edit changes
 				mouseMoveEvent( _me );
 				return;
@@ -1380,6 +1390,7 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 				// there's no note??
 				if( it == notes.begin()-1 )
 				{
+					m_pattern->addJournalCheckPoint();
 					m_pattern->setType( pattern::MelodyPattern );
 
 					// then set new note
@@ -1403,8 +1414,7 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 					// ops (move, resize) after this
 					// code-block
 					it = notes.begin();
-					while( it != notes.end() &&
-						*it != created_new_note )
+					while( it != notes.end() && *it != created_new_note )
 					{
 						++it;
 					}
@@ -1483,6 +1493,7 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 							NoteResizeAreaWidth &&
 						m_currentNote->length() > 0 )
 				{
+					m_pattern->addJournalCheckPoint();
 					// then resize the note
 					m_action = ActionResizeNote;
 
@@ -1492,6 +1503,11 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 				}
 				else
 				{
+					if( !created_new_note )
+					{
+						m_pattern->addJournalCheckPoint();
+					}
+
 					// otherwise move it
 					m_action = ActionMoveNote;
 					
@@ -1547,6 +1563,7 @@ void pianoRoll::mousePressEvent( QMouseEvent * _me )
 				m_mouseDownRight = true;
 				if( it != notes.begin()-1 )
 				{
+					m_pattern->addJournalCheckPoint();
 					if( ( *it )->length() > 0 )
 					{
 						m_pattern->removeNote( *it );
@@ -2353,7 +2370,7 @@ void pianoRoll::dragNotes( int x, int y, bool alt )
 			off_key += 0 - (m_moveBoundaryBottom + off_key);
 		}
 	}
-	
+
 	// get note-vector of current pattern
 	const NoteVector & notes = m_pattern->notes();
 
@@ -2363,7 +2380,6 @@ void pianoRoll::dragNotes( int x, int y, bool alt )
 	{
 		if( ( *it )->isSelected() )
 		{
-			
 			if( m_action == ActionMoveNote )
 			{
 				// moving note
@@ -3360,7 +3376,12 @@ void pianoRoll::pasteNotes()
 		
 		// remove selection and select the newly pasted notes
 		clearSelectedNotes();
-		
+
+		if( !list.isEmpty() )
+		{
+			m_pattern->addJournalCheckPoint();
+		}
+
 		for( int i = 0; !list.item( i ).isNull(); ++i )
 		{
 			// create the note
@@ -3396,7 +3417,8 @@ void pianoRoll::deleteSelectedNotes()
 	}
 	
 	bool update_after_delete = false;
-	
+
+	m_pattern->addJournalCheckPoint();
 	
 	// get note-vector of current pattern
 	const NoteVector & notes = m_pattern->notes();
