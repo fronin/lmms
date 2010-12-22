@@ -208,21 +208,8 @@ protected:
 							QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 
-/*	virtual void undoStep( JournalEntry & _je );
-	virtual void redoStep( JournalEntry & _je );*/
-
 
 private:
-/*	enum Actions
-	{
-		ChangeKey,
-		ChangeVolume,
-		ChangePanning,
-		ChangeLength,
-		ChangePosition
-	} ;*/
-
-	
 	// for piano roll editing
 	bool m_selected; 
 	int m_oldKey;

@@ -287,7 +287,13 @@ void lcdSpinBox::mousePressEvent( QMouseEvent * _me )
 	{
 		m_origMousePos = _me->globalPos();
 		QApplication::setOverrideCursor( Qt::BlankCursor );
-		model()->prepareJournalEntryFromOldVal();
+
+		AutomatableModel *thisModel = model();
+		if( thisModel )
+		{
+			thisModel->addJournalCheckPoint();
+			thisModel->saveJournallingState( false );
+		}
 	}
 	else
 	{
@@ -318,7 +324,12 @@ void lcdSpinBox::mouseMoveEvent( QMouseEvent * _me )
 
 void lcdSpinBox::mouseReleaseEvent( QMouseEvent * _me )
 {
-	model()->addJournalEntryFromOldToCurVal();
+	AutomatableModel *thisModel = model();
+	if( thisModel )
+	{
+		thisModel->restoreJournallingState();
+	}
+
 
 	QCursor::setPos( m_origMousePos );
 	QApplication::restoreOverrideCursor();

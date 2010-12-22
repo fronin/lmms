@@ -445,7 +445,12 @@ void knob::mousePressEvent( QMouseEvent * _me )
 			! ( _me->modifiers() & Qt::ControlModifier ) &&
 			! ( _me->modifiers() & Qt::ShiftModifier ) )
 	{
-		model()->prepareJournalEntryFromOldVal();
+		AutomatableModel *thisModel = model();
+		if( thisModel )
+		{
+			thisModel->addJournalCheckPoint();
+			thisModel->saveJournallingState( false );
+		}
 
 		const QPoint & p = _me->pos();
 		m_origMousePos = p;
@@ -492,10 +497,10 @@ void knob::mouseMoveEvent( QMouseEvent * _me )
 
 void knob::mouseReleaseEvent( QMouseEvent * /* _me*/ )
 {
-	AutomatableModel * thisModel = model();
+	AutomatableModel *thisModel = model();
 	if( thisModel )
 	{
-		thisModel->addJournalEntryFromOldToCurVal();
+		thisModel->restoreJournallingState();
 	}
 
 	m_buttonPressed = false;

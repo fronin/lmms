@@ -117,11 +117,6 @@ public slots:
 	void toggleMute();
 
 
-protected:
-	virtual void undoStep( JournalEntry & _je );
-	virtual void redoStep( JournalEntry & _je );
-
-
 signals:
 	void lengthChanged();
 	void positionChanged();
@@ -263,17 +258,8 @@ protected:
 		return "trackcontentwidget";
 	}
 
-	virtual void undoStep( JournalEntry & _je );
-	virtual void redoStep( JournalEntry & _je );
-
 
 private:
-	enum Actions
-	{
-		AddTrackContentObject,
-		RemoveTrackContentObject
-	} ;
-
 	track * getTrack();
 	midiTime getPosition( int _mouse_x );
 
@@ -518,8 +504,6 @@ public slots:
 
 protected:
 	virtual void modelChanged();
-	virtual void undoStep( JournalEntry & _je );
-	virtual void redoStep( JournalEntry & _je );
 
 	virtual QString nodeName() const
 	{

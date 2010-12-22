@@ -57,18 +57,6 @@ public:
 	void loadSettings( const QDomElement & _this,
 					const QString & _name = "surpos" );
 
-	inline void prepareJournalEntryFromOldVal()
-	{
-		m_posX.prepareJournalEntryFromOldVal();
-		m_posY.prepareJournalEntryFromOldVal();
-	}
-
-	inline void addJournalEntryFromOldToCurVal()
-	{
-		m_posX.addJournalEntryFromOldToCurVal();
-		m_posY.addJournalEntryFromOldToCurVal();
-	}
-
 //	AutomationPattern * automationPatternX();
 //	AutomationPattern * automationPatternY();
 

@@ -182,22 +182,18 @@ public:
 
 	void unlinkAllModels( );
 
-	virtual void saveSettings( QDomDocument & _doc,
-					QDomElement & _this,
-				const QString & _name = QString( "value" ) );
+	virtual void saveSettings( QDomDocument &doc, QDomElement &_this );
+	virtual void loadSettings( const QDomElement &_this );
 
-	virtual void loadSettings( const QDomElement & _this,
-				const QString & _name = QString( "value" ) );
+	virtual void saveSettings( QDomDocument &doc,
+								QDomElement &_this,
+								const QString &name );
+	virtual void loadSettings( const QDomElement &_this, const QString &name );
 
 	virtual QString nodeName() const
 	{
 		return "automatablemodel";
 	}
-
-	void prepareJournalEntryFromOldVal();
-
-	void addJournalEntryFromOldToCurVal();
-
 
 	QString displayValue( const float _val ) const
 	{
@@ -224,9 +220,6 @@ public slots:
 	void handleDataChanged();
 
 protected:
-	virtual void redoStep( JournalEntry & _je );
-	virtual void undoStep( JournalEntry & _je );
-
 	float fittedValue( float _value ) const;
 
 
@@ -246,7 +239,6 @@ private:
 	// most objects will need this temporarily (until sampleExact is
 	// standard)
 	float m_oldValue;
-	bool m_journalEntryReady;
 	int m_setValueDepth;
 
 	AutoModelVector m_linkedModels;
