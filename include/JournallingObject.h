@@ -1,7 +1,7 @@
 /*
  * JournallingObject.h - declaration of class JournallingObject
  *
- * Copyright (c) 2006-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2006-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -25,13 +25,10 @@
 #ifndef _JOURNALLING_OBJECT_H
 #define _JOURNALLING_OBJECT_H
 
-#include "lmms_basics.h"
-#include "export.h"
-#include "SerializingObject.h"
-
-#include <QtCore/QVariant>
-#include <QtCore/QVector>
 #include <QtCore/QStack>
+
+#include "lmms_basics.h"
+#include "SerializingObject.h"
 
 
 class EXPORT JournallingObject : public SerializingObject
