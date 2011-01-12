@@ -1,7 +1,7 @@
 /*
  * engine.h - engine-system of LMMS
  *
- * Copyright (c) 2006-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2006-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -32,7 +32,7 @@
 #include "export.h"
 #include "lmms_style.h"
 
-class automationEditor;
+class AutomationEditor;
 class AutomationRecorder;
 class bbEditor;
 class bbTrackContainer;
@@ -41,7 +41,7 @@ class FxMixer;
 class FxMixerView;
 class ProjectJournal;
 class MainWindow;
-class mixer;
+class Mixer;
 class pianoRoll;
 class projectNotes;
 class ResourceDB;
@@ -75,7 +75,12 @@ public:
 	}
 
 	// core
-	static mixer * getMixer()
+	static Mixer * getMixer()
+	{
+		return s_mixer;
+	}
+
+	static Mixer * mixer()
 	{
 		return s_mixer;
 	}
@@ -146,12 +151,12 @@ public:
 		return s_projectNotes;
 	}
 
-	static automationEditor * getAutomationEditor()
+	static AutomationEditor * automationEditor()
 	{
 		return s_automationEditor;
 	}
 
-	static AutomationRecorder * getAutomationRecorder()
+	static AutomationRecorder * automationRecorder()
 	{
 		return s_automationRecorder;
 	}
@@ -202,12 +207,22 @@ public:
 	}
 
 private:
+	// small helper function which sets the pointer to NULL before actually deleting
+	// the object it refers to
+	template<class T>
+	static inline void deleteHelper( T * * ptr )
+	{
+		T * tmp = *ptr;
+		*ptr = NULL;
+		delete tmp;
+	}
+
 	static bool s_hasGUI;
 	static bool s_suppressMessages;
 	static float s_framesPerTick;
 
 	// core
-	static mixer * s_mixer;
+	static Mixer * s_mixer;
 	static FxMixer * s_fxMixer;
 	static song * s_song;
 	static ResourceDB * s_workingDirResourceDB;
@@ -223,7 +238,7 @@ private:
 	static MainWindow * s_mainWindow;
 	static FxMixerView * s_fxMixerView;
 	static songEditor * s_songEditor;
-	static automationEditor * s_automationEditor;
+	static AutomationEditor * s_automationEditor;
 	static AutomationRecorder * s_automationRecorder;
 	static bbEditor * s_bbEditor;
 	static pianoRoll * s_pianoRoll;

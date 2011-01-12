@@ -1,7 +1,7 @@
 /*
  * LocalZynAddSubFx.cpp - local implementation of ZynAddSubFx plugin
  *
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -49,10 +49,9 @@ LocalZynAddSubFx::LocalZynAddSubFx()
 		pthread_win32_thread_attach_np();
 #endif
 
-		config.init();
-		OSCIL_SIZE = config.cfg.OscilSize;
+		initConfig();
 
-		config.cfg.GzipCompression = 0;
+		OSCIL_SIZE = config.cfg.OscilSize;
 
 		srand( time( NULL ) );
 		denormalkillbuf = new REALTYPE[SOUND_BUFFER_SIZE];
@@ -78,6 +77,16 @@ LocalZynAddSubFx::~LocalZynAddSubFx()
 	{
 		delete[] denormalkillbuf;
 	}
+}
+
+
+
+
+void LocalZynAddSubFx::initConfig()
+{
+	config.init();
+
+	config.cfg.GzipCompression = 0;
 }
 
 
@@ -163,6 +172,19 @@ void LocalZynAddSubFx::setPresetDir( const std::string & _dir )
 	}
 }
 
+
+
+
+void LocalZynAddSubFx::setLmmsWorkingDir( const std::string & _dir )
+{
+	if( config.workingDir != NULL )
+	{
+		free( config.workingDir );
+	}
+	config.workingDir = strdup( _dir.c_str() );
+
+	initConfig();
+}
 
 
 

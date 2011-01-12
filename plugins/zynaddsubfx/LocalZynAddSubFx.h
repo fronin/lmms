@@ -35,6 +35,8 @@ public:
 	LocalZynAddSubFx();
 	~LocalZynAddSubFx();
 
+	void initConfig();
+
 	void setSampleRate( int _sampleRate );
 	void setBufferSize( int _bufferSize );
 
@@ -44,6 +46,7 @@ public:
 	void loadPreset( const std::string & _filename, int _part = 0 );
 
 	void setPresetDir( const std::string & _dir );
+	void setLmmsWorkingDir( const std::string & _dir );
 
 	void processMidiEvent( const midiEvent & _e );
 

@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Menu_Item.H 6902 2009-09-27 11:06:56Z matt $"
+// "$Id: Fl_Menu_Item.H 7517 2010-04-16 17:55:45Z greg.ercolano $"
 //
 // Menu item header file for the Fast Light Tool Kit (FLTK).
 //
@@ -241,7 +241,7 @@ struct FL_EXPORT Fl_Menu_Item {
     and casting the long to a void* and may not be
     portable to some machines.
   */
-  long argument() const {return (long)user_data_;}
+  intptr_t argument() const {return (intptr_t)user_data_;}
   /**
     For convenience you can also define the callback as taking a long
     argument.  This is implemented by casting this to a Fl_Callback
@@ -386,6 +386,7 @@ struct FL_EXPORT Fl_Menu_Item {
   /** back compatibility only \deprecated. */
   void uncheck() {flags &= ~FL_MENU_VALUE;}
 
+  int insert(int,const char*,int,Fl_Callback*,void* =0, int =0);
   int add(const char*, int shortcut, Fl_Callback*, void* =0, int = 0);
 
   /** See int add(const char*, int shortcut, Fl_Callback*, void*, int) */
@@ -414,5 +415,5 @@ enum {	// back-compatibility enum:
 #endif
 
 //
-// End of "$Id: Fl_Menu_Item.H 6902 2009-09-27 11:06:56Z matt $".
+// End of "$Id: Fl_Menu_Item.H 7517 2010-04-16 17:55:45Z greg.ercolano $".
 //

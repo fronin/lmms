@@ -1,7 +1,7 @@
 /*
  * song.h - class song - the root of the model-tree
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef _SONG_H
 #define _SONG_H
 
@@ -34,7 +33,7 @@
 #include "MeterModel.h"
 
 
-class automationTrack;
+class AutomationTrack;
 class pattern;
 class timeLine;
 
@@ -141,9 +140,9 @@ public:
 
 
 	bpm_t getTempo();
-	virtual automationPattern * tempoAutomationPattern();
+	virtual AutomationPattern * tempoAutomationPattern();
 
-	automationTrack * globalAutomationTrack()
+	AutomationTrack * globalAutomationTrack()
 	{
 		return m_globalAutomationTrack;
 	}
@@ -151,9 +150,10 @@ public:
 	// file management
 	void createNewProject();
 	void createNewProjectFromTemplate( const QString & _template );
-	void loadProject( const QString & _file_name );
-	bool saveProject();
-	bool saveProjectAs( const QString & _file_name );
+	void loadProject( const QString & _filename );
+	bool guiSaveProject();
+	bool guiSaveProjectAs( const QString & _filename );
+    bool saveProjectFile( const QString & _filename );
 	inline const QString & projectFileName() const
 	{
 		return m_fileName;
@@ -266,7 +266,7 @@ private:
 	void restoreControllerStates( const QDomElement & _this );
 
 
-	automationTrack * m_globalAutomationTrack;
+	AutomationTrack * m_globalAutomationTrack;
 
 	IntModel m_tempoModel;
 	MeterModel m_timeSigModel;
@@ -316,6 +316,7 @@ private:
 	friend class ControllerRackView;
 
 signals:
+	void projectLoaded();
 	void lengthChanged( int _tacts );
 	void tempoChanged( bpm_t _new_bpm );
 	void timeSignatureChanged( int _old_ticks_per_tact,

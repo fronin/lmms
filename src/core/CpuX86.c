@@ -37,6 +37,9 @@
 #define PREFETCH_READ(x)	PREFETCH_RW(x,0)
 #define PREFETCH_WRITE(x)	PREFETCH_RW(x,1)
 
+/* workaround for conflicting declarations in GCC and MinGW headers */
+#define _aligned_malloc __aligned_malloc
+#define _aligned_free __aligned_free
 
 #ifdef X86_OPTIMIZATIONS
 
@@ -224,6 +227,29 @@ void bufMixSSE( sampleFrameA * RP _dst, const sampleFrameA * RP _src,
 		_dst[i+2][1] += _src[i+2][1];
 		_dst[i+3][0] += _src[i+3][0];
 		_dst[i+3][1] += _src[i+3][1];
+		i += 4;
+	}
+}
+
+
+void bufMixCoeffSSE( sampleFrameA * RP _dst, const sampleFrameA * RP _src,
+								float _coeff, int _frames )
+{
+	int i;
+
+	PREFETCH_READ(_src);
+	PREFETCH_WRITE(_dst);
+
+	for( i = 0; i < _frames; )
+	{
+		_dst[i+0][0] += _src[i+0][0]*_coeff;
+		_dst[i+0][1] += _src[i+0][1]*_coeff;
+		_dst[i+1][0] += _src[i+1][0]*_coeff;
+		_dst[i+1][1] += _src[i+1][1]*_coeff;
+		_dst[i+2][0] += _src[i+2][0]*_coeff;
+		_dst[i+2][1] += _src[i+2][1]*_coeff;
+		_dst[i+3][0] += _src[i+3][0]*_coeff;
+		_dst[i+3][1] += _src[i+3][1]*_coeff;
 		i += 4;
 	}
 }

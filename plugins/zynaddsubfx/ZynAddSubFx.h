@@ -1,7 +1,7 @@
 /*
  * ZynAddSubFx.h - ZynAddSubFX-embedding plugin
  *
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2008-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -25,11 +25,14 @@
 #ifndef _ZYNADDSUBFX_H
 #define _ZYNADDSUBFX_H
 
+#include <QtCore/QMap>
 #include <QtCore/QMutex>
 
+#include "AutomatableModel.h"
 #include "Instrument.h"
 #include "InstrumentView.h"
 #include "RemotePlugin.h"
+#include "src/globals.h"
 
 
 class QPushButton;
@@ -37,6 +40,25 @@ class QPushButton;
 class LocalZynAddSubFx;
 class ZynAddSubFxView;
 class notePlayHandle;
+class knob;
+class ledCheckBox;
+
+
+class ZynAddSubFxRemotePlugin : public QObject, public RemotePlugin
+{
+	Q_OBJECT
+public:
+	ZynAddSubFxRemotePlugin();
+	virtual ~ZynAddSubFxRemotePlugin();
+
+	virtual bool processMessage( const message & _m );
+
+
+signals:
+	void clickedCloseButton();
+
+} ;
+
 
 
 class ZynAddSubFxInstrument : public Instrument
@@ -70,14 +92,35 @@ public:
 private slots:
 	void reloadPlugin();
 
+	void updatePortamento();
+	void updateFilterFreq();
+	void updateFilterQ();
+	void updateBandwidth();
+	void updateFmGain();
+	void updateResCenterFreq();
+	void updateResBandwidth();
+
 
 private:
 	void initPlugin();
+	void sendControlChange( MidiControllers midiCtl, float value );
 
 	bool m_hasGUI;
 	QMutex m_pluginMutex;
 	LocalZynAddSubFx * m_plugin;
-	RemotePlugin * m_remotePlugin;
+	ZynAddSubFxRemotePlugin * m_remotePlugin;
+
+	FloatModel m_portamentoModel;
+	FloatModel m_filterFreqModel;
+	FloatModel m_filterQModel;
+	FloatModel m_bandwidthModel;
+	FloatModel m_fmGainModel;
+	FloatModel m_resCenterFreqModel;
+	FloatModel m_resBandwidthModel;
+	BoolModel m_forwardMidiCcModel;
+
+	QMap<int, bool> m_modifiedControllers;
+
 	friend class ZynAddSubFxView;
 
 
@@ -100,13 +143,20 @@ private:
 	void modelChanged();
 
 	QPushButton * m_toggleUIButton;
+	knob * m_portamento;
+	knob * m_filterFreq;
+	knob * m_filterQ;
+	knob * m_bandwidth;
+	knob * m_fmGain;
+	knob * m_resCenterFreq;
+	knob * m_resBandwidth;
+	ledCheckBox * m_forwardMidiCC;
 
 
 private slots:
 	void toggleUI();
 
 } ;
-
 
 
 #endif

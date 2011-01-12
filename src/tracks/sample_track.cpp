@@ -2,7 +2,7 @@
  * sample_track.cpp - implementation of class sampleTrack, a track which
  *                    provides arrangement of samples
  *
- * Copyright (c) 2005-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2005-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -28,6 +28,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QLayout>
 #include <QtGui/QMdiArea>
+#include <QtGui/QMdiSubWindow>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>
 
@@ -525,12 +526,13 @@ sampleTrackView::sampleTrackView( sampleTrack * _t, trackContainerView * _tcv ) 
 	m_effectRack = new EffectRackView( _t->audioPort()->effects() );
 	m_effectRack->setFixedSize( 240, 242 );
 
-	engine::mainWindow()->workspace()->addSubWindow( m_effectRack );
-	m_effWindow = m_effectRack->parentWidget();
+	m_effWindow = engine::mainWindow()->workspace()->addSubWindow( m_effectRack );
 	m_effWindow->setAttribute( Qt::WA_DeleteOnClose, false );
 	m_effWindow->layout()->setSizeConstraint( QLayout::SetFixedSize );
  	m_effWindow->setWindowTitle( _t->name() );
 	m_effWindow->hide();
+
+	setModel( _t );
 }
 
 
@@ -548,6 +550,7 @@ void sampleTrackView::showEffects()
 {
 	if( m_effWindow->isHidden() )
 	{
+		m_effectRack->show();
 		m_effWindow->show();
 		m_effWindow->raise();
 	}
@@ -559,7 +562,15 @@ void sampleTrackView::showEffects()
 
 
 
+void sampleTrackView::modelChanged()
+{
+	sampleTrack * st = castModel<sampleTrack>();
+	m_volumeKnob->setModel( &st->m_volumeModel );
+
+	trackView::modelChanged();
+}
+
+
 
 #include "moc_sample_track.cxx"
-
 

@@ -41,8 +41,9 @@
 
 
 
-ClassicStyle::ClassicStyle() :
-	QPlastiqueStyle(), LmmsStyle()
+ClassicStyle::ClassicStyle(QStyle *style) :
+	QProxyStyle(style),
+	LmmsStyle()
 {
 	QFile file( "resources:style.css" );
 	file.open( QIODevice::ReadOnly );
@@ -90,7 +91,7 @@ QColor ClassicStyle::color( LmmsStyle::ColorRole _role ) const
 
 QPalette ClassicStyle::standardPalette() const
 {
-	QPalette pal = QPlastiqueStyle::standardPalette();
+	QPalette pal = QProxyStyle::standardPalette();
 	pal.setColor( QPalette::Background, QColor( 72, 76, 88 ) );
 	pal.setColor( QPalette::WindowText, QColor( 240, 240, 240 ) );
 	pal.setColor( QPalette::Base, QColor( 128, 128, 128 ) );
@@ -107,13 +108,14 @@ QPalette ClassicStyle::standardPalette() const
 
 
 
-void ClassicStyle::drawComplexControl( ComplexControl control,
+void ClassicStyle::drawComplexControl(
+				QStyle::ComplexControl control,
 				const QStyleOptionComplex * option,
 				QPainter *painter,
 				const QWidget *widget ) const
 {
 	// fix broken titlebar styling on win32
-	if( control == CC_TitleBar )
+	if( control == QStyle::CC_TitleBar )
 	{
 		const QStyleOptionTitleBar * titleBar =
 			qstyleoption_cast<const QStyleOptionTitleBar *>(option );
@@ -122,23 +124,23 @@ void ClassicStyle::drawComplexControl( ComplexControl control,
 			QStyleOptionTitleBar so( *titleBar );
 			so.palette = standardPalette();
 			so.palette.setColor( QPalette::HighlightedText,
-				( titleBar->titleBarState & State_Active ) ?
+				( titleBar->titleBarState & QStyle::State_Active ) ?
 					QColor( 255, 255, 255 ) :
 						QColor( 192, 192, 192 ) );
 			so.palette.setColor( QPalette::Text,
 							QColor( 64, 64, 64 ) );
-			QPlastiqueStyle::drawComplexControl( control, &so,
+			QProxyStyle::drawComplexControl( control, &so,
 							painter, widget );
 			return;
 		}
 	}
-	QPlastiqueStyle::drawComplexControl( control, option, painter, widget );
+	QProxyStyle::drawComplexControl( control, option, painter, widget );
 }
 
 
 
-
-void ClassicStyle::drawPrimitive( PrimitiveElement element,
+void ClassicStyle::drawPrimitive(
+				QStyle::PrimitiveElement element,
 				const QStyleOption *option,
 				QPainter *painter,
 				const QWidget *widget ) const
@@ -244,13 +246,15 @@ void ClassicStyle::drawPrimitive( PrimitiveElement element,
 	}
 	else
 	{
-		QPlastiqueStyle::drawPrimitive( element, option, painter, widget );
+		QProxyStyle::drawPrimitive( element, option, painter, widget );
 	}
 
 }
 
 
-int ClassicStyle::pixelMetric( PixelMetric _metric,
+
+int ClassicStyle::pixelMetric(
+				QStyle::PixelMetric _metric,
 				const QStyleOption * _option,
 				const QWidget * _widget ) const
 {
@@ -272,14 +276,14 @@ int ClassicStyle::pixelMetric( PixelMetric _metric,
 			return 24;
 
 		default:
-			return QPlastiqueStyle::pixelMetric(
+			return QProxyStyle::pixelMetric(
 					_metric, _option, _widget );
 	}
 }
 
 
 void ClassicStyle::drawFxLine( QPainter * _painter, const QWidget *_fxLine,
-				const QString & _name, bool _active )
+				const QString & _name, bool _active, bool _sendToThis )
 {
 	int width = _fxLine->rect().width();
 	int height = _fxLine->rect().height();
@@ -293,11 +297,21 @@ void ClassicStyle::drawFxLine( QPainter * _painter, const QWidget *_fxLine,
 	p->setPen( QColor( 20, 24, 32 ) );
 	p->drawRect( 0, 0, width-1, height-1 );
 
+	// draw the mixer send background
+	if( _sendToThis )
+	{
+		p->drawPixmap(2, 0, 28, 56,
+					  embed::getIconPixmap("send_bg_arrow", 28, 56));
+	}
+
+	// draw the channel name
 	p->rotate( -90 );
 	p->setPen( _active ? QColor( 0, 255, 0 ) : Qt::white );
 	p->setFont( pointSizeF( _fxLine->font(), 7.5f ) );
-	p->drawText( -90, 20, _name );
+	p->drawText( -145, 20, _name );
 }
+
+
 
 void ClassicStyle::drawTrackContentBackground(QPainter * _painter,
         const QSize & _size, const int _pixelsPerTact)

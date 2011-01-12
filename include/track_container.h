@@ -2,8 +2,8 @@
  * track_container.h - base-class for all track-containers like Song-Editor,
  *                     BB-Editor...
  *
- * Copyright (c) 2004-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -23,17 +23,16 @@
  *
  */
 
-
 #ifndef _TRACK_CONTAINER_H
 #define _TRACK_CONTAINER_H
 
-#include <QReadWriteLock>
+#include <QtCore/QReadWriteLock>
 
 #include "track.h"
 #include "JournallingObject.h"
 
 
-class automationPattern;
+class AutomationPattern;
 class InstrumentTrack;
 class trackContainerView;
 
@@ -52,7 +51,7 @@ public:
 	virtual void loadSettings( const QDomElement & _this );
 
 
-	virtual automationPattern * tempoAutomationPattern()
+	virtual AutomationPattern * tempoAutomationPattern()
 	{
 		return NULL;
 	}

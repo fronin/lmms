@@ -2,6 +2,57 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="de_DE">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About LMMS</source>
+        <translation>Über LMMS</translation>
+    </message>
+    <message>
+        <source>LMMS (Linux MultiMedia Studio)</source>
+        <translation>LMMS (Linux MultiMedia Studio)</translation>
+    </message>
+    <message>
+        <source>Version %1 (%2/%3, Qt %4, %5)</source>
+        <translation>Version %1 (%2/%3, Qt %4, %5)</translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation>Über</translation>
+    </message>
+    <message>
+        <source>LMMS - easy music production for everyone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copyright (c) 2004-2009, LMMS developers</source>
+        <translation>Copyright (c) 2004-2009, die LMMS-Entwickler</translation>
+    </message>
+    <message>
+        <source>http://lmms.sourceforge.net
+
+Join us on Freenode (irc.freenode.net) in ##lmms!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authors</source>
+        <translation>Autoren</translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation>Übersetzung</translation>
+    </message>
+    <message>
+        <source>Current language not translated (or native English).
+
+If you&apos;re interested in translating LMMS in another language or want to improve existing translations, you&apos;re welcome to help us! Simply contact the maintainer!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation>Lizenz</translation>
+    </message>
+</context>
+<context>
     <name>Arpeggiator</name>
     <message>
         <source>Arpeggio</source>
@@ -805,6 +856,13 @@
     </message>
 </context>
 <context>
+    <name>DirectorySelectDialog</name>
+    <message>
+        <source>Select directory</source>
+        <translation>Verzeichnis auswählen</translation>
+    </message>
+</context>
+<context>
     <name>Effect</name>
     <message>
         <source>Effect enabled</source>
@@ -839,6 +897,17 @@
     <message>
         <source>Add effect</source>
         <translation>Effekt hinzufügen</translation>
+    </message>
+</context>
+<context>
+    <name>EffectSelectDialog</name>
+    <message>
+        <source>Add effect</source>
+        <translation>Effekt hinzufügen</translation>
+    </message>
+    <message>
+        <source>Plugin description</source>
+        <translation>Pluginbeschreibung</translation>
     </message>
 </context>
 <context>
@@ -1186,6 +1255,150 @@ Bitte stellen Sie sicher, dass Sie Schreibrechte auf diese Datei und das Verzeic
         <source>Rendering: %1%</source>
         <translation>Rendere: %1%</translation>
     </message>
+    <message>
+        <source>Export project</source>
+        <translation>Projekt exportieren</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Ausgabe</translation>
+    </message>
+    <message>
+        <source>File format:</source>
+        <translation>Dateiformat:</translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>44100 Hz</source>
+        <translation>44100 Hz</translation>
+    </message>
+    <message>
+        <source>48000 Hz</source>
+        <translation>48000 Hz</translation>
+    </message>
+    <message>
+        <source>88200 Hz</source>
+        <translation>88200 Hz</translation>
+    </message>
+    <message>
+        <source>96000 Hz</source>
+        <translation>96000 Hz</translation>
+    </message>
+    <message>
+        <source>192000 Hz</source>
+        <translation>192000 Hz</translation>
+    </message>
+    <message>
+        <source>Bitrate:</source>
+        <translation>Bitrate:</translation>
+    </message>
+    <message>
+        <source>64 KBit/s</source>
+        <translation>64 KBit/s</translation>
+    </message>
+    <message>
+        <source>128 KBit/s</source>
+        <translation>128 KBit/s</translation>
+    </message>
+    <message>
+        <source>160 KBit/s</source>
+        <translation>160 KBit/s</translation>
+    </message>
+    <message>
+        <source>192 KBit/s</source>
+        <translation>192 KBit/s</translation>
+    </message>
+    <message>
+        <source>256 KBit/s</source>
+        <translation>256 KBit/s</translation>
+    </message>
+    <message>
+        <source>320 KBit/s</source>
+        <translation>320 KBit/s</translation>
+    </message>
+    <message>
+        <source>Depth:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>16 Bit Integer</source>
+        <translation>16 Bit Integer</translation>
+    </message>
+    <message>
+        <source>24 Bit Integer</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>32 Bit Float</source>
+        <translation>32 Bit Gleitkommazahlen</translation>
+    </message>
+    <message>
+        <source>Please note that not all of the parameters above apply for all file formats.</source>
+        <translation>Bitte beachten Sie, dass nicht alle diese Parameter für alle Dateiformate zutreffen.</translation>
+    </message>
+    <message>
+        <source>Quality settings</source>
+        <translation>Qualitätseinstellungen</translation>
+    </message>
+    <message>
+        <source>Interpolation:</source>
+        <translation>Interpolation:</translation>
+    </message>
+    <message>
+        <source>Zero Order Hold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sinc Fastest</source>
+        <translation>Sinc schnell</translation>
+    </message>
+    <message>
+        <source>Sinc Medium (recommended)</source>
+        <translation>Sinc Medium (empfohlen)</translation>
+    </message>
+    <message>
+        <source>Sinc Best (very slow!)</source>
+        <translation>Sinc am besten (sehr langsam!)</translation>
+    </message>
+    <message>
+        <source>Oversampling (use with care!):</source>
+        <translation>Oversampling (mit Vorsicht benutzen!):</translation>
+    </message>
+    <message>
+        <source>1x (None)</source>
+        <translation>1x (keine)</translation>
+    </message>
+    <message>
+        <source>2x</source>
+        <translation>2x</translation>
+    </message>
+    <message>
+        <source>4x</source>
+        <translation>4x</translation>
+    </message>
+    <message>
+        <source>8x</source>
+        <translation>8x</translation>
+    </message>
+    <message>
+        <source>Sample-exact controllers</source>
+        <translation>Sample-genaue Controller</translation>
+    </message>
+    <message>
+        <source>Alias-free oscillators</source>
+        <translation>Alias-freie Oszillatoren</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Start</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
 </context>
 <context>
     <name>FxMixer</name>
@@ -1362,7 +1575,7 @@ Bitte stellen Sie sicher, dass Sie Schreibrechte auf diese Datei und das Verzeic
         <translation>ZIEL</translation>
     </message>
     <message>
-        <source>These tabs contain envelopes. They&apos;re very important for modifying a sound, in that they are almost always neccessary for substractive synthesis. For example if you have a volume envelope, you can set when the sound should have a specific volume. If you want to create some soft strings then your sound has to fade in and out very softly. This can be done by setting large attack and release times. It&apos;s the same for other envelope targets like panning, cutoff frequency for the used filter and so on. Just monkey around with it! You can really make cool sounds out of a saw-wave with just some envelopes...!</source>
+        <source>These tabs contain envelopes. They&apos;re very important for modifying a sound, in that they are almost always necessary for substractive synthesis. For example if you have a volume envelope, you can set when the sound should have a specific volume. If you want to create some soft strings then your sound has to fade in and out very softly. This can be done by setting large attack and release times. It&apos;s the same for other envelope targets like panning, cutoff frequency for the used filter and so on. Just monkey around with it! You can really make cool sounds out of a saw-wave with just some envelopes...!</source>
         <translation>Diese Tabs enthalten Hüllkurven. Diese sind sehr wichtig, um einen Klang zu verändern, insbesondere bei der substraktiven Synthese. Wenn Sie zum Beispiel eine Lautstärke-Hüllkurve haben, können Sie festlegen, wann der Klang welchen Lautstärke-Pegel haben soll. Vielleicht wollen Sie ein weiches Streichinstrument erstellen. Dann muss ihr Sound sehr sanft ein- und ausgeblendet werden. Das kann man ganz einfach erreichen, indem man eine große Anschwell(attack)- und Ausklingzeit (release) einstellt. Mit anderen Hüllkurven, wie Balance, Kennfrequenz des benutzten Filters usw., ist es genau das Gleiche. Probieren Sie einfach ein bisschen herum! Mit ein paar Hüllkurven kann man aus einer Sägezahn-Welle wirklich coole Klänge machen...!</translation>
     </message>
     <message>
@@ -2480,6 +2693,21 @@ Available decoders: %2
     </message>
 </context>
 <context>
+    <name>QuickLoadDialog</name>
+    <message>
+        <source>Load resource</source>
+        <translation>Ressource laden</translation>
+    </message>
+    <message>
+        <source>Resource type:</source>
+        <translation>Ressourcentyp:</translation>
+    </message>
+    <message>
+        <source>All types</source>
+        <translation>Alle Typen</translation>
+    </message>
+</context>
+<context>
     <name>ResourceBrowser</name>
     <message>
         <source>Show/edit properties</source>
@@ -2879,6 +3107,77 @@ Wenn es mit anderer VST-Software unter Linux funktioniert, kontaktieren Sie bitt
     </message>
 </context>
 <context>
+    <name>WelcomeScreen</name>
+    <message>
+        <source>Welcome to LMMS</source>
+        <translation>Willkommen zu LMMS</translation>
+    </message>
+    <message>
+        <source>New project</source>
+        <translation>Neues Projekt</translation>
+    </message>
+    <message>
+        <source>Import project</source>
+        <translation>Projekt importieren</translation>
+    </message>
+    <message>
+        <source>Open tutorial</source>
+        <translation>Tutorial öffnen</translation>
+    </message>
+    <message>
+        <source>Instant MIDI action</source>
+        <translation>Sofort mit MIDI loslegen</translation>
+    </message>
+    <message>
+        <source>Recent projects</source>
+        <translation>Letzte Projekte</translation>
+    </message>
+    <message>
+        <source>Recent community resources</source>
+        <translation>Letzte Community-Ressourcen</translation>
+    </message>
+    <message>
+        <source>Did you know...?</source>
+        <translation>Wussten Sie...?</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Linux Biolinum O&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online resources</source>
+        <translation>Onlineressourcen</translation>
+    </message>
+    <message>
+        <source>Users forum</source>
+        <translation>Benutzerforum</translation>
+    </message>
+    <message>
+        <source>http://sourceforge.net/apps/phpbb/lmms/</source>
+        <translation>http://sourceforge.net/apps/phpbb/lmms/</translation>
+    </message>
+    <message>
+        <source>Online manual</source>
+        <translation>Onlinehandbuch</translation>
+    </message>
+    <message>
+        <source>http://lmms.sourceforge.net/wiki/NewManual</source>
+        <translation>http://lmms.sourceforge.net/wiki/NewManual</translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation>Wiki</translation>
+    </message>
+    <message>
+        <source>http://lmms.sourceforge.net/wiki/</source>
+        <translation>http://lmms.sourceforge.net/wiki/</translation>
+    </message>
+</context>
+<context>
     <name>ZynAddSubFxView</name>
     <message>
         <source>Show GUI</source>
@@ -2991,7 +3290,7 @@ Wenn es mit anderer VST-Software unter Linux funktioniert, kontaktieren Sie bitt
         <translation>Klicken Sie hier, um den Radier-Modus zu aktivieren. In diesem Modus können Sie einzelne Werte löschen. Sie können auch &apos;Umschalt+E&apos; auf Ihrer Tastatur drücken, um diesen Modus zu aktivieren.</translation>
     </message>
     <message>
-        <source>Click here and select-mode will be activated. In this mode you can select values. This is neccessary if you want to cut, copy, paste, delete, or move values. You can also press &apos;Shift+S&apos; on your keyboard to activate this mode.</source>
+        <source>Click here and select-mode will be activated. In this mode you can select values. This is necessary if you want to cut, copy, paste, delete, or move values. You can also press &apos;Shift+S&apos; on your keyboard to activate this mode.</source>
         <translation>Klicken Sie hier, um den Auswahl-Modus zu aktivieren. In diesem Modus können Sie Werte markieren. Das ist nötig, wenn Sie (mehrere) Werte ausschneiden, kopieren, einfügen, löschen oder verschieben wollen. Sie können auch &apos;Umschalt+S&apos; auf Ihrer Tastatur drücken, um diesen Modus zu aktivieren.</translation>
     </message>
     <message>
@@ -6052,7 +6351,7 @@ Die LED rechts unterhalb der Wellenform gibt an, ob die Saite aktiviert ist.</tr
         <translation>Saite</translation>
     </message>
     <message>
-        <source>The String selector is used to choose which string the controls are editting.  A Vibed instrument can contain up to nine independently vibrating strings.  The LED in the lower right corner of the waveform editor indicates whether the selected string is active.</source>
+        <source>The String selector is used to choose which string the controls are editing.  A Vibed instrument can contain up to nine independently vibrating strings.  The LED in the lower right corner of the waveform editor indicates whether the selected string is active.</source>
         <translation>Der Saiten-Wähler bestimmt die derzeit bearbeitete Saite.  Ein Vibed-Instrument kann aus bis zu neun voneinander unabhängig schwingenden Saiten bestehen.  Die LED in der Ecke rechts unterhalb der Wellenform gibt an, ob die gewählte Saite aktiv ist.</translation>
     </message>
     <message>

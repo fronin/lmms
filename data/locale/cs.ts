@@ -2,6 +2,57 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="de_DE">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About LMMS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LMMS (Linux MultiMedia Studio)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version %1 (%2/%3, Qt %4, %5)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation type="unfinished">O LMMS</translation>
+    </message>
+    <message>
+        <source>LMMS - easy music production for everyone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copyright (c) 2004-2009, LMMS developers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>http://lmms.sourceforge.net
+
+Join us on Freenode (irc.freenode.net) in ##lmms!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current language not translated (or native English).
+
+If you&apos;re interested in translating LMMS in another language or want to improve existing translations, you&apos;re welcome to help us! Simply contact the maintainer!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Arpeggiator</name>
     <message>
         <source>Arpeggio</source>
@@ -805,6 +856,13 @@
     </message>
 </context>
 <context>
+    <name>DirectorySelectDialog</name>
+    <message>
+        <source>Select directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Effect</name>
     <message>
         <source>Effect enabled</source>
@@ -839,6 +897,17 @@
     <message>
         <source>Add effect</source>
         <translation type="unfinished">Přidat efekt</translation>
+    </message>
+</context>
+<context>
+    <name>EffectSelectDialog</name>
+    <message>
+        <source>Add effect</source>
+        <translation type="unfinished">Přidat efekt</translation>
+    </message>
+    <message>
+        <source>Plugin description</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1186,6 +1255,150 @@ Přesvědčte se prosím, že máte právo zápisu do tohoto souboru a příslu�
         <source>Rendering: %1%</source>
         <translation type="unfinished">Renderuji: %1%</translation>
     </message>
+    <message>
+        <source>Export project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Výstup</translation>
+    </message>
+    <message>
+        <source>File format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samplerate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>44100 Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>48000 Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>88200 Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>96000 Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>192000 Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bitrate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>64 KBit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>128 KBit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>160 KBit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>192 KBit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>256 KBit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>320 KBit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>16 Bit Integer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>24 Bit Integer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>32 Bit Float</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please note that not all of the parameters above apply for all file formats.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quality settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interpolation:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zero Order Hold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sinc Fastest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sinc Medium (recommended)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sinc Best (very slow!)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Oversampling (use with care!):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1x (None)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2x</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>4x</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>8x</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample-exact controllers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alias-free oscillators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Zrušit</translation>
+    </message>
 </context>
 <context>
     <name>FxMixer</name>
@@ -1362,7 +1575,7 @@ Přesvědčte se prosím, že máte právo zápisu do tohoto souboru a příslu�
         <translation type="unfinished">CÍL</translation>
     </message>
     <message>
-        <source>These tabs contain envelopes. They&apos;re very important for modifying a sound, in that they are almost always neccessary for substractive synthesis. For example if you have a volume envelope, you can set when the sound should have a specific volume. If you want to create some soft strings then your sound has to fade in and out very softly. This can be done by setting large attack and release times. It&apos;s the same for other envelope targets like panning, cutoff frequency for the used filter and so on. Just monkey around with it! You can really make cool sounds out of a saw-wave with just some envelopes...!</source>
+        <source>These tabs contain envelopes. They&apos;re very important for modifying a sound, in that they are almost always necessary for substractive synthesis. For example if you have a volume envelope, you can set when the sound should have a specific volume. If you want to create some soft strings then your sound has to fade in and out very softly. This can be done by setting large attack and release times. It&apos;s the same for other envelope targets like panning, cutoff frequency for the used filter and so on. Just monkey around with it! You can really make cool sounds out of a saw-wave with just some envelopes...!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1947,7 +2160,7 @@ Ujistěte se prosím, že máte k souboru právo zápisu a zkuste to znovu.</tra
     </message>
     <message>
         <source>Master pitch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hlavní ladění (pitch)</translation>
     </message>
     <message>
         <source>master pitch</source>
@@ -2480,6 +2693,21 @@ Available decoders: %2
     </message>
 </context>
 <context>
+    <name>QuickLoadDialog</name>
+    <message>
+        <source>Load resource</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resource type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All types</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ResourceBrowser</name>
     <message>
         <source>Show/edit properties</source>
@@ -2879,6 +3107,77 @@ Jestliže tento plugin funguje v Linuxu v jiném VST softwaru, kontaktujte pros�
     </message>
 </context>
 <context>
+    <name>WelcomeScreen</name>
+    <message>
+        <source>Welcome to LMMS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open tutorial</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instant MIDI action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent projects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent community resources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Did you know...?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Linux Biolinum O&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online resources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users forum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>http://sourceforge.net/apps/phpbb/lmms/</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online manual</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>http://lmms.sourceforge.net/wiki/NewManual</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>http://lmms.sourceforge.net/wiki/</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ZynAddSubFxView</name>
     <message>
         <source>Show GUI</source>
@@ -2991,7 +3290,7 @@ Jestliže tento plugin funguje v Linuxu v jiném VST softwaru, kontaktujte pros�
         <translation>Klikněte zde, pokud chcete aktivovat režim mazání. V tomto režimu lze mazat jednotlivé hodnoty. Pro aktivaci můžete využít též klávesové zkratky Shift+E.</translation>
     </message>
     <message>
-        <source>Click here and select-mode will be activated. In this mode you can select values. This is neccessary if you want to cut, copy, paste, delete, or move values. You can also press &apos;Shift+S&apos; on your keyboard to activate this mode.</source>
+        <source>Click here and select-mode will be activated. In this mode you can select values. This is necessary if you want to cut, copy, paste, delete, or move values. You can also press &apos;Shift+S&apos; on your keyboard to activate this mode.</source>
         <translation>Klikněte zde, pokud chcete aktivovat režim výběru. Tento režimu umožňuje hodnoty vybírat a je nezbytný jestliže hodnoty chcete vyjmout, kopírovat, vložit, smazat nebo přesunout. Pro aktivaci můžete využít též klávesové zkratky Shift+S.</translation>
     </message>
     <message>
@@ -5991,7 +6290,7 @@ Jestliže tento plugin funguje v Linuxu v jiném VST softwaru, kontaktujte pros�
         <translation type="unfinished">Struna</translation>
     </message>
     <message>
-        <source>The String selector is used to choose which string the controls are editting.  A Vibed instrument can contain up to nine independently vibrating strings.  The LED in the lower right corner of the waveform editor indicates whether the selected string is active.</source>
+        <source>The String selector is used to choose which string the controls are editing.  A Vibed instrument can contain up to nine independently vibrating strings.  The LED in the lower right corner of the waveform editor indicates whether the selected string is active.</source>
         <translation type="unfinished">Volič strun se užívá k výběru struny, které bude upravována. Nástroj Vibed může obsahovat maximálně devět nezávisle vibrujících strun. LED v pravém dolním rohu editoru tvaru vlny indikuje zda je vybraná struna aktivní.</translation>
     </message>
     <message>

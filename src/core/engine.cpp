@@ -1,7 +1,7 @@
 /*
  * engine.cpp - implementation of LMMS' engine-system
  *
- * Copyright (c) 2006-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2006-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -26,8 +26,8 @@
 #include <QtXml/QDomDocument>
 
 #include "engine.h"
-#include "automation_editor.h"
-#include "automation_recorder.h"
+#include "AutomationEditor.h"
+#include "AutomationRecorder.h"
 #include "bb_editor.h"
 #include "bb_track_container.h"
 #include "config_mgr.h"
@@ -37,7 +37,7 @@
 #include "InstrumentTrack.h"
 #include "ladspa_2_lmms.h"
 #include "MainWindow.h"
-#include "mixer.h"
+#include "Mixer.h"
 #include "pattern.h"
 #include "piano_roll.h"
 #include "ProjectJournal.h"
@@ -56,7 +56,7 @@
 bool engine::s_hasGUI = true;
 bool engine::s_suppressMessages = false;
 float engine::s_framesPerTick;
-mixer * engine::s_mixer = NULL;
+Mixer * engine::s_mixer = NULL;
 FxMixer * engine::s_fxMixer = NULL;
 FxMixerView * engine::s_fxMixerView = NULL;
 MainWindow * engine::s_mainWindow = NULL;
@@ -66,7 +66,7 @@ ResourceDB * engine::s_workingDirResourceDB = NULL;
 ResourceDB * engine::s_webResourceDB = NULL;
 ResourceDB * engine::s_mergedResourceDB = NULL;
 songEditor * engine::s_songEditor = NULL;
-automationEditor * engine::s_automationEditor = NULL;
+AutomationEditor * engine::s_automationEditor = NULL;
 AutomationRecorder * engine::s_automationRecorder = NULL;
 bbEditor * engine::s_bbEditor = NULL;
 pianoRoll * engine::s_pianoRoll = NULL;
@@ -89,9 +89,11 @@ void engine::init( const bool _has_gui )
 	initPluginFileHandling();
 
 	s_projectJournal = new ProjectJournal;
-	s_mixer = new mixer;
+	s_mixer = new Mixer;
+
 	s_song = new song;
 
+	s_mixer->initDevices();
 
 	// init resource framework
 	s_workingDirResourceDB =
@@ -119,8 +121,6 @@ void engine::init( const bool _has_gui )
 
 	s_projectJournal->setJournalling( true );
 
-	s_mixer->initDevices();
-
 	s_midiControlListener = new MidiControlListener();
 
 	s_automationRecorder = new AutomationRecorder;
@@ -134,7 +134,7 @@ void engine::init( const bool _has_gui )
 		s_projectNotes = new projectNotes;
 		s_bbEditor = new bbEditor( s_bbTrackContainer );
 		s_pianoRoll = new pianoRoll;
-		s_automationEditor = new automationEditor;
+		s_automationEditor = new AutomationEditor;
 
 		s_mainWindow->finalize();
 	}
@@ -153,45 +153,32 @@ void engine::destroy()
 
 	s_mixer->stopProcessing();
 
-	delete s_projectNotes;
-	s_projectNotes = NULL;
-	delete s_songEditor;
-	s_songEditor = NULL;
-	delete s_bbEditor;
-	s_bbEditor = NULL;
-	delete s_pianoRoll;
-	s_pianoRoll = NULL;
-	delete s_automationEditor;
-	s_automationEditor = NULL;
+	deleteHelper( &s_projectNotes );
+	deleteHelper( &s_songEditor );
+	deleteHelper( &s_bbEditor );
+	deleteHelper( &s_pianoRoll );
+	deleteHelper( &s_automationEditor );
+	deleteHelper( &s_fxMixerView );
 
-	delete s_fxMixerView;
-	s_fxMixerView = NULL;
-
-	InstrumentTrackView::cleanupWindowPool();
+	InstrumentTrackView::cleanupWindowCache();
 
 	s_song->clearProject();
-	delete s_bbTrackContainer;
-	s_bbTrackContainer = NULL;
-	delete s_dummyTC;
-	s_dummyTC = NULL;
 
-	delete s_mixer;
-	s_mixer = NULL;
-	delete s_fxMixer;
-	s_fxMixer = NULL;
+	deleteHelper( &s_bbTrackContainer );
+	deleteHelper( &s_dummyTC );
 
-	delete s_ladspaManager;
+	deleteHelper( &s_mixer );
+	deleteHelper( &s_fxMixer );
+
+	deleteHelper( &s_ladspaManager );
 
 	//delete configManager::inst();
-	delete s_projectJournal;
-	s_projectJournal = NULL;
+	deleteHelper( &s_projectJournal );
+
 	s_mainWindow = NULL;
 
-	delete s_song;
-	s_song = NULL;
-
-	delete s_automationRecorder;
-	s_automationRecorder = NULL;
+	deleteHelper( &s_song );
+	deleteHelper( &s_automationRecorder );
 
 	delete s_mergedResourceDB->provider();
 	s_mergedResourceDB = NULL;

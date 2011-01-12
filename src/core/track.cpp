@@ -1,9 +1,9 @@
 /*
- * track.cpp - implementation of classes concerning tracks -> neccessary for
+ * track.cpp - implementation of classes concerning tracks -> necessary for
  *             all track-like objects (beat/bassline, sample-track...)
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -47,8 +47,8 @@
 #include <QtGui/QStyleOption>
 
 
-#include "automation_pattern.h"
-#include "automation_track.h"
+#include "AutomationPattern.h"
+#include "AutomationTrack.h"
 #include "bb_editor.h"
 #include "bb_track.h"
 #include "bb_track_container.h"
@@ -249,7 +249,9 @@ void trackContentObject::paste()
 {
 	if( Clipboard::getContent( nodeName() ) != NULL )
 	{
+		const midiTime pos = startPosition();
 		restoreState( *( Clipboard::getContent( nodeName() ) ) );
+		movePosition( pos );
 	}
 }
 
@@ -492,7 +494,7 @@ void trackContentObjectView::dropEvent( QDropEvent * _de )
 		midiTime pos = m_tco->startPosition();
 		m_tco->restoreState( mmp.content().firstChild().toElement() );
  		m_tco->movePosition( pos );
-		automationPattern::resolveAllIDs();
+		AutomationPattern::resolveAllIDs();
 		_de->accept();
 	}
 }
@@ -1085,7 +1087,7 @@ void trackContentWidget::dropEvent( QDropEvent * _de )
 		tco->restoreState( mmp.content().firstChild().toElement() );
 		tco->movePosition( pos );
 
-		automationPattern::resolveAllIDs();
+		AutomationPattern::resolveAllIDs();
 
 		_de->accept();
 	}
@@ -1560,9 +1562,9 @@ track * track::create( TrackTypes _tt, trackContainer * _tc )
 		case SampleTrack: t = new sampleTrack( _tc ); break;
 //		case EVENT_TRACK:
 //		case VIDEO_TRACK:
-		case AutomationTrack: t = new automationTrack( _tc ); break;
+		case AutomationTrack: t = new ::AutomationTrack( _tc ); break;
 		case HiddenAutomationTrack:
-				t = new automationTrack( _tc, true ); break;
+						t = new ::AutomationTrack( _tc, true ); break;
 		default: break;
 	}
 
@@ -1764,8 +1766,11 @@ void track::removeTCO( trackContentObject * _tco )
 	{
 		m_trackContentObjects.erase( it );
 		emit trackContentObjectRemoved( _tco );
-		engine::getSong()->updateLength();
-		engine::getSong()->setModified();
+		if( engine::getSong() )
+		{
+			engine::getSong()->updateLength();
+			engine::getSong()->setModified();
+		}
 	}
 }
 

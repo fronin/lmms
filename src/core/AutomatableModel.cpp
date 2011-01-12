@@ -1,7 +1,7 @@
 /*
  * AutomatableModel.cpp - some implementations of AutomatableModel-class
  *
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2008-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -25,8 +25,8 @@
 #include <QtXml/QDomElement>
 
 #include "AutomatableModel.h"
-#include "automation_recorder.h"
-#include "automation_pattern.h"
+#include "AutomationRecorder.h"
+#include "AutomationPattern.h"
 #include "ControllerConnection.h"
 
 
@@ -87,7 +87,7 @@ AutomatableModel::~AutomatableModel()
 
 bool AutomatableModel::isAutomated() const
 {
-	return automationPattern::isAutomated( this );
+	return AutomationPattern::isAutomated( this );
 }
 
 
@@ -134,18 +134,18 @@ void AutomatableModel::loadSettings( const QDomElement & _this,
 						const QString & _name )
 {
 	// compat code
-	QDomNode node = _this.namedItem( automationPattern::classNodeName() );
+	QDomNode node = _this.namedItem( AutomationPattern::classNodeName() );
 	if( node.isElement() )
 	{
 		node = node.namedItem( _name );
 		if( node.isElement() )
 		{
-			automationPattern * p = automationPattern::
+			AutomationPattern * p = AutomationPattern::
 						globalAutomationPattern( this );
 			p->loadSettings( node.toElement() );
 			setValue( p->valueAt( 0 ) );
 			// in older projects we sometimes have odd automations
-			// with just one value in - eliminate if neccessary
+			// with just one value in - eliminate if necessary
 			if( !p->hasAutomation() )
 			{
 				delete p;
@@ -248,7 +248,7 @@ void AutomatableModel::setAutomatedValue( const float _value )
 void AutomatableModel::setRange( const float _min, const float _max,
 							const float _step )
 {
-        if( ( m_maxValue != _max ) || ( m_minValue != _min ) )
+	if( ( m_maxValue != _max ) || ( m_minValue != _min ) )
 	{
 		m_minValue = _min;
 		m_maxValue = _max;
@@ -423,6 +423,20 @@ void AutomatableModel::unlinkModels( AutomatableModel * _model1,
 
 
 
+void AutomatableModel::unlinkAllModels()
+
+{
+	AutomatableModel * _model;
+	foreach( _model, m_linkedModels )
+	{
+		unlinkModels( this, _model );
+	}
+	m_hasLinkedModels = false;
+}
+
+
+
+
 void AutomatableModel::setControllerConnection( ControllerConnection * _c )
 {
 	m_controllerConnection = _c;
@@ -479,7 +493,7 @@ void AutomatableModel::unlinkControllerConnection()
 void AutomatableModel::handleDataChanged()
 {
 	// report the data changed to AutomationRecorder
-	engine::getAutomationRecorder()->modelDataEvent( this );
+	engine::automationRecorder()->modelDataEvent( this );
 }
 
 

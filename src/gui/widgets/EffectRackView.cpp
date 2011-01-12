@@ -2,7 +2,7 @@
  * EffectRackView.cpp - view for effectChain model
  *
  * Copyright (c) 2006-2007 Danny McRae <khjklujn@netscape.net>
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2008-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -43,7 +43,7 @@ EffectRackView::EffectRackView( EffectChain * _model, QWidget * _parent ) :
 
 	m_mainLayout = new QVBoxLayout( this );
 	m_mainLayout->setSpacing( 0 );
-	m_mainLayout->setMargin( 5 );
+	m_mainLayout->setMargin( 0 );
 
 	m_effectsGroupBox = new groupBox( tr( "EFFECTS CHAIN" ) );
 	m_mainLayout->addWidget( m_effectsGroupBox );
@@ -188,7 +188,7 @@ void EffectRackView::update()
 							view_map[i] == false )
 		{
 			delete m_effectViews[i];
-			m_effectViews.erase( it );
+			it = m_effectViews.erase( it );
 		}
 		else
 		{

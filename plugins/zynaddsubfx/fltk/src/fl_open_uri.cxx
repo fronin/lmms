@@ -1,5 +1,5 @@
 //
-// "$Id: fl_open_uri.cxx 6901 2009-09-26 13:56:04Z matt $"
+// "$Id: fl_open_uri.cxx 6986 2010-01-01 18:30:49Z greg.ercolano $"
 //
 // fl_open_uri() code for FLTK.
 //
@@ -36,6 +36,7 @@
 #include <sys/types.h>
 #include "flstring.h"
 #ifdef WIN32
+#include <stdint.h>
 #  include <windows.h>
 #  include <shellapi.h>
 #else
@@ -70,6 +71,18 @@ static int	run_program(const char *program, char **argv, char *msg, int msglen);
  * was run to open the URI; on Windows, this will always be "open uri".
  *
  * On failure, the msg buffer is filled with an English error message.
+ *
+ * \b Example
+ * \code
+ * #include <FL/filename.H>
+ * [..]
+ * char errmsg[512];
+ * if ( !fl_open_uri("http://google.com/", errmsg, sizeof(errmsg)) ) {
+ *     char warnmsg[768];
+ *     sprintf(warnmsg, "Error: %s", errmsg);
+ *     fl_alert(warnmsg);
+ * }
+ * \endcode
  *
  * @param uri The URI to open
  * @param msg Optional buffer which contains the command or error message
@@ -112,7 +125,7 @@ fl_open_uri(const char *uri, char *msg, int msglen) {
 #ifdef WIN32
   if (msg) snprintf(msg, msglen, "open %s", uri);
 
-  return (int)ShellExecute(HWND_DESKTOP, "open", uri, NULL, NULL, SW_SHOW) > 32;
+  return (intptr_t)ShellExecute(HWND_DESKTOP, "open", uri, NULL, NULL, SW_SHOW) > 32;
 
 #elif defined(__APPLE__)
   char	*argv[3];			// Command-line arguments
@@ -364,5 +377,5 @@ int main(int argc, char **argv) {
 
 
 //
-// End of "$Id: fl_open_uri.cxx 6901 2009-09-26 13:56:04Z matt $".
+// End of "$Id: fl_open_uri.cxx 6986 2010-01-01 18:30:49Z greg.ercolano $".
 //

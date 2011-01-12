@@ -48,7 +48,7 @@ QMdiArea {
 	background-image: url(resources:background_artwork.png);
 }
 
-automationEditor {
+AutomationEditor {
 	background-color: rgb(0, 0, 0);
 }
 
@@ -73,6 +73,11 @@ automationEditor {
 	color: rgb(128, 128, 128);
 }
 
+
+QToolTip {
+	background: rgb(224,224,224);
+	color: black;
+}
 
 QMenu {
 	border:1px solid black;
@@ -174,6 +179,10 @@ FxMixerView QPushButton, EffectRackView QPushButton, ControllerRackView QPushBut
 
 timeLine {
 	font-size: 8px;
+}
+
+QTreeView {
+	alternate-background-color: rgb(108,108,108);
 }
 
 /* Plugins */

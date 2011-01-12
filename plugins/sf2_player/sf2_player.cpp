@@ -2,7 +2,7 @@
  * sf2_player.cpp - a soundfont2 player using fluidSynth
  *
  * Copyright (c) 2008 Paul Giblock <drfaygo/at/gmail/dot/com>
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -30,6 +30,8 @@
 #include <QtGui/QFileDialog>
 #include <QtXml/QDomDocument>
 
+#include "AudioBackend.h"
+#include "AudioOutputContext.h"
 #include "ResourceFileMapper.h"
 #include "sf2_player.h"
 #include "engine.h"
@@ -51,7 +53,7 @@ static const char * __supportedExts[] =
 extern "C"
 {
 
-Plugin::Descriptor sf2player_plugin_descriptor =
+Plugin::Descriptor PLUGIN_EXPORT sf2player_plugin_descriptor =
 {
 	STRINGIFY( PLUGIN_NAME ),
 	"Sf2 Player",
@@ -122,14 +124,14 @@ sf2Instrument::sf2Instrument( InstrumentTrack * _instrument_track ) :
 	m_settings = new_fluid_settings();
 
 	fluid_settings_setint( m_settings, (char *) "audio.period-size",
-					engine::getMixer()->framesPerPeriod() );
+					engine::mixer()->framesPerPeriod() );
 
 	// This is just our starting instance of synth.  It is recreated
 	// everytime we load a new soundfont.
 	m_synth = new_fluid_synth( m_settings );
 
 	InstrumentPlayHandle * iph = new InstrumentPlayHandle( this );
-	engine::getMixer()->addPlayHandle( iph );
+	engine::mixer()->addPlayHandle( iph );
 
 	//loadFile( configManager::inst()->defaultSoundfont() );
 
@@ -147,7 +149,7 @@ sf2Instrument::sf2Instrument( InstrumentTrack * _instrument_track ) :
 	connect( &m_patchNum, SIGNAL( dataChanged() ),
 			this, SLOT( updatePatch() ) );
 	
-	connect( engine::getMixer(), SIGNAL( sampleRateChanged() ),
+	connect( engine::mixer(), SIGNAL( sampleRateChanged() ),
 			this, SLOT( updateSampleRate() ) );
 
 	// Gain
@@ -192,7 +194,7 @@ sf2Instrument::sf2Instrument( InstrumentTrack * _instrument_track ) :
 
 sf2Instrument::~sf2Instrument()
 {
-	engine::getMixer()->removePlayHandles( instrumentTrack() );
+	engine::mixer()->removePlayHandles( instrumentTrack() );
 	freeFont();
 	delete_fluid_synth( m_synth );
 	delete_fluid_settings( m_settings );
@@ -498,7 +500,7 @@ void sf2Instrument::updateSampleRate()
 	
 	// Set & get, returns the true sample rate
 	fluid_settings_setnum( m_settings, (char *) "synth.sample-rate",
-				engine::getMixer()->processingSampleRate() );
+				engine::mixer()->processingSampleRate() );
 	fluid_settings_getnum( m_settings, (char *) "synth.sample-rate",
 								&tempRate );
 	m_internalSampleRate = static_cast<int>( tempRate );
@@ -529,8 +531,9 @@ void sf2Instrument::updateSampleRate()
 	}
 
 	m_synthMutex.lock();
-	if( engine::getMixer()->currentQualitySettings().interpolation >=
-			mixer::qualitySettings::Interpolation_SincFastest )
+	if( engine::mixer()->audioOutputContext()->qualitySettings().
+			interpolation() >=
+				AudioOutputContext::QualitySettings::Interpolation_SincFastest )
 	{
 		fluid_synth_set_interp_method( m_synth, -1,
 							FLUID_INTERP_7THORDER );
@@ -541,7 +544,7 @@ void sf2Instrument::updateSampleRate()
 							FLUID_INTERP_DEFAULT );
 	}
 	m_synthMutex.unlock();
-	if( m_internalSampleRate < engine::getMixer()->processingSampleRate() )
+	if( m_internalSampleRate < engine::mixer()->processingSampleRate() )
 	{
 		m_synthMutex.lock();
 		if( m_srcState != NULL )
@@ -549,9 +552,9 @@ void sf2Instrument::updateSampleRate()
 			src_delete( m_srcState );
 		}
 		int error;
-		m_srcState = src_new( engine::getMixer()->
-				currentQualitySettings().libsrcInterpolation(),
-					DEFAULT_CHANNELS, &error );
+		m_srcState = src_new( engine::mixer()->audioOutputContext()->
+								qualitySettings().libsrcInterpolation(),
+								DEFAULT_CHANNELS, &error );
 		if( m_srcState == NULL || error )
 		{
 			printf( "error while creating SRC-data-"
@@ -610,7 +613,7 @@ void sf2Instrument::playNote( notePlayHandle * _n, sampleFrame * )
 		}
 
 		fluid_synth_noteon( m_synth, m_channel, midiNote,
-							_n->getMidiVelocity() );
+							_n->midiVelocity() );
 
 		// get new voice and save it
 		fluid_synth_get_voicelist( m_synth, voices, poly, -1 );
@@ -633,6 +636,7 @@ void sf2Instrument::playNote( notePlayHandle * _n, sampleFrame * )
 
 	SF2PluginData * pluginData = static_cast<SF2PluginData *>(
 							_n->m_pluginData );
+#ifdef SOMEONE_FIXED_PER_NOTE_PANNING
 	if( pluginData->fluidVoice &&
 			pluginData->lastPanning != _n->getPanning() )
 	{
@@ -647,6 +651,7 @@ void sf2Instrument::playNote( notePlayHandle * _n, sampleFrame * )
 
 		pluginData->lastPanning = _n->getPanning();
 	}
+#endif
 
 	const float currentVelocity = _n->volumeLevel( tfp ) * 127;
 	if( pluginData->fluidVoice &&
@@ -1103,8 +1108,8 @@ void sf2InstrumentView::showPatchDialog()
 extern "C"
 {
 
-// neccessary for getting instance out of shared lib
-Plugin * lmms_plugin_main( Model *, void * _data )
+// necessary for getting instance out of shared lib
+Plugin * PLUGIN_EXPORT lmms_plugin_main( Model *, void * _data )
 {
 	return new sf2Instrument( static_cast<InstrumentTrack *>( _data ) );
 }

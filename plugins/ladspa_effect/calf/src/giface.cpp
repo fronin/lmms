@@ -1,7 +1,7 @@
 /* Calf DSP Library
- * Module wrapper methods.
+ * Implementation of various helpers for the plugin interface.
  *
- * Copyright (C) 2001-2007 Krzysztof Foltman
+ * Copyright (C) 2001-2010 Krzysztof Foltman
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,10 +18,12 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  * Boston, MA  02110-1301  USA
  */
-#include <assert.h>
-#include <memory.h>
+#include <config.h>
+#include <limits.h>
 #include <calf/giface.h>
-#include <stdio.h>
+#include <calf/osctlnet.h>
+#include <calf/utils.h>
+
 using namespace std;
 using namespace calf_utils;
 using namespace calf_plugins;
@@ -148,8 +150,6 @@ std::string parameter_properties::to_string(float value) const
     }
     switch(flags & PF_TYPEMASK)
     {
-    case PF_STRING:
-        return "N/A";
     case PF_INT:
     case PF_BOOL:
     case PF_ENUM:
@@ -187,16 +187,17 @@ std::string parameter_properties::to_string(float value) const
 }
 
 void calf_plugins::plugin_ctl_iface::clear_preset() {
-    int param_count = get_param_count();
-    for (int i=0; i < param_count; i++)
+    int param_count = get_metadata_iface()->get_param_count();
+    for (int i = 0; i < param_count; i++)
     {
-        parameter_properties &pp = *get_param_props(i);
-        if ((pp.flags & PF_TYPEMASK) == PF_STRING)
-        {
-            configure(pp.short_name, pp.choices ? pp.choices[0] : "");
-        }
-        else
-            set_param_value(i, pp.def_value);
+        const parameter_properties &pp = *get_metadata_iface()->get_param_props(i);
+        set_param_value(i, pp.def_value);
+    }
+    const char *const *vars = get_metadata_iface()->get_configure_vars();
+    if (vars)
+    {
+        for (int i = 0; vars[i]; i++)
+            configure(vars[i], NULL);
     }
 }
 
@@ -213,29 +214,177 @@ const char *calf_plugins::load_gui_xml(const std::string &plugin_id)
     }
 }
 
-bool calf_plugins::check_for_message_context_ports(parameter_properties *parameters, int count)
+bool calf_plugins::get_freq_gridline(int subindex, float &pos, bool &vertical, std::string &legend, cairo_iface *context, bool use_frequencies, float res, float ofs)
 {
-    for (int i = count - 1; i >= 0; i--)
+    if (subindex < 0 )
+	return false;
+    if (use_frequencies)
     {
-        if (parameters[i].flags & PF_PROP_MSGCONTEXT)
+        if (subindex < 28)
+        {
+            vertical = true;
+            if (subindex == 9) legend = "100 Hz";
+            if (subindex == 18) legend = "1 kHz";
+            if (subindex == 27) legend = "10 kHz";
+            float freq = 100;
+            if (subindex < 9)
+                freq = 10 * (subindex + 1);
+            else if (subindex < 18)
+                freq = 100 * (subindex - 9 + 1);
+            else if (subindex < 27)
+                freq = 1000 * (subindex - 18 + 1);
+            else
+                freq = 10000 * (subindex - 27 + 1);
+            pos = log(freq / 20.0) / log(1000);
+            if (!legend.empty())
+                context->set_source_rgba(0, 0, 0, 0.2);
+            else
+                context->set_source_rgba(0, 0, 0, 0.1);
             return true;
+        }
+        subindex -= 28;
     }
+    if (subindex >= 32)
+        return false;
+    float gain = 16.0 / (1 << subindex);
+    pos = dB_grid(gain, res, ofs);
+    if (pos < -1)
+        return false;
+    if (subindex != 4)
+        context->set_source_rgba(0, 0, 0, subindex & 1 ? 0.1 : 0.2);
+    if (!(subindex & 1))
+    {
+        std::stringstream ss;
+        ss << (24 - 6 * subindex) << " dB";
+        legend = ss.str();
+    }
+    vertical = false;
+    return true;
+}
+
+void calf_plugins::set_channel_color(cairo_iface *context, int channel)
+{
+    if (channel & 1)
+        context->set_source_rgba(0.35, 0.4, 0.2, 1);
+    else
+        context->set_source_rgba(0.35, 0.4, 0.2, 0.5);
+    context->set_line_width(1.5);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool frequency_response_line_graph::get_gridline(int index, int subindex, float &pos, bool &vertical, std::string &legend, cairo_iface *context) const
+{ 
+    return get_freq_gridline(subindex, pos, vertical, legend, context);
+}
+
+int frequency_response_line_graph::get_changed_offsets(int index, int generation, int &subindex_graph, int &subindex_dot, int &subindex_gridline) const
+{
+    subindex_graph = 0;
+    subindex_dot = 0;
+    subindex_gridline = generation ? INT_MAX : 0;
+    return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+calf_plugins::plugin_registry &calf_plugins::plugin_registry::instance()
+{
+    static calf_plugins::plugin_registry registry;
+    return registry;
+}
+
+const plugin_metadata_iface *calf_plugins::plugin_registry::get_by_uri(const char *plugin_uri)
+{
+    static const char prefix[] = "http://calf.sourceforge.net/plugins/";
+    if (strncmp(plugin_uri, prefix, sizeof(prefix) - 1))
+        return NULL;
+    const char *label = plugin_uri + sizeof(prefix) - 1;
+    for (unsigned int i = 0; i < plugins.size(); i++)
+    {
+        if (!strcmp(plugins[i]->get_plugin_info().label, label))
+            return plugins[i];
+    }    
+    return NULL;
+}
+
+const plugin_metadata_iface *calf_plugins::plugin_registry::get_by_id(const char *id, bool case_sensitive)
+{
+    typedef int (*comparator)(const char *, const char *);
+    comparator comp = case_sensitive ? strcmp : strcasecmp;
+    for (unsigned int i = 0; i < plugins.size(); i++)
+    {
+        if (!comp(plugins[i]->get_id(), id))
+            return plugins[i];
+    }
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+bool calf_plugins::parse_table_key(const char *key, const char *prefix, bool &is_rows, int &row, int &column)
+{
+    is_rows = false;
+    row = -1;
+    column = -1;
+    if (0 != strncmp(key, prefix, strlen(prefix)))
+        return false;
+    
+    key += strlen(prefix);
+    
+    if (!strcmp(key, "rows"))
+    {
+        is_rows = true;
+        return true;
+    }
+    
+    const char *comma = strchr(key, ',');
+    if (comma)
+    {
+        row = atoi(string(key, comma - key).c_str());
+        column = atoi(comma + 1);
+        return true;
+    }
+    
+    printf("Unknown key %s under prefix %s", key, prefix);
+    
     return false;
 }
 
-bool calf_plugins::check_for_string_ports(parameter_properties *parameters, int count)
+///////////////////////////////////////////////////////////////////////////////////////
+
+const char *mod_mapping_names[] = { "0..1", "-1..1", "-1..0", "x^2", "2x^2-1", "ASqr", "ASqrBip", "Para", NULL };
+
+mod_matrix_metadata::mod_matrix_metadata(unsigned int _rows, const char **_src_names, const char **_dest_names)
+: mod_src_names(_src_names)
+, mod_dest_names(_dest_names)
+, matrix_rows(_rows)
 {
-    for (int i = count - 1; i >= 0; i--)
-    {
-        if ((parameters[i].flags & PF_TYPEMASK) == PF_STRING)
-            return true;
-        if ((parameters[i].flags & PF_TYPEMASK) < PF_STRING)
-            return false;
-    }
-    return false;
+    table_column_info tci[6] = {
+        { "Source", TCT_ENUM, 0, 0, 0, mod_src_names },
+        { "Mapping", TCT_ENUM, 0, 0, 0, mod_mapping_names },
+        { "Modulator", TCT_ENUM, 0, 0, 0, mod_src_names },
+        { "Amount", TCT_FLOAT, 0, 1, 1, NULL},
+        { "Destination", TCT_ENUM, 0, 0, 0, mod_dest_names  },
+        { NULL }
+    };
+    assert(sizeof(table_columns) == sizeof(tci));
+    memcpy(table_columns, tci, sizeof(table_columns));
 }
 
-#if USE_DSSI
+const table_column_info *mod_matrix_metadata::get_table_columns() const
+{
+    return table_columns;
+}
+
+uint32_t mod_matrix_metadata::get_table_rows() const
+{
+    return matrix_rows;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+#if USE_EXEC_GUI
 struct osc_cairo_control: public cairo_iface
 {
     osctl::osc_inline_typed_strstream &os;
@@ -251,9 +400,8 @@ struct osc_cairo_control: public cairo_iface
     }
 };
 
-static void send_graph_via_osc(osctl::osc_client &client, const std::string &address, line_graph_iface *graph, std::vector<int> &params)
+static void serialize_graphs(osctl::osc_inline_typed_strstream &os, const line_graph_iface *graph, std::vector<int> &params)
 {
-    osctl::osc_inline_typed_strstream os;
     osc_cairo_control cairoctl(os);
     for (size_t i = 0; i < params.size(); i++)
     {
@@ -295,15 +443,26 @@ static void send_graph_via_osc(osctl::osc_client &client, const std::string &add
         os << (uint32_t)LGI_END_ITEM;
     }
     os << (uint32_t)LGI_END;
-    client.send(address, os);
 }
 
-calf_plugins::dssi_feedback_sender::dssi_feedback_sender(const char *URI, line_graph_iface *_graph, calf_plugins::parameter_properties *props, int num_params)
+calf_plugins::dssi_feedback_sender::dssi_feedback_sender(const char *URI, const line_graph_iface *_graph)
 {
     graph = _graph;
+    is_client_shared = false;
     client = new osctl::osc_client;
     client->bind("0.0.0.0", 0);
     client->set_url(URI);
+}
+
+calf_plugins::dssi_feedback_sender::dssi_feedback_sender(osctl::osc_client *_client, const line_graph_iface *_graph)
+{
+    graph = _graph;
+    client = _client;
+    is_client_shared = true;
+}
+
+void calf_plugins::dssi_feedback_sender::add_graphs(const calf_plugins::parameter_properties *props, int num_params)
+{
     for (int i = 0; i < num_params; i++)
     {
         if (props[i].flags & PF_PROP_GRAPH)
@@ -313,13 +472,27 @@ calf_plugins::dssi_feedback_sender::dssi_feedback_sender(const char *URI, line_g
 
 void calf_plugins::dssi_feedback_sender::update()
 {
-    send_graph_via_osc(*client, "/lineGraph", graph, indices);
+    if (graph)
+    {
+        osctl::osc_inline_typed_strstream os;
+        serialize_graphs(os, graph, indices);
+        client->send("/lineGraph", os);
+    }
 }
 
 calf_plugins::dssi_feedback_sender::~dssi_feedback_sender()
 {
-    // this would not be received by GUI's main loop because it's already been terminated
-    // client->send("/iQuit");
-    delete client;
+    if (!is_client_shared)
+        delete client;
 }
+
+table_via_configure::table_via_configure()
+{
+    rows = 0;
+}
+
+table_via_configure::~table_via_configure()
+{
+}
+
 #endif

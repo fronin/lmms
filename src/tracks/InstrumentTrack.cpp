@@ -2,7 +2,7 @@
  * InstrumentTrack.cpp - implementation of instrument-track-class
  *                        (window + data-structures)
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -43,9 +43,10 @@
 
 #include "InstrumentTrack.h"
 #include "AudioPort.h"
-#include "automation_pattern.h"
+#include "AutomationPattern.h"
 #include "bb_track.h"
 #include "config_mgr.h"
+#include "ControllerConnection.h"
 #include "debug.h"
 #include "EffectChain.h"
 #include "EffectRackView.h"
@@ -103,13 +104,14 @@ InstrumentTrack::InstrumentTrack( trackContainer * _tc ) :
 							this, tr( "Panning" ) ),
 	m_pitchModel( 0, -100, 100, 1, this, tr( "Pitch" ) ),
 	m_pitchRangeModel( 1, 1, 24, this, tr( "Pitch range" ) ),
-	m_effectChannelModel( 0, 0, NumFxChannels, this, tr( "FX channel" ) ),
+	m_effectChannelModel( 0, 0, 0, this, tr( "FX channel" ) ), // change this so it's a combo box, all the channels and then new.
 	m_instrument( NULL ),
 	m_soundShaping( this ),
 	m_arpeggiator( this ),
 	m_chordCreator( this ),
 	m_piano( this )
 {
+	m_effectChannelModel.setRange( 0, engine::fxMixer()->numChannels()-1, 1);
 	connect( baseNoteModel(), SIGNAL( dataChanged() ),
 			this, SLOT( updateBaseNote() ) );
 	connect( &m_pitchModel, SIGNAL( dataChanged() ),
@@ -643,7 +645,7 @@ bool InstrumentTrack::play( const midiTime & _start,
 		// get all notes from the given pattern...
 		const NoteVector & notes = p->notes();
 		// ...and set our index to zero
-		NoteVector::ConstIterator it = notes.begin();
+		NoteVector::ConstIterator nit = notes.begin();
 #if LMMS_SINGERBOT_SUPPORT
 		int note_idx = 0;
 #endif
@@ -655,21 +657,21 @@ bool InstrumentTrack::play( const midiTime & _start,
 		if( cur_start > 0 )
 		{
 			// skip notes which are posated before start-tact
-			while( it != notes.end() && ( *it )->pos() < cur_start )
+			while( nit != notes.end() && ( *nit )->pos() < cur_start )
 			{
 #if LMMS_SINGERBOT_SUPPORT
-				if( ( *it )->length() != 0 )
+				if( ( *nit )->length() != 0 )
 				{
 					++note_idx;
 				}
 #endif
-				++it;
+				++nit;
 			}
 		}
 
 		note * cur_note;
-		while( it != notes.end() &&
-					( cur_note = *it )->pos() == cur_start )
+		while( nit != notes.end() &&
+					( cur_note = *nit )->pos() == cur_start )
 		{
 			if( cur_note->length() != 0 )
 			{
@@ -692,7 +694,7 @@ bool InstrumentTrack::play( const midiTime & _start,
 				++note_idx;
 #endif
 			}
-			++it;
+			++nit;
 		}
 	}
 	return played_a_note;
@@ -826,9 +828,8 @@ void InstrumentTrack::loadTrackSpecificSettings( const QDomElement & _this )
 			// compat code - if node-name doesn't match any known
 			// one, we assume that it is an instrument-plugin
 			// which we'll try to load
-			else if( node.nodeName() != "connection" &&
-					automationPattern::classNodeName() !=
-							node.nodeName() &&
+			else if( AutomationPattern::classNodeName() != node.nodeName() &&
+					ControllerConnection::classNodeName() != node.nodeName() &&
 					!node.toElement().hasAttribute( "id" ) )
 			{
 				delete m_instrument;
@@ -873,7 +874,7 @@ Instrument * InstrumentTrack::loadInstrument( const QString & _plugin_name )
 // #### ITV:
 
 
-QQueue<InstrumentTrackWindow *> InstrumentTrackView::s_windows;
+QQueue<InstrumentTrackWindow *> InstrumentTrackView::s_windowCache;
 
 
 
@@ -984,6 +985,24 @@ InstrumentTrackView::~InstrumentTrackView()
 
 
 
+InstrumentTrackWindow * InstrumentTrackView::topLevelInstrumentTrackWindow()
+{
+	InstrumentTrackWindow * w = NULL;
+	foreach( QMdiSubWindow * sw,
+				engine::mainWindow()->workspace()->subWindowList(
+											QMdiArea::ActivationHistoryOrder ) )
+	{
+		if( sw->isVisible() && sw->widget()->inherits( "InstrumentTrackWindow" ) )
+		{
+			w = qobject_cast<InstrumentTrackWindow *>( sw->widget() );
+		}
+	}
+
+	return w;
+}
+
+
+
 // TODO: Add windows to free list on freeInstrumentTrackWindow. 
 // But, don't NULL m_window or disconnect signals.  This will allow windows 
 // that are being show/hidden frequently to stay connected.
@@ -992,15 +1011,19 @@ void InstrumentTrackView::freeInstrumentTrackWindow()
 	if( m_window != NULL )
 	{
 		m_lastPos = m_window->parentWidget()->pos();
-		if( s_windows.count() < INSTRUMENT_WINDOW_CACHE_SIZE )
+
+		if( configManager::inst()->value( "ui",
+									"oneinstrumenttrackwindow" ).toInt() ||
+						s_windowCache.count() < INSTRUMENT_WINDOW_CACHE_SIZE )
 		{
 			model()->setHook( NULL );
+			m_window->setInstrumentTrackView( NULL );
 			m_window->parentWidget()->hide();
 			m_window->setModel(
 				engine::dummyTrackContainer()->
 						dummyInstrumentTrack() );
 			m_window->updateInstrumentView();
-			s_windows.enqueue( m_window );
+			s_windowCache << m_window;
 		}
 		else
 		{
@@ -1014,11 +1037,11 @@ void InstrumentTrackView::freeInstrumentTrackWindow()
 
 
 
-void InstrumentTrackView::cleanupWindowPool()
+void InstrumentTrackView::cleanupWindowCache()
 {
-	while( s_windows.count() )
+	while( !s_windowCache.isEmpty() )
 	{
-		delete s_windows.dequeue();
+		delete s_windowCache.dequeue();
 	}
 }
 
@@ -1030,16 +1053,21 @@ InstrumentTrackWindow * InstrumentTrackView::getInstrumentTrackWindow()
 	if( m_window != NULL )
 	{
 	}
-	else if( !s_windows.isEmpty() )
+	else if( !s_windowCache.isEmpty() )
 	{
-		m_window = s_windows.dequeue();
+		m_window = s_windowCache.dequeue();
 		
 		m_window->setInstrumentTrackView( this );
 		m_window->setModel( model() );
 		m_window->updateInstrumentView();
 		model()->setHook( m_window );
 
-		if( m_lastPos.x() > 0 || m_lastPos.y() > 0 )
+		if( configManager::inst()->value( "ui",
+										"oneinstrumenttrackwindow" ).toInt() )
+		{
+			s_windowCache << m_window;
+		}
+		else if( m_lastPos.x() > 0 || m_lastPos.y() > 0 )
 		{
 			m_window->parentWidget()->move( m_lastPos );
 		}
@@ -1047,6 +1075,12 @@ InstrumentTrackWindow * InstrumentTrackView::getInstrumentTrackWindow()
 	else
 	{
 		m_window = new InstrumentTrackWindow( this );
+		if( configManager::inst()->value( "ui",
+										"oneinstrumenttrackwindow" ).toInt() )
+		{
+			// first time, an InstrumentTrackWindow is opened
+			s_windowCache << m_window;
+		}
 	}
 		
 	return m_window;
@@ -1165,6 +1199,8 @@ protected:
 
 
 
+
+
 // #### ITW:
 InstrumentTrackWindow::InstrumentTrackWindow( InstrumentTrackView * _itv ) :
 	QWidget(),
@@ -1269,7 +1305,7 @@ InstrumentTrackWindow::InstrumentTrackWindow( InstrumentTrackView * _itv ) :
 	m_tabWidget->addTab( m_midiView, tr( "MIDI" ), 4 );
 
 	// setup piano-widget
-	m_pianoView= new PianoView( this );
+	m_pianoView = new PianoView( this );
 
 	vlayout->addWidget( m_generalSettingsWidget );
 	vlayout->addWidget( m_tabWidget );
@@ -1299,12 +1335,27 @@ InstrumentTrackWindow::InstrumentTrackWindow( InstrumentTrackView * _itv ) :
 
 InstrumentTrackWindow::~InstrumentTrackWindow()
 {
+	InstrumentTrackView::s_windowCache.removeAll( this );
+
 	delete m_instrumentView;
+
 	if( engine::mainWindow()->workspace() )
 	{
 		parentWidget()->hide();
 		parentWidget()->deleteLater();
 	}
+}
+
+
+
+
+void InstrumentTrackWindow::setInstrumentTrackView( InstrumentTrackView * _tv )
+{
+	if( m_itv && _tv )
+	{
+		m_itv->m_tlb->setChecked( false );
+	}
+	m_itv = _tv;
 }
 
 
@@ -1316,8 +1367,8 @@ void InstrumentTrackWindow::modelChanged()
 
 	m_nameLineEdit->setText( m_track->name() );
 
-	disconnect( m_track, SIGNAL( nameChanged() ) );
-	disconnect( m_track, SIGNAL( instrumentChanged() ) );
+	m_track->disconnect( SIGNAL( nameChanged() ), this );
+	m_track->disconnect( SIGNAL( instrumentChanged() ), this );
 
 	connect( m_track, SIGNAL( nameChanged() ),
 			this, SLOT( updateName() ) );

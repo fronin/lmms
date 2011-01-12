@@ -1,8 +1,8 @@
 /*
  * spectrum_analyzer.cpp - spectrum analyzer plugin
  *
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2008-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -56,6 +56,8 @@ spectrumAnalyzer::spectrumAnalyzer( Model * _parent,
 	m_framesFilledUp( 0 ),
 	m_energy( 0 )
 {
+	memset( m_buffer, 0, sizeof( m_buffer ) );
+
 	m_specBuf = (fftwf_complex *) fftwf_malloc( ( FFT_BUFFER_SIZE + 1 ) *
 						sizeof( fftwf_complex ) );
 	m_fftPlan = fftwf_plan_dft_r2c_1d( FFT_BUFFER_SIZE*2, m_buffer,
@@ -80,6 +82,11 @@ bool spectrumAnalyzer::processAudioBuffer( sampleFrame * _buf,
 	if( !isEnabled() || !isRunning () )
 	{
 		return( false );
+	}
+
+	if( !m_saControls.isViewVisible() )
+	{
+		return true;
 	}
 
 	fpp_t f = 0;
@@ -163,7 +170,7 @@ bool spectrumAnalyzer::processAudioBuffer( sampleFrame * _buf,
 extern "C"
 {
 
-// neccessary for getting instance out of shared lib
+// necessary for getting instance out of shared lib
 Plugin * PLUGIN_EXPORT lmms_plugin_main( Model * _parent, void * _data )
 {
 	return( new spectrumAnalyzer( _parent,

@@ -1,7 +1,7 @@
 /*
  * song_editor.cpp - basic window for song-editing
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -22,12 +22,14 @@
  *
  */
 
+#include <QtCore/QTimeLine>
 #include <QtGui/QAction>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLabel>
 #include <QtGui/QLayout>
 #include <QtGui/QMdiArea>
+#include <QtGui/QMdiSubWindow>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 #include <QtGui/QToolBar>
@@ -35,6 +37,7 @@
 
 #include <math.h>
 
+#include "AudioOutputContext.h"
 #include "song_editor.h"
 #include "combobox.h"
 #include "embed.h"
@@ -43,7 +46,7 @@
 #include "timeline.h"
 #include "tool_button.h"
 #include "tooltip.h"
-#include "AudioDevice.h"
+#include "AudioBackend.h"
 #include "piano_roll.h"
 
 
@@ -95,14 +98,15 @@ songEditor::songEditor( song * _song, songEditor * & _engine_ptr ) :
 	m_positionLine = new positionLine( this );
 
 
+	// let's get notified when loading a project
+	connect( m_s, SIGNAL( projectLoaded() ),
+				this, SLOT( adjustUiAfterProjectLoad() ) );
+
 	// create own toolbar
 	m_toolBar = new QWidget( this );
+	m_toolBar->setObjectName( "toolbar" );
 	m_toolBar->setFixedHeight( 32 );
 	m_toolBar->setAutoFillBackground( true );
-	QPalette pal;
-	pal.setBrush( m_toolBar->backgroundRole(), 
-				embed::getIconPixmap( "toolbar_bg" ) );
-	m_toolBar->setPalette( pal );
 
 	static_cast<QVBoxLayout *>( layout() )->insertWidget( 0, m_toolBar );
 	static_cast<QVBoxLayout *>( layout() )->insertWidget( 1, m_timeLine );
@@ -130,7 +134,7 @@ songEditor::songEditor( song * _song, songEditor * & _engine_ptr ) :
 	m_recordButton->setDisabled( true );
 	
 	// disable record buttons if capturing is not supported
-	if( !engine::getMixer()->audioDev()->supportsCapture() )
+	if( !engine::mixer()->audioOutputContext()->audioBackend()->supportsCapture() )
 	{
 		m_recordButton->setDisabled( true );
 		m_recordAccompanyButton->setDisabled( true );
@@ -426,6 +430,28 @@ void songEditor::updateScrollBar( int _len )
 
 
 
+static inline void animateScroll( QScrollBar *scrollBar, int newVal )
+{
+	// do smooth scroll animation using QTimeLine
+	QTimeLine *t = scrollBar->findChild<QTimeLine *>();
+	if( t == NULL )
+	{
+		t = new QTimeLine( 600, scrollBar );
+		t->setFrameRange( scrollBar->value(), newVal );
+		t->connect( t, SIGNAL( finished() ), SLOT( deleteLater() ) );
+
+		scrollBar->connect( t, SIGNAL( frameChanged( int ) ), SLOT( setValue( int ) ) );
+
+		t->start();
+	}
+	else
+	{
+		// smooth scrolling is still active, therefore just update the end frame
+		t->setEndFrame( newVal );
+	}
+}
+
+
 void songEditor::updatePosition( const midiTime & _t )
 {
 	if( ( m_s->isPlaying() && m_s->m_playMode == song::Mode_PlaySong
@@ -433,11 +459,12 @@ void songEditor::updatePosition( const midiTime & _t )
 							m_scrollBack == true )
 	{
 		const int w = width() - DEFAULT_SETTINGS_WIDGET_WIDTH
-							- TRACK_OP_WIDTH;
+							- TRACK_OP_WIDTH
+							- 32;	// rough estimation for width of right scrollbar
 		if( _t > m_currentPosition + w * midiTime::ticksPerTact() /
 							pixelsPerTact() )
 		{
-			m_leftRightScroll->setValue( _t.getTact() );
+			animateScroll( m_leftRightScroll, _t.getTact() );
 		}
 		else if( _t < m_currentPosition )
 		{
@@ -445,7 +472,7 @@ void songEditor::updatePosition( const midiTime & _t )
 				(int)( _t - w * midiTime::ticksPerTact() /
 							pixelsPerTact() ),
 									0 );
-			m_leftRightScroll->setValue( t.getTact() );
+			animateScroll( m_leftRightScroll, t.getTact() );
 		}
 		m_scrollBack = false;
 	}
@@ -476,6 +503,22 @@ void songEditor::zoomingChanged()
 	m_s->m_playPos[song::Mode_PlaySong].m_timeLine->
 					setPixelsPerTact( pixelsPerTact() );
 	realignTracks();
+}
+
+
+
+
+void songEditor::adjustUiAfterProjectLoad()
+{
+	//if( isMaximized() )
+	{
+		// make sure to bring us to front as the song editor is the central
+		// widget in a song and when just opening a song in order to listen to
+		// it, it's very annyoing to manually bring up the song editor each time
+		engine::mainWindow()->workspace()->setActiveSubWindow(
+				qobject_cast<QMdiSubWindow *>( parentWidget() ) );
+	}
+	scrolled( 0 );
 }
 
 

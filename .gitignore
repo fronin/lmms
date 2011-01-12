@@ -1,0 +1,4 @@
+tags
+*.sw?
+build/
+target/

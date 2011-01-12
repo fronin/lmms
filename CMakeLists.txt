@@ -42,11 +42,6 @@ ENDIF(VERSION_SUFFIX)
 
 INCLUDE(DetectMachine)
 
-IF(LMMS_HOST_X86_64)
-	SET(STRIP /opt/mingw64/bin/x86_64-pc-mingw32-strip)
-ELSE(LMMS_HOST_X86_64)
-	SET(STRIP /opt/mingw32/bin/i586-pc-mingw32-strip)
-ENDIF(LMMS_HOST_X86_64)
 
 OPTION(WANT_ALSA	"Include ALSA (Advanced Linux Sound Architecture) support" ON)
 OPTION(WANT_CALF	"Include CALF LADSPA plugins" ON)
@@ -57,7 +52,7 @@ OPTION(WANT_JACK	"Include JACK (Jack Audio Connection Kit) support" ON)
 OPTION(WANT_LV2		"Include LV2 support" ON)
 OPTION(WANT_OGGVORBIS	"Include OGG/Vorbis support" ON)
 OPTION(WANT_PULSEAUDIO	"Include PulseAudio support" ON)
-#OPTION(WANT_PORTAUDIO	"Include PortAudio support" ON)	# TODO: fix PortAudio support
+OPTION(WANT_PORTAUDIO	"Include PortAudio support" ON)
 OPTION(WANT_SDL		"Include SDL (Simple DirectMedia Layer) support" ON)
 OPTION(WANT_SF2		"Include SoundFont2 player plugin" ON)
 OPTION(WANT_STK		"Include Stk (Synthesis Toolkit) support" ON)
@@ -112,7 +107,7 @@ CHECK_INCLUDE_FILES(process.h LMMS_HAVE_PROCESS_H)
 CHECK_INCLUDE_FILES(locale.h LMMS_HAVE_LOCALE_H)
 
 # check for Qt4
-SET(QT_MIN_VERSION "4.4.0")
+SET(QT_MIN_VERSION "4.6.0" COMPONENTS QtCore QtGui QtXml QtNetwork)
 FIND_PACKAGE(Qt4 REQUIRED)
 SET(QT_USE_QTXML 1)
 SET(QT_USE_QTNETWORK 1)
@@ -221,26 +216,22 @@ IF(WANT_STK)
 	ELSE(STK_FOUND)
 		SET(STK_INCLUDE_DIR "")
 		SET(STATUS_STK "not found, please install libstk0-dev (or similiar) "
-			"if you require the Vibed Instrument")
+			"if you require the Mallets instrument")
 	ENDIF(STK_FOUND)
 ENDIF(WANT_STK)
 
 
 # check for PortAudio
-#IF(WANT_PORTAUDIO)
-#	FIND_PACKAGE(Portaudio)
-#	IF(PORTAUDIO_FOUND)
-#		SET(LMMS_HAVE_PORTAUDIO TRUE)
-#		SET(STATUS_PORTAUDIO "OK")
-#	ELSE(PORTAUDIO_FOUND)
-#		SET(STATUS_PORTAUDIO "not found, please install libportaudio-dev (or similiar, version >= 1.8) "
-#			"if you require Portaudio support")
-#	ENDIF(PORTAUDIO_FOUND)
-#ENDIF(WANT_PORTAUDIO)
-IF(NOT LMMS_HAVE_PORTAUDIO)
-	SET(PORTAUDIO_INCLUDE_DIR "")
-	SET(PORTAUDIO_LIBRARIES "")
-ENDIF(NOT LMMS_HAVE_PORTAUDIO)
+IF(WANT_PORTAUDIO)
+	FIND_PACKAGE(Portaudio)
+	IF(PORTAUDIO_FOUND)
+		SET(LMMS_HAVE_PORTAUDIO TRUE)
+		SET(STATUS_PORTAUDIO "OK")
+	ELSE(PORTAUDIO_FOUND)
+		SET(STATUS_PORTAUDIO "not found, please install portaudio19-dev (or similiar, version >= 1.9) "
+			"if you require PortAudio support")
+	ENDIF(PORTAUDIO_FOUND)
+ENDIF(WANT_PORTAUDIO)
 
 
 # check for PulseAudio
@@ -297,6 +288,10 @@ IF(NOT LMMS_HAVE_ALSA)
 	SET(ASOUND_LIBRARY "")
 ENDIF(NOT LMMS_HAVE_ALSA)
 
+# check for pthreads
+IF(LMMS_BUILD_LINUX OR LMMS_BUILD_APPLE)
+	FIND_PACKAGE(Threads)
+ENDIF(LMMS_BUILD_LINUX OR LMMS_BUILD_APPLE)
 
 # check for JACK
 IF(WANT_JACK)
@@ -426,7 +421,7 @@ IF(NOT LMMS_HAVE_SAMPLERATE)
 		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/mid_qual_coeffs.h
 		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/fastest_coeffs.h
 		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/common.h
-		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/config.h
+		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/src_config.h
 		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/float_cast.h
 		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/src_zoh.c
 		${CMAKE_SOURCE_DIR}/src/3rdparty/samplerate/src_linear.c)
@@ -437,6 +432,7 @@ ENDIF(NOT LMMS_HAVE_SAMPLERATE)
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/lmmsconfig.h.in ${CMAKE_BINARY_DIR}/lmmsconfig.h)
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/lmmsversion.h.in ${CMAKE_BINARY_DIR}/lmmsversion.h)
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/lmms.rc.in ${CMAKE_BINARY_DIR}/lmms.rc)
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/plugins/zynaddsubfx/zynaddsubfx.rc.in ${CMAKE_BINARY_DIR}/plugins/zynaddsubfx/zynaddsubfx.rc)
 
 
 INCLUDE(InstallRequiredSystemLibraries)
@@ -463,16 +459,31 @@ IF(WIN32)
 SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\nsis_branding.bmp")
 SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\lmms.ico")
 SET(CPACK_NSIS_INSTALLED_ICON_NAME "lmms.exe")
-SET(CPACK_NSIS_DISPLAY_NAME "Linux MultiMedia Studio (LMMS)")
+SET(CPACK_NSIS_DISPLAY_NAME "LMMS ${VERSION}")
 SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\lmms.sourceforge.net")
 SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\lmms.sourceforge.net")
 SET(CPACK_NSIS_CONTACT "lmms-devel@lists.sourceforge.net")
 SET(CPACK_PACKAGE_EXECUTABLES "lmms.exe;Linux MultiMedia Studio")
 SET(CPACK_NSIS_MENU_LINKS "lmms.exe;Linux MultiMedia Studio")
+#SET(CPACK_NSIS_DEFINES "!include ${CMAKE_SOURCE_DIR}/cmake/nsis/FileAssociation.nsh")
+#SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+#  \\\${registerExtension} \\\"$INSTDIR\\\\lmms.exe\\\" \\\".mmp\\\" \\\"LMMS Project\\\"
+#  \\\${registerExtension} \\\"$INSTDIR\\\\lmms.exe\\\" \\\".mmpz\\\" \\\"LMMS Project (compressed)\\\"
+#  ")
+#SET(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+#  \\\${unregisterExtension} \\\".mmp\\\" \\\"LMMS Project\\\"
+#  \\\${unregisterExtension} \\\".mmpz\\\" \\\"LMMS Project (compressed)\\\"
+#  ")
 ELSE(WIN32)
 SET(CPACK_STRIP_FILES "bin/lmms;${PLUGIN_DIR}/*.so")
 SET(CPACK_PACKAGE_EXECUTABLES "lmms" "LMMS binary")
 ENDIF(WIN32)
+
+IF(WIN64)
+	SET(CPACK_PACKAGE_FILE_NAME "lmms-${VERSION}-win64")
+	SET(CPACK_NSIS_DEFINES "${CPACK_NSIS_DEFINES}
+		InstallDir \\\"\\\$PROGRAMFILES64\\\\${CPACK_PACKAGE_INSTALL_DIRECTORY}\\\"")
+ENDIF(WIN64)
 
 SET(MACOSX_BUNDLE_ICON_FILE "${CMAKE_SOURCE_DIR}/data/themes/default/icon.png")
 SET(MACOSX_BUNDLE_GUI_IDENTIFIER "LMMS")
@@ -493,8 +504,8 @@ CPACK_ADD_COMPONENT(Core DISPLAY_NAME "Core" DESCRIPTION "Core binaries and libr
 
 # set compiler flags
 #SET(CMAKE_BUILD_TYPE relwithdebug)
-SET(CMAKE_C_FLAGS "-O2 -g -Wall -ftree-vectorize ${CMAKE_C_FLAGS}")
-SET(CMAKE_CXX_FLAGS "-O2 -g -fno-exceptions -Wall -ftree-vectorize ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_C_FLAGS "-O2 -g -Wall ${CMAKE_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "-O2 -g -fno-exceptions -Wall ${CMAKE_CXX_FLAGS}")
 #SET(CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE} "${CMAKE_C_FLAGS}")
 #SET(CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE} "${CMAKE_CXX_FLAGS}")
 
@@ -566,11 +577,6 @@ ENDIF(LMMS_HOST_X86 OR LMMS_HOST_X86_64)
 
 IF(WIN32)
 	SET(WINRC "${CMAKE_BINARY_DIR}/lmmsrc.obj")
-	IF(LMMS_HOST_X86_64)
-		SET(WINDRES /opt/mingw64/bin/x86_64-pc-mingw32-windres)
-	ELSE(LMMS_HOST_X86_64)
-		SET(WINDRES /opt/mingw32/bin/i586-pc-mingw32-windres)
-	ENDIF(LMMS_HOST_X86_64)
 	ADD_CUSTOM_COMMAND(OUTPUT ${WINRC}
 				COMMAND ${WINDRES}
 					-I${CMAKE_SOURCE_DIR}
@@ -592,11 +598,15 @@ ADD_SUBDIRECTORY(data)
 #
 # build LMMS-binary
 #
+IF(LMMS_BUILD_WIN32)
+	SET(EXTRA_LIBRARIES "-lwinmm")
+ENDIF()
+
 ADD_DEFINITIONS(-D'LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}/"' -D'PLUGIN_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}/lmms/"' ${PULSEAUDIO_DEFINITIONS} ${PORTAUDIO_DEFINITIONS})
 
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include ${SDL_INCLUDE_DIR} ${PORTAUDIO_INCLUDE_DIR} ${PULSEAUDIO_INCLUDE_DIR} ${JACK_INCLUDE_DIRS} ${OGGVORBIS_INCLUDE_DIR} ${SAMPLERATE_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS} ${ZIP_INCLUDE_DIR} ${FLAC_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include ${SDL_INCLUDE_DIR} ${PORTAUDIO_INCLUDE_DIR} ${PULSEAUDIO_INCLUDE_DIR} ${JACK_INCLUDE_DIRS} ${OGGVORBIS_INCLUDE_DIR} ${SAMPLERATE_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS} ${FLAC_INCLUDE_DIR})
 LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/lib ${ASOUND_LIBRARY_DIR} ${JACK_LIBRARY_DIRS} ${SAMPLERATE_LIBRARY_DIRS} ${SNDFILE_LIBRARY_DIRS})
-LINK_LIBRARIES(${QT_LIBRARIES} ${ASOUND_LIBRARY} ${SDL_LIBRARY} ${PORTAUDIO_LIBRARIES} ${PULSEAUDIO_LIBRARIES} ${JACK_LIBRARIES} ${OGGVORBIS_LIBRARIES} ${SAMPLERATE_LIBRARIES} ${SNDFILE_LIBRARIES} ${ZIP_LIBRARIES} ${FLAC_LIBRARIES} ${SLV2_LIBRARY})
+LINK_LIBRARIES(${CMAKE_THREAD_LIBS_INIT} ${QT_LIBRARIES} ${ASOUND_LIBRARY} ${SDL_LIBRARY} ${PORTAUDIO_LIBRARIES} ${PULSEAUDIO_LIBRARIES} ${JACK_LIBRARIES} ${OGGVORBIS_LIBRARIES} ${SAMPLERATE_LIBRARIES} ${SNDFILE_LIBRARIES} ${FLAC_LIBRARIES} ${SLV2_LIBRARY} ${EXTRA_LIBRARIES})
 
 ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_BINARY_DIR}/lmms.1.gz COMMAND gzip -c ${CMAKE_SOURCE_DIR}/lmms.1 > ${CMAKE_BINARY_DIR}/lmms.1.gz DEPENDS ${CMAKE_SOURCE_DIR}/lmms.1 COMMENT "Generating lmms.1.gz")
 
@@ -608,11 +618,25 @@ IF(LMMS_BUILD_WIN32)
 	ADD_CUSTOM_COMMAND(TARGET lmms POST_BUILD COMMAND ${STRIP} ${CMAKE_BINARY_DIR}/lmms.exe)
 
 	INSTALL(TARGETS lmms RUNTIME DESTINATION . COMPONENT Core)
-	IF(LMMS_BUILD_WIN64)
-		INSTALL(FILES /opt/mingw64/bin/QtCore4.dll /opt/mingw64/bin/QtGui4.dll /opt/mingw64/bin/QtXml4.dll /opt/mingw64/bin/QtNetwork4.dll /opt/mingw64/bin/libsndfile-1.dll /opt/mingw64/bin/libvorbis-0.dll /opt/mingw64/bin/libvorbisenc-2.dll /opt/mingw64/bin/libvorbisfile-3.dll /opt/mingw64/bin/libogg-0.dll /opt/mingw64/bin/libfluidsynth-1.dll /opt/mingw64/bin/libfftw3f-3.dll /opt/mingw64/bin/SDL.dll DESTINATION . COMPONENT Core)
-	ELSE(LMMS_BUILD_WIN64)
-		INSTALL(FILES /opt/mingw32/bin/QtCore4.dll /opt/mingw32/bin/QtGui4.dll /opt/mingw32/bin/QtXml4.dll /opt/mingw32/bin/QtNetwork4.dll /opt/mingw32/bin/libz.dll /opt/mingw32/bin/libsndfile-1.dll /opt/mingw32/bin/libvorbis-0.dll /opt/mingw32/bin/libvorbisenc-2.dll /opt/mingw32/bin/libvorbisfile-3.dll /opt/mingw32/bin/libogg-0.dll /opt/mingw32/bin/libfluidsynth-1.dll /opt/mingw32/bin/libfftw3f-3.dll /opt/mingw32/bin/SDL.dll /opt/mingw32/i586-mingw32/bin/mingwm10.dll DESTINATION . COMPONENT Core)
-	ENDIF(LMMS_BUILD_WIN64)
+	INSTALL(FILES
+					${MINGW_PREFIX}/bin/QtCore4.dll
+					${MINGW_PREFIX}/bin/QtGui4.dll
+					${MINGW_PREFIX}/bin/QtXml4.dll
+					${MINGW_PREFIX}/bin/QtNetwork4.dll
+					${MINGW_PREFIX}/bin/libsndfile-1.dll
+					${MINGW_PREFIX}/bin/libvorbis-0.dll
+					${MINGW_PREFIX}/bin/libvorbisenc-2.dll
+					${MINGW_PREFIX}/bin/libvorbisfile-3.dll
+					${MINGW_PREFIX}/bin/libogg-0.dll
+					${MINGW_PREFIX}/bin/libfluidsynth.dll
+					${MINGW_PREFIX}/bin/libfftw3f-3.dll
+					${MINGW_PREFIX}/bin/libFLAC-8.dll
+					${MINGW_PREFIX}/bin/libFLAC++-6.dll
+					${MINGW_PREFIX}/bin/libportaudio-2.dll
+					${MINGW_PREFIX}/bin/SDL.dll
+					${MINGW_PREFIX}/bin/libglib-2.0-0.dll
+					${MINGW_PREFIX}/bin/libgthread-2.0-0.dll
+				DESTINATION . COMPONENT Core)
 
 ELSE(LMMS_BUILD_WIN32)
 	IF(NOT LMMS_BUILD_APPLE)
@@ -634,7 +658,7 @@ FOREACH(_ts_file ${lmms_LOCALES})
 	STRING(REPLACE "${CMAKE_SOURCE_DIR}/data/locale/" "" _ts_target "${_ts_file}")
 	STRING(REPLACE ".ts" ".qm" _qm_file "${_ts_file}")
 	STRING(REPLACE ".ts" ".qm" _qm_target "${_ts_target}")
-	ADD_CUSTOM_TARGET(${_ts_target} COMMAND ${QT_LUPDATE_EXECUTABLE} -locations none -no-obsolete ${lmms_SOURCES} `find ${CMAKE_SOURCE_DIR}/plugins/ -type f -name '*.cpp'` -ts ${_ts_file})
+	ADD_CUSTOM_TARGET(${_ts_target} COMMAND ${QT_LUPDATE_EXECUTABLE} -locations none -no-obsolete ${lmms_SOURCES} ${lmms_UI} `find ${CMAKE_SOURCE_DIR}/plugins/ -type f -name '*.cpp'` -ts ${_ts_file})
 	ADD_CUSTOM_TARGET(${_qm_target} COMMAND ${QT_LRELEASE_EXECUTABLE} ${_ts_file} -qm ${_qm_file})
 	LIST(APPEND ts_targets "${_ts_target}")
 	LIST(APPEND qm_targets "${_qm_target}")
@@ -712,13 +736,13 @@ ADD_CUSTOM_TARGET(win32-pkg
 			COMMAND cp /opt/mingw32/bin/libsndfile-1.dll tmp/lmms
 			COMMAND cp /opt/mingw32/bin/libvorbis*.dll tmp/lmms
 			COMMAND cp /opt/mingw32/bin/libogg-0.dll tmp/lmms
-			COMMAND cp /opt/mingw32/bin/libfluidsynth-1.dll tmp/lmms
+			COMMAND cp /opt/mingw32/bin/libfluidsynth.dll tmp/lmms
 			COMMAND cp /opt/mingw32/bin/libfftw3f-3.dll tmp/lmms
 			COMMAND cp /opt/mingw32/bin/SDL.dll tmp/lmms
 			COMMAND cp /opt/mingw32/i586-pc-mingw32/bin/mingwm10.dll tmp/lmms
 			COMMAND cp -L ${CMAKE_SOURCE_DIR}/COPYING tmp/lmms/LICENSE.TXT
 			COMMAND cp -L ${CMAKE_SOURCE_DIR}/README tmp/lmms/README.TXT
-			COMMAND /opt/mingw32/bin/i586-pc-mingw32-strip tmp/lmms/lmms.exe tmp/lmms/plugins/*.dll tmp/lmms/plugins/ladspa/*.dll
+			COMMAND ${STRIP} tmp/lmms/lmms.exe tmp/lmms/plugins/*.dll tmp/lmms/plugins/ladspa/*.dll
 			COMMAND mv tmp/lmms tmp/lmms-${VERSION}
 			COMMAND cd tmp && zip -r -9 ../lmms-${VERSION}-bin-win32.zip lmms-${VERSION}/*
 			COMMAND rm -rf tmp
@@ -746,7 +770,7 @@ MESSAGE(
 "* ALSA                        : ${STATUS_ALSA}\n"
 "* JACK                        : ${STATUS_JACK}\n"
 "* OSS                         : ${STATUS_OSS}\n"
-#"* PortAudio                   : ${STATUS_PORTAUDIO}\n"
+"* PortAudio                   : ${STATUS_PORTAUDIO}\n"
 "* PulseAudio                  : ${STATUS_PULSEAUDIO}\n"
 "* SDL                         : ${STATUS_SDL}\n"
 )

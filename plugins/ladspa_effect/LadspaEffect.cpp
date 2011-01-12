@@ -2,7 +2,7 @@
  * LadspaEffect.cpp - class for processing LADSPA effects
  *
  * Copyright (c) 2006-2008 Danny McRae <khjklujn/at/users.sourceforge.net>
- * Copyright (c) 2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2009-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -25,17 +25,18 @@
 
 #include <QtGui/QMessageBox>
 
+#include "AudioBackend.h"
+#include "AudioOutputContext.h"
 #include "LadspaEffect.h"
 #include "mmp.h"
-#include "AudioDevice.h"
 #include "config_mgr.h"
 #include "ladspa_2_lmms.h"
 #include "LadspaControl.h"
 #include "LadspaSubPluginFeatures.h"
-#include "mixer.h"
+#include "Mixer.h"
 #include "EffectChain.h"
 #include "Cpu.h"
-#include "automation_pattern.h"
+#include "AutomationPattern.h"
 #include "ControllerConnection.h"
 
 #include "embed.cpp"
@@ -87,7 +88,7 @@ LadspaEffect::LadspaEffect( Model * _parent,
 
 	pluginInstantiation();
 
-	connect( engine::getMixer(), SIGNAL( sampleRateChanged() ),
+	connect( engine::mixer(), SIGNAL( sampleRateChanged() ),
 					this, SLOT( changeSampleRate() ) );
 }
 
@@ -122,10 +123,10 @@ void LadspaEffect::changeSampleRate()
 
 	// the IDs of re-created controls have been saved and now need to be
 	// resolved again
-	automationPattern::resolveAllIDs();
+	AutomationPattern::resolveAllIDs();
 
 	// make sure, connections are ok
-        ControllerConnection::finalizeConnections();
+	ControllerConnection::finalizeConnections();
 }
 
 
@@ -144,13 +145,13 @@ bool LadspaEffect::processAudioBuffer( sampleFrame * _buf,
 	int frames = _frames;
 	sampleFrame * o_buf = NULL;
 
-	if( m_maxSampleRate < engine::getMixer()->processingSampleRate() )
+	if( m_maxSampleRate < engine::mixer()->processingSampleRate() )
 	{
 		o_buf = _buf;
 		_buf = CPU::allocFrames( _frames );
 		sampleDown( o_buf, _buf, m_maxSampleRate );
 		frames = _frames * m_maxSampleRate /
-				engine::getMixer()->processingSampleRate();
+				engine::mixer()->processingSampleRate();
 	}
 
 	// Copy the LMMS audio buffer to the LADSPA input buffer and initialize
@@ -298,7 +299,8 @@ void LadspaEffect::pluginInstantiation()
 	ladspa2LMMS * manager = engine::getLADSPAManager();
 
 	// Calculate how many processing units are needed.
-	const ch_cnt_t lmms_chnls = engine::getMixer()->audioDev()->channels();
+	const ch_cnt_t lmms_chnls = engine::mixer()->audioOutputContext()->
+													audioBackend()->channels();
 	int effect_channels = manager->getDescription( m_key )->inputChannels;
 	setProcessorCount( lmms_chnls / effect_channels );
 
@@ -325,7 +327,7 @@ void LadspaEffect::pluginInstantiation()
 		// during cleanup.  It was easier to troubleshoot with the
 		// memory management all taking place in one file.
 				p->buffer = 
-		new LADSPA_Data[engine::getMixer()->framesPerPeriod()];
+		new LADSPA_Data[engine::mixer()->framesPerPeriod()];
 
 				if( p->name.toUpper().contains( "IN" ) &&
 					manager->isPortInput( m_key, port ) )
@@ -494,7 +496,7 @@ void LadspaEffect::pluginInstantiation()
 		{
 			port_desc_t * pp = m_ports.at( proc ).at( port );
 			if( !manager->connectPort( m_key,
-			     			m_handles[proc],
+						m_handles[proc],
 						port,
 						pp->buffer ) )
 			{
@@ -566,7 +568,7 @@ sample_rate_t LadspaEffect::maxSamplerate( const QString & _name )
 	{
 		return __buggy_plugins[_name];
 	}
-	return engine::getMixer()->processingSampleRate();
+	return engine::mixer()->processingSampleRate();
 }
 
 
@@ -575,7 +577,7 @@ sample_rate_t LadspaEffect::maxSamplerate( const QString & _name )
 extern "C"
 {
 
-// neccessary for getting instance out of shared lib
+// necessary for getting instance out of shared lib
 Plugin * PLUGIN_EXPORT lmms_plugin_main( Model * _parent, void * _data )
 {
 	return new LadspaEffect( _parent,

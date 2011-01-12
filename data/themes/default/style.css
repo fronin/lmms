@@ -8,8 +8,19 @@ QMdiArea {
 	background-image: url(resources:background_artwork.png);
 }
 
-automationEditor {
+AutomationEditor {
 	background-color: rgb(0, 0, 0);
+}
+
+#PreferencesDialog QListView::item:selected {
+	background: qlineargradient(x1: 0, y1:0, x2:0,y2:1, stop:0 rgb(84,87,96), stop:1 rgb(54,57,66));
+	border-radius: 8px;
+	color: white;
+}
+
+#PreferencesDialog QListView::item:hover:!selected {
+	background: qlineargradient(x1: 0, y1:0, x2:0,y2:1, stop:0 rgb(104,107,116), stop:1 rgb(94,97,106));
+	border-radius: 8px;
 }
 
 #WelcomeFrame {
@@ -31,6 +42,16 @@ automationEditor {
 
 #WelcomeFrame QLabel {
 	color: rgb(128, 128, 128);
+}
+
+
+
+QToolTip {
+	border-radius: 4px;
+	background: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(50, 50, 50, 220));
+	opacity: 175;
+	border: 1.5px solid rgba(0,0,0,255);
+	color: #00ff00;
 }
 
 
@@ -112,10 +133,8 @@ nameLabel, effectLabel, sf2InstrumentView > QLabel, QComboBox {
 }
 
 
-QWidget#mainToolbar {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #66728c, stop: 1.0 #38404e);
-}
-
+QWidget#mainToolbar,
+QWidget#toolbar,
 QToolBar {
 	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop: 0 #66728c, stop: 1.0 #38404e);
 }
@@ -129,21 +148,21 @@ QToolButton, toolButton {
 	color: white;
 }
 
-QToolButton:hover {
+QToolButton:hover, toolButton:hover {
 	background: rgba(255,255,255,96);
 	border-radius: 3px;
 	border: 1px solid rgba(0,0,0,255);
 	color: black;
 }
 
-QToolButton:pressed {
+QToolButton:pressed, toolButton:pressed {
 	background: rgba(192,192,192,96);
 	padding: 3px 0px 0px 3px;
 	border-radius: 3px;
 	border: 1px solid rgba(255,255,255,64);
 }
 
-QToolButton:checked {
+QToolButton:checked, toolButton:checked {
 	background: rgba(233,239,255,96);
 	border-radius: 3px;
 	border: 1px solid black;
@@ -164,6 +183,10 @@ FxMixerView QPushButton, EffectRackView QPushButton, ControllerRackView QPushBut
 
 timeLine {
 	font-size: 8px;
+}
+
+QTreeView {
+	alternate-background-color: rgb(108,108,108);
 }
 
 /* Plugins */

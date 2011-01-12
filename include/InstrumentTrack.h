@@ -2,7 +2,7 @@
  * InstrumentTrack.h - declaration of class InstrumentTrack, a track + window
  *                     which holds an instrument-plugin
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -88,12 +88,12 @@ public:
 	void playNote( notePlayHandle * _n, sampleFrame * _working_buffer );
 
 	QString instrumentName() const;
-	inline const Instrument * instrument() const
+	const Instrument *instrument() const
 	{
 		return m_instrument;
 	}
 
-	inline Instrument * instrument()
+	Instrument *instrument()
 	{
 		return m_instrument;
 	}
@@ -108,7 +108,7 @@ public:
 	int masterKey( int _midi_key ) const;
 
 	// translate pitch to midi-pitch [0,16383]
-	inline int midiPitch() const
+	int midiPitch() const
 	{
 		return (int)( ( m_pitchModel.value()+100 ) * 16383 ) / 200;
 	}
@@ -135,17 +135,17 @@ public:
 	// load instrument whose name matches given one
 	Instrument * loadInstrument( const QString & _instrument_name );
 
-	inline AudioPort * audioPort()
+	AudioPort * audioPort()
 	{
 		return &m_audioPort;
 	}
 
-	inline MidiPort * midiPort()
+	MidiPort * midiPort()
 	{
 		return &m_midiPort;
 	}
 
-	Piano * pianoModel()
+	Piano *pianoModel()
 	{
 		return &m_piano;
 	}
@@ -259,6 +259,7 @@ public:
 		return castModel<InstrumentTrack>();
 	}
 
+	static InstrumentTrackWindow * topLevelInstrumentTrackWindow();
 
 	QMenu * midiMenu()
 	{
@@ -267,7 +268,7 @@ public:
 
 	void freeInstrumentTrackWindow();
 
-	static void cleanupWindowPool();
+	static void cleanupWindowCache();
 
 
 protected:
@@ -288,7 +289,7 @@ private slots:
 private:
 	InstrumentTrackWindow * m_window;
 
-	static QQueue<InstrumentTrackWindow *> s_windows;
+	static QQueue<InstrumentTrackWindow *> s_windowCache;
 
 	// widgets in track-settings-widget
 	trackLabelButton * m_tlb;
@@ -335,9 +336,11 @@ public:
 		return castModel<InstrumentTrack>();
 	}
 
-	void setInstrumentTrackView( InstrumentTrackView * _tv )
+	void setInstrumentTrackView( InstrumentTrackView * _tv );
+
+	PianoView * pianoView()
 	{
-		m_itv = _tv;
+		return m_pianoView;
 	}
 
 	static void dragEnterEventGeneric( QDragEnterEvent * _dee );

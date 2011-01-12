@@ -1,7 +1,7 @@
 /*
- * song.cpp - root of the model-tree
+ * song.cpp - root of the model tree
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -31,9 +31,9 @@
 #include <math.h>
 
 #include "song.h"
-#include "automation_track.h"
-#include "automation_editor.h"
-#include "automation_recorder.h"
+#include "AutomationTrack.h"
+#include "AutomationEditor.h"
+#include "AutomationRecorder.h"
 #include "bb_editor.h"
 #include "bb_track.h"
 #include "bb_track_container.h"
@@ -69,7 +69,7 @@ tick_t midiTime::s_ticksPerTact = DefaultTicksPerTact;
 
 song::song() :
 	trackContainer(),
-	m_globalAutomationTrack( dynamic_cast<automationTrack *>(
+	m_globalAutomationTrack( dynamic_cast<AutomationTrack *>(
 				track::create( track::HiddenAutomationTrack,
 								this ) ) ),
 	m_tempoModel( DefaultTempo, MinTempo, MaxTempo, this, tr( "Tempo" ) ),
@@ -301,7 +301,7 @@ void song::processNextBuffer()
 			// at song-start we have to reset the LFOs
 			if( m_playPos[Mode_PlaySong] == 0 )
 			{
-				EnvelopeAndLfoParameters::resetLfo();
+				EnvelopeAndLfoParameters::instances()->reset();
 			}
 			break;
 
@@ -339,7 +339,7 @@ void song::processNextBuffer()
 		return;
 	}
 
-	// check for looping-mode and act if neccessary
+	// check for looping-mode and act if necessary
 	timeLine * tl = m_playPos[m_playMode].m_timeLine;
 	bool check_loop = tl != NULL && m_exporting == false &&
 				tl->loopPointsEnabled() &&
@@ -596,7 +596,7 @@ void song::stop()
 {
 	m_actions.push_back( ActionStop );
 
-	engine::getAutomationRecorder()->initRecord();
+	engine::automationRecorder()->initRecord();
 }
 
 
@@ -711,9 +711,9 @@ bpm_t song::getTempo()
 
 
 
-automationPattern * song::tempoAutomationPattern()
+AutomationPattern * song::tempoAutomationPattern()
 {
-	return automationPattern::globalAutomationPattern( &m_tempoModel );
+	return AutomationPattern::globalAutomationPattern( &m_tempoModel );
 }
 
 
@@ -729,6 +729,8 @@ void song::clearProject()
 	}
 
 	engine::getMixer()->lock();
+	engine::fxMixer()->clear();
+
 	if( engine::getBBEditor() )
 	{
 		engine::getBBEditor()->clearAllTracks();
@@ -737,24 +739,33 @@ void song::clearProject()
 	{
 		engine::getSongEditor()->clearAllTracks();
 	}
+
+	// depends on the fxMixer being cleared
 	if( engine::fxMixerView() )
 	{
 		engine::fxMixerView()->clear();
 	}
+
 	QCoreApplication::sendPostedEvents();
 	engine::getBBTrackContainer()->clearAllTracks();
 	clearAllTracks();
 
-	engine::fxMixer()->clear();
 
-	if( engine::getAutomationEditor() )
+
+	if( engine::automationEditor() )
 	{
-		engine::getAutomationEditor()->setCurrentPattern( NULL );
+		engine::automationEditor()->setCurrentPattern( NULL );
 	}
-	automationPattern::globalAutomationPattern( &m_tempoModel )->clear();
-	automationPattern::globalAutomationPattern( &m_masterVolumeModel )->
+
+	m_tempoModel.reset();
+	m_masterVolumeModel.reset();
+	m_masterPitchModel.reset();
+	m_timeSigModel.reset();
+
+	AutomationPattern::globalAutomationPattern( &m_tempoModel )->clear();
+	AutomationPattern::globalAutomationPattern( &m_masterVolumeModel )->
 									clear();
-	automationPattern::globalAutomationPattern( &m_masterPitchModel )->
+	AutomationPattern::globalAutomationPattern( &m_masterPitchModel )->
 									clear();
 
 	engine::getMixer()->unlock();
@@ -904,6 +915,26 @@ void song::loadProject( const QString & _file_name )
 						firstChildElement( "track" ) );
 	}
 	QDomNode node = mmp.content().firstChild();
+
+	// walk through and fix up the mixer
+	while( !node.isNull() )
+	{
+		if( node.nodeName() == engine::fxMixer()->nodeName() )
+		{
+			engine::fxMixer()->restoreState( node.toElement() );
+
+			if( engine::hasGUI() )
+			{
+				// refresh FxMixerView
+				engine::fxMixerView()->refreshDisplay();
+			}
+		}
+
+		node = node.nextSibling();
+	}
+
+	node = mmp.content().firstChild();
+
 	while( !node.isNull() )
 	{
 		if( node.isElement() )
@@ -916,10 +947,6 @@ void song::loadProject( const QString & _file_name )
 			else if( node.nodeName() == "controllers" )
 			{
 				restoreControllerStates( node.toElement() );
-			}
-			else if( node.nodeName() == engine::fxMixer()->nodeName() )
-			{
-				engine::fxMixer()->restoreState( node.toElement() );
 			}
 			else if( engine::hasGUI() )
 			{
@@ -936,10 +963,10 @@ void song::loadProject( const QString & _file_name )
 							node.toElement() );
 				}
 				else if( node.nodeName() ==
-					engine::getAutomationEditor()->
+					engine::automationEditor()->
 								nodeName() )
 				{
-					engine::getAutomationEditor()->
+					engine::automationEditor()->
 						restoreState( node.toElement() );
 				}
 				else if( node.nodeName() ==
@@ -971,14 +998,15 @@ void song::loadProject( const QString & _file_name )
 	ControllerConnection::finalizeConnections();
 
 	// resolve all IDs so that autoModels are automated
-	automationPattern::resolveAllIDs();
-
+	AutomationPattern::resolveAllIDs();
 
 	engine::getMixer()->unlock();
 
 	configManager::inst()->addRecentlyOpenedProject( _file_name );
 
 	engine::projectJournal()->setJournalling( true );
+
+	emit projectLoaded();
 
 	m_loadingProject = false;
 	m_modified = false;
@@ -987,17 +1015,11 @@ void song::loadProject( const QString & _file_name )
 	{
 		engine::mainWindow()->resetWindowTitle();
 	}
-	if( engine::getSongEditor() )
-	{
-		engine::getSongEditor()->scrolled( 0 );
-	}
 }
 
 
-
-
-// save current song
-bool song::saveProject()
+// only save current song as _filename and do nothing else
+bool song::saveProjectFile( const QString & _filename )
 {
 	multimediaProject mmp( multimediaProject::SongProject );
 
@@ -1005,7 +1027,6 @@ bool song::saveProject()
 	m_timeSigModel.saveSettings( mmp, mmp.head(), "timesig" );
 	m_masterVolumeModel.saveSettings( mmp, mmp.head(), "mastervol" );
 	m_masterPitchModel.saveSettings( mmp, mmp.head(), "masterpitch" );
-
 
 	saveState( mmp, mmp.content() );
 
@@ -1015,7 +1036,7 @@ bool song::saveProject()
 	{
 		engine::getControllerRackView()->saveState( mmp, mmp.content() );
 		engine::getPianoRoll()->saveState( mmp, mmp.content() );
-		engine::getAutomationEditor()->saveState( mmp, mmp.content() );
+		engine::automationEditor()->saveState( mmp, mmp.content() );
 		engine::getProjectNotes()->
 			SerializingObject::saveState( mmp, mmp.content() );
 		m_playPos[Mode_PlaySong].m_timeLine->saveState(
@@ -1024,8 +1045,17 @@ bool song::saveProject()
 
 	saveControllerStates( mmp, mmp.content() );
 
+    return mmp.writeFile( _filename );
+}
+
+
+
+// save current song and update the gui
+bool song::guiSaveProject()
+{
+	multimediaProject mmp( multimediaProject::SongProject );
 	m_fileName = mmp.nameWithExtension( m_fileName );
-	if( mmp.writeFile( m_fileName ) == true && engine::hasGUI() )
+	if( saveProjectFile( m_fileName ) && engine::hasGUI() )
 	{
 		textFloat::displayMessage( tr( "Project saved" ),
 					tr( "The project %1 is now saved."
@@ -1052,12 +1082,12 @@ bool song::saveProject()
 
 
 // save current song in given filename
-bool song::saveProjectAs( const QString & _file_name )
+bool song::guiSaveProjectAs( const QString & _file_name )
 {
 	QString o = m_oldFileName;
 	m_oldFileName = m_fileName;
 	m_fileName = _file_name;
-	if( saveProject() == false )
+	if( guiSaveProject() == false )
 	{
 		m_fileName = m_oldFileName;
 		m_oldFileName = o;

@@ -1,7 +1,7 @@
 /*
  * MainWindow.cpp - implementation of LMMS' main window
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -44,18 +44,21 @@
 #include "MainWindow.h"
 #include "bb_editor.h"
 #include "song_editor.h"
-#include "automation_recorder.h"
+#include "AutomationRecorder.h"
 #include "song.h"
 #include "piano_roll.h"
 #include "embed.h"
 #include "engine.h"
 #include "FxMixerView.h"
+#include "InstrumentTrack.h"
+#include "PianoView.h"
 #include "AboutDialog.h"
+#include "PreferencesDialog.h"
 #include "ControllerRackView.h"
 #include "plugin_browser.h"
 #include "SideBar.h"
 #include "config_mgr.h"
-#include "mixer.h"
+#include "Mixer.h"
 #include "project_notes.h"
 #include "setup_dialog.h"
 #include "AudioDummy.h"
@@ -63,7 +66,7 @@
 #include "ToolPluginView.h"
 #include "tool_button.h"
 #include "ProjectJournal.h"
-#include "automation_editor.h"
+#include "AutomationEditor.h"
 #include "templates.h"
 #include "lcd_spinbox.h"
 #include "tooltip.h"
@@ -83,7 +86,8 @@ MainWindow::MainWindow() :
 	m_workspace( NULL ),
 	m_templatesMenu( NULL ),
 	m_recentlyOpenedProjectsMenu( NULL ),
-	m_toolsMenu( NULL )
+	m_toolsMenu( NULL ),
+	m_autoSaveTimer( this )
 {
 	setAttribute( Qt::WA_DeleteOnClose );
 
@@ -91,7 +95,6 @@ MainWindow::MainWindow() :
 	QVBoxLayout * vbox = new QVBoxLayout( m_mainWidget );
 	vbox->setSpacing( 0 );
 	vbox->setMargin( 0 );
-
 
 	QWidget * w = new QWidget( m_mainWidget );
 	QHBoxLayout * hbox = new QHBoxLayout( w );
@@ -152,14 +155,15 @@ MainWindow::MainWindow() :
 	vbox->addWidget( m_toolBar );
 	vbox->addWidget( w );
 
+	m_updateTimer.start( 1000 / 20, this );	// 20 fps
+
+	// connect auto save
+	connect(&m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
+	m_autoSaveTimer.start(1000 * 60); // 1 minute
 
 	m_welcomeScreen = new WelcomeScreen( this );
-
-	setCentralWidget( m_welcomeScreen );
-
-	m_updateTimer.start( 1000 / 20, this );	// 20 fps
+	m_welcomeScreen->setVisible( false );
 }
-
 
 
 
@@ -182,12 +186,11 @@ MainWindow::~MainWindow()
 
 
 
-
-void MainWindow::setMainWidgetVisible( bool _visible )
+void MainWindow::showWelcomeScreen(bool _visible)
 {
-	setCentralWidget( _visible ? m_mainWidget : m_welcomeScreen );
+	m_welcomeScreen->setVisible( _visible );
+	setCentralWidget( _visible ? m_welcomeScreen : m_mainWidget );
 }
-
 
 
 
@@ -262,6 +265,10 @@ void MainWindow::finalize()
 	edit_menu->addAction( embed::getIconPixmap( "setup_general" ),
 					tr( "Settings" ),
 					this, SLOT( showSettingsDialog() ) );
+	edit_menu->addSeparator();
+	edit_menu->addAction( embed::getIconPixmap( "setup_general" ),
+					tr( "Preferences (premature dialog)" ),
+					this, SLOT( showPreferencesDialog() ) );
 
 
 	m_toolsMenu = new QMenu( this );
@@ -312,8 +319,7 @@ void MainWindow::finalize()
 
 	// create the grid layout for the first buttons area
 	QWidget * gridButtons_w = new QWidget( m_toolBar );
-	QGridLayout * gridButtons_layout = new QGridLayout( gridButtons_w/*, 2, 1*/ );
-
+	QGridLayout * gridButtons_layout = new QGridLayout( gridButtons_w );
 
 	// create tool-buttons
 	toolButton * project_new = new toolButton(
@@ -474,7 +480,6 @@ void MainWindow::finalize()
 	gridButtons_layout->addWidget( automation_editor_window, 1, 4 );
 	gridButtons_layout->addWidget( fx_mixer_window, 1, 5 );
 	gridButtons_layout->addWidget( project_notes_window, 1, 6 );
-	gridButtons_layout->addWidget( controllers_window, 1, 7 );
 	gridButtons_layout->addWidget( controllers_window, 1, 7 );
 	gridButtons_layout->setColumnStretch( 100, 1 );
 
@@ -819,6 +824,8 @@ void MainWindow::resetWindowTitle()
 
 bool MainWindow::mayChangeProject()
 {
+	engine::getSong()->stop();
+
 	if( !engine::getSong()->isModified() )
 	{
 		return true;
@@ -829,17 +836,17 @@ bool MainWindow::mayChangeProject()
 					"last saving. Do you want to save it "
 								"now?" ),
 				QMessageBox::Question,
-				QMessageBox::Yes,
-				QMessageBox::No,
+				QMessageBox::Save,
+				QMessageBox::Discard,
 				QMessageBox::Cancel,
 				this );
 	int answer = mb.exec();
 
-	if( answer == QMessageBox::Yes )
+	if( answer == QMessageBox::Save )
 	{
 		return saveProject();
 	}
-	else if( answer == QMessageBox::No )
+	else if( answer == QMessageBox::Discard )
 	{
 		return true;
 	}
@@ -1008,7 +1015,7 @@ bool MainWindow::saveProject()
 	}
 	else
 	{
-		engine::getSong()->saveProject();
+		engine::getSong()->guiSaveProject();
 	}
 	return true;
 }
@@ -1037,7 +1044,7 @@ bool MainWindow::saveProjectAs()
 	if( sfd.exec () == QFileDialog::Accepted &&
 		!sfd.selectedFiles().isEmpty() && sfd.selectedFiles()[0] != "" )
 	{
-		engine::getSong()->saveProjectAs(
+		engine::getSong()->guiSaveProjectAs(
 						sfd.selectedFiles()[0] );
 		return true;
 	}
@@ -1051,6 +1058,14 @@ void MainWindow::showSettingsDialog()
 {
 	setupDialog sd;
 	sd.exec();
+}
+
+
+
+
+void MainWindow::showPreferencesDialog()
+{
+	PreferencesDialog().exec();
 }
 
 
@@ -1138,7 +1153,7 @@ void MainWindow::togglePianoRollWin()
 
 void MainWindow::toggleAutomationEditorWin()
 {
-	toggleWindow( engine::getAutomationEditor() );
+	toggleWindow( engine::automationEditor() );
 }
 
 
@@ -1188,6 +1203,9 @@ void MainWindow::closeEvent( QCloseEvent * _ce )
 {
 	if( mayChangeProject() )
 	{
+		// delete recovery file
+		QDir working(configManager::inst()->workingDir());
+		working.remove("recover.mmp");
 		_ce->accept();
 	}
 	else
@@ -1196,6 +1214,12 @@ void MainWindow::closeEvent( QCloseEvent * _ce )
 	}
 }
 
+
+void MainWindow::showEvent( QShowEvent * _se )
+{
+	//showWelcomeScreen( false ); // must explicitly ask for welcome screen
+	_se->accept();
+}
 
 
 
@@ -1218,7 +1242,18 @@ void MainWindow::keyPressEvent( QKeyEvent * _ke )
 		case Qt::Key_Shift: m_keyMods.m_shift = true; break;
 		case Qt::Key_Alt: m_keyMods.m_alt = true; break;
 		default:
-			QMainWindow::keyPressEvent( _ke );
+		{
+			InstrumentTrackWindow * w =
+						InstrumentTrackView::topLevelInstrumentTrackWindow();
+			if( w )
+			{
+				w->pianoView()->keyPressEvent( _ke );
+			}
+			if( !_ke->isAccepted() )
+			{
+				QMainWindow::keyPressEvent( _ke );
+			}
+		}
 	}
 }
 
@@ -1380,14 +1415,22 @@ void MainWindow::keyReleaseEvent( QKeyEvent * _ke )
 		case Qt::Key_Shift: m_keyMods.m_shift = false; break;
 		case Qt::Key_Alt: m_keyMods.m_alt = false; break;
 		default:
-			QMainWindow::keyReleaseEvent( _ke );
+			if( InstrumentTrackView::topLevelInstrumentTrackWindow() )
+			{
+				InstrumentTrackView::topLevelInstrumentTrackWindow()->
+					pianoView()->keyReleaseEvent( _ke );
+			}
+			if( !_ke->isAccepted() )
+			{
+				QMainWindow::keyReleaseEvent( _ke );
+			}
 	}
 }
 
 
 
 
-void MainWindow::timerEvent( QTimerEvent * )
+void MainWindow::timerEvent( QTimerEvent * _te)
 {
 	emit periodicUpdate();
 }
@@ -1457,9 +1500,9 @@ void MainWindow::browseHelp()
 
 void MainWindow::setHighQuality( bool _hq )
 {
-	engine::getMixer()->changeQuality( mixer::qualitySettings(
-			_hq ? mixer::qualitySettings::Mode_HighQuality :
-				mixer::qualitySettings::Mode_Draft ) );
+	/*engine::getMixer()->changeQuality( Mixer::qualitySettings(
+			_hq ? Mixer::qualitySettings::Mode_HighQuality :
+				Mixer::qualitySettings::Mode_Draft ) );*/
 }
 
 
@@ -1552,9 +1595,16 @@ void MainWindow::masterPitchReleased()
 
 void MainWindow::toggleRecordAutomation( bool _recording )
 {
-	engine::getAutomationRecorder()->setRecording( _recording );
+	engine::automationRecorder()->setRecording( _recording );
 }
 
+
+
+void MainWindow::autoSave()
+{
+	QDir work(configManager::inst()->workingDir());
+	engine::getSong()->saveProjectFile(work.absoluteFilePath("recover.mmp"));
+}
 
 
 #include "moc_MainWindow.cxx"
