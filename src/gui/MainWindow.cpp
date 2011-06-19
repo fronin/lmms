@@ -3,8 +3,8 @@
 /*
  * main_window.cpp - implementation of LMMS-main-window
  *
- * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -72,7 +72,8 @@ MainWindow::MainWindow( void ) :
 	m_workspace( NULL ),
 	m_templatesMenu( NULL ),
 	m_recentlyOpenedProjectsMenu( NULL ),
-	m_toolsMenu( NULL )
+	m_toolsMenu( NULL ),
+	m_autoSaveTimer( this )
 {
 	setAttribute( Qt::WA_DeleteOnClose );
 
@@ -182,6 +183,10 @@ MainWindow::MainWindow( void ) :
 
 
 	m_updateTimer.start( 1000 / 20, this );	// 20 fps
+
+	// connect auto save
+	connect(&m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
+	m_autoSaveTimer.start(1000 * 60); // 1 minute
 }
 
 
@@ -477,9 +482,7 @@ void MainWindow::finalize( void )
 	m_toolBarLayout->addWidget( fx_mixer_window, 1, 5 );
 	m_toolBarLayout->addWidget( project_notes_window, 1, 6 );
 	m_toolBarLayout->addWidget( controllers_window, 1, 7 );
-	m_toolBarLayout->addWidget( controllers_window, 1, 7 );
 	m_toolBarLayout->setColumnStretch( 100, 1 );
-
 
 	// setup-dialog opened before?
 	if( !configManager::inst()->value( "app", "configured" ).toInt() )
@@ -728,7 +731,7 @@ bool MainWindow::saveProject( void )
 	}
 	else
 	{
-		engine::getSong()->saveProject();
+		engine::getSong()->guiSaveProject();
 	}
 	return( TRUE );
 }
@@ -757,7 +760,7 @@ bool MainWindow::saveProjectAs( void )
 	if( sfd.exec () == QFileDialog::Accepted &&
 		!sfd.selectedFiles().isEmpty() && sfd.selectedFiles()[0] != "" )
 	{
-		engine::getSong()->saveProjectAs(
+		engine::getSong()->guiSaveProjectAs(
 						sfd.selectedFiles()[0] );
 		return( TRUE );
 	}
@@ -900,6 +903,9 @@ void MainWindow::closeEvent( QCloseEvent * _ce )
 {
 	if( mayChangeProject() )
 	{
+		// delete recovery file
+		QDir working(configManager::inst()->workingDir());
+		working.remove("recover.mmp");
 		_ce->accept();
 	}
 	else
@@ -971,7 +977,7 @@ void MainWindow::keyReleaseEvent( QKeyEvent * _ke )
 
 
 
-void MainWindow::timerEvent( QTimerEvent * )
+void MainWindow::timerEvent( QTimerEvent * _te)
 {
 	emit periodicUpdate();
 }
@@ -1037,6 +1043,13 @@ void MainWindow::browseHelp( void )
 }
 
 
+
+
+void MainWindow::autoSave()
+{
+	QDir work(configManager::inst()->workingDir());
+	engine::getSong()->saveProjectFile(work.absoluteFilePath("recover.mmp"));
+}
 
 
 #include "moc_MainWindow.cxx"

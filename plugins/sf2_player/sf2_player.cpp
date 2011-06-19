@@ -128,7 +128,7 @@ sf2Instrument::sf2Instrument( InstrumentTrack * _instrument_track ) :
 	InstrumentPlayHandle * iph = new InstrumentPlayHandle( this );
 	engine::getMixer()->addPlayHandle( iph );
 
-	//loadFile( configManager::inst()->defaultSoundfont() );
+	loadFile( configManager::inst()->defaultSoundfont() );
 
 	updateSampleRate();
 	updateReverbOn();
@@ -255,7 +255,7 @@ void sf2Instrument::loadSettings( const QDomElement & _this )
 
 void sf2Instrument::loadFile( const QString & _file )
 {
-	if( !_file.isEmpty() )
+	if( !_file.isEmpty() && QFileInfo( _file ).exists() )
 	{
 		openFile( _file );
 		updatePatch();
@@ -608,7 +608,7 @@ void sf2Instrument::playNote( notePlayHandle * _n, sampleFrame * )
 		}
 
 		fluid_synth_noteon( m_synth, m_channel, midiNote,
-							_n->getMidiVelocity() );
+							_n->midiVelocity() );
 
 		// get new voice and save it
 		fluid_synth_get_voicelist( m_synth, voices, poly, -1 );

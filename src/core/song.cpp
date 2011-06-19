@@ -1,7 +1,7 @@
 /*
  * song.cpp - root of the model tree
  *
- * Copyright (c) 2004-2010 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -983,6 +983,8 @@ void song::loadProject( const QString & _file_name )
 
 	engine::projectJournal()->setJournalling( true );
 
+	emit projectLoaded();
+
 	m_loadingProject = false;
 	m_modified = false;
 
@@ -990,17 +992,11 @@ void song::loadProject( const QString & _file_name )
 	{
 		engine::mainWindow()->resetWindowTitle();
 	}
-	if( engine::getSongEditor() )
-	{
-		engine::getSongEditor()->scrolled( 0 );
-	}
 }
 
 
-
-
-// save current song
-bool song::saveProject()
+// only save current song as _filename and do nothing else
+bool song::saveProjectFile( const QString & _filename )
 {
 	multimediaProject mmp( multimediaProject::SongProject );
 
@@ -1008,7 +1004,6 @@ bool song::saveProject()
 	m_timeSigModel.saveSettings( mmp, mmp.head(), "timesig" );
 	m_masterVolumeModel.saveSettings( mmp, mmp.head(), "mastervol" );
 	m_masterPitchModel.saveSettings( mmp, mmp.head(), "masterpitch" );
-
 
 	saveState( mmp, mmp.content() );
 
@@ -1027,8 +1022,17 @@ bool song::saveProject()
 
 	saveControllerStates( mmp, mmp.content() );
 
+    return mmp.writeFile( _filename );
+}
+
+
+
+// save current song and update the gui
+bool song::guiSaveProject()
+{
+	multimediaProject mmp( multimediaProject::SongProject );
 	m_fileName = mmp.nameWithExtension( m_fileName );
-	if( mmp.writeFile( m_fileName ) == true && engine::hasGUI() )
+	if( saveProjectFile( m_fileName ) && engine::hasGUI() )
 	{
 		textFloat::displayMessage( tr( "Project saved" ),
 					tr( "The project %1 is now saved."
@@ -1055,12 +1059,12 @@ bool song::saveProject()
 
 
 // save current song in given filename
-bool song::saveProjectAs( const QString & _file_name )
+bool song::guiSaveProjectAs( const QString & _file_name )
 {
 	QString o = m_oldFileName;
 	m_oldFileName = m_fileName;
 	m_fileName = _file_name;
-	if( saveProject() == false )
+	if( guiSaveProject() == false )
 	{
 		m_fileName = m_oldFileName;
 		m_oldFileName = o;

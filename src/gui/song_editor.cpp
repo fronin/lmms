@@ -1,7 +1,7 @@
 /*
  * song_editor.cpp - basic window for song-editing
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -22,12 +22,14 @@
  *
  */
 
+#include <QtCore/QTimeLine>
 #include <QtGui/QAction>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLabel>
 #include <QtGui/QLayout>
 #include <QtGui/QMdiArea>
+#include <QtGui/QMdiSubWindow>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 
@@ -36,6 +38,7 @@
 #include "song_editor.h"
 #include "automatable_slider.h"
 #include "combobox.h"
+#include "config_mgr.h"
 #include "cpuload_widget.h"
 #include "embed.h"
 #include "lcd_spinbox.h"
@@ -74,7 +77,8 @@ void positionLine::paintEvent( QPaintEvent * _pe )
 songEditor::songEditor( song * _song, songEditor * & _engine_ptr ) :
 	trackContainerView( _song ),
 	m_s( _song ),
-	m_scrollBack( false )
+	m_scrollBack( false ),
+	m_smoothScroll( configManager::inst()->value( "ui", "smoothscroll" ).toInt() )
 {
 	_engine_ptr = this;
 
@@ -97,6 +101,11 @@ songEditor::songEditor( song * _song, songEditor * & _engine_ptr ) :
 			this, SLOT( updatePosition( const midiTime & ) ) );
 
 	m_positionLine = new positionLine( this );
+
+
+	// let's get notified when loading a project
+	connect( m_s, SIGNAL( projectLoaded() ),
+				this, SLOT( adjustUiAfterProjectLoad() ) );
 
 
 	// add some essential widgets to global tool-bar 
@@ -643,6 +652,35 @@ void songEditor::updateScrollBar( int _len )
 
 
 
+static inline void animateScroll( QScrollBar *scrollBar, int newVal, bool smoothScroll )
+{
+	if( smoothScroll == false )
+	{
+		scrollBar->setValue( newVal );
+	}
+	else
+	{
+		// do smooth scroll animation using QTimeLine
+		QTimeLine *t = scrollBar->findChild<QTimeLine *>();
+		if( t == NULL )
+		{
+			t = new QTimeLine( 600, scrollBar );
+			t->setFrameRange( scrollBar->value(), newVal );
+			t->connect( t, SIGNAL( finished() ), SLOT( deleteLater() ) );
+
+			scrollBar->connect( t, SIGNAL( frameChanged( int ) ), SLOT( setValue( int ) ) );
+
+			t->start();
+		}
+		else
+		{
+			// smooth scrolling is still active, therefore just update the end frame
+			t->setEndFrame( newVal );
+		}
+	}
+}
+
+
 void songEditor::updatePosition( const midiTime & _t )
 {
 	if( ( m_s->isPlaying() && m_s->m_playMode == song::Mode_PlaySong 
@@ -650,11 +688,12 @@ void songEditor::updatePosition( const midiTime & _t )
 							m_scrollBack == true )
 	{
 		const int w = width() - DEFAULT_SETTINGS_WIDGET_WIDTH
-							- TRACK_OP_WIDTH;
+							- TRACK_OP_WIDTH
+							- 32;	// rough estimation for width of right scrollbar
 		if( _t > m_currentPosition + w * midiTime::ticksPerTact() /
 							pixelsPerTact() )
 		{
-			m_leftRightScroll->setValue( _t.getTact() );
+			animateScroll( m_leftRightScroll, _t.getTact(), m_smoothScroll );
 		}
 		else if( _t < m_currentPosition )
 		{
@@ -662,7 +701,7 @@ void songEditor::updatePosition( const midiTime & _t )
 				(int)( _t - w * midiTime::ticksPerTact() /
 							pixelsPerTact() ),
 									0 );
-			m_leftRightScroll->setValue( t.getTact() );
+			animateScroll( m_leftRightScroll, t.getTact(), m_smoothScroll );
 		}
 		m_scrollBack = false;
 	}
@@ -693,6 +732,22 @@ void songEditor::zoomingChanged()
 	m_s->m_playPos[song::Mode_PlaySong].m_timeLine->
 					setPixelsPerTact( pixelsPerTact() );
 	realignTracks();
+}
+
+
+
+
+void songEditor::adjustUiAfterProjectLoad()
+{
+	//if( isMaximized() )
+	{
+		// make sure to bring us to front as the song editor is the central
+		// widget in a song and when just opening a song in order to listen to
+		// it, it's very annyoing to manually bring up the song editor each time
+		engine::mainWindow()->workspace()->setActiveSubWindow(
+				qobject_cast<QMdiSubWindow *>( parentWidget() ) );
+	}
+	scrolled( 0 );
 }
 
 

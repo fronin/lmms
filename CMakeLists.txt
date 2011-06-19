@@ -15,7 +15,7 @@ INCLUDE(FindPkgConfig)
 
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "4")
-SET(VERSION_PATCH "8")
+SET(VERSION_PATCH "11")
 #SET(VERSION_SUFFIX "")
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 IF(VERSION_SUFFIX)
@@ -34,7 +34,7 @@ OPTION(WANT_FFTW3F	"Include SpectrumAnalyzer and ZynAddSubFX plugin" ON)
 OPTION(WANT_JACK	"Include JACK (Jack Audio Connection Kit) support" ON)
 OPTION(WANT_OGGVORBIS	"Include OGG/Vorbis support" ON)
 OPTION(WANT_PULSEAUDIO	"Include PulseAudio support" ON)
-#OPTION(WANT_PORTAUDIO	"Include PortAudio support" ON)	# TODO: fix PortAudio support
+OPTION(WANT_PORTAUDIO	"Include PortAudio support" ON)
 OPTION(WANT_SDL		"Include SDL (Simple DirectMedia Layer) support" ON)
 OPTION(WANT_SF2		"Include SoundFont2 player plugin" ON)
 OPTION(WANT_STK		"Include Stk (Synthesis Toolkit) support" ON)
@@ -86,18 +86,13 @@ CHECK_INCLUDE_FILES(process.h LMMS_HAVE_PROCESS_H)
 CHECK_INCLUDE_FILES(locale.h LMMS_HAVE_LOCALE_H)
 
 # check for Qt4
-SET(QT_MIN_VERSION "4.3.0")
+SET(QT_MIN_VERSION "4.3.0" COMPONENTS QtCore QtGui QtXml)
 FIND_PACKAGE(Qt4 REQUIRED)
 SET(QT_USE_QTXML 1)
 EXEC_PROGRAM(${QT_QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_TRANSLATIONS" OUTPUT_VARIABLE QT_TRANSLATIONS_DIR)
-IF(LMMS_BUILD_WIN32)
-	SET(QT_TRANSLATIONS_DIR "/opt/mingw32/share/qt4/translations/")
-	# hack to allow making moc.exe a symlink to native moc-binary in compatible version
-	SET(QT_MOC_EXECUTABLE ${QT_BINARY_DIR}/moc.exe)
-ENDIF(LMMS_BUILD_WIN32)
-IF(LMMS_BUILD_WIN64)
-	SET(QT_TRANSLATIONS_DIR "/opt/mingw64/share/qt4/translations/")
-ENDIF(LMMS_BUILD_WIN64)
+IF(WIN32)
+	SET(QT_TRANSLATIONS_DIR "${MINGW_PREFIX}/share/qt4/translations/")
+ENDIF(WIN32)
 IF(EXISTS "${QT_TRANSLATIONS_DIR}")
 	MESSAGE("-- Found Qt translations in ${QT_TRANSLATIONS_DIR}")
 	ADD_DEFINITIONS(-D'QT_TRANSLATIONS_DIR="${QT_TRANSLATIONS_DIR}"')
@@ -185,20 +180,16 @@ ENDIF(WANT_STK)
 
 
 # check for PortAudio
-#IF(WANT_PORTAUDIO)
-#	FIND_PACKAGE(Portaudio)
-#	IF(PORTAUDIO_FOUND)
-#		SET(LMMS_HAVE_PORTAUDIO TRUE)
-#		SET(STATUS_PORTAUDIO "OK")
-#	ELSE(PORTAUDIO_FOUND)
-#		SET(STATUS_PORTAUDIO "not found, please install libportaudio-dev (or similiar, version >= 1.8) "
-#			"if you require Portaudio support")
-#	ENDIF(PORTAUDIO_FOUND)
-#ENDIF(WANT_PORTAUDIO)
-IF(NOT LMMS_HAVE_PORTAUDIO)
-	SET(PORTAUDIO_INCLUDE_DIR "")
-	SET(PORTAUDIO_LIBRARIES "")
-ENDIF(NOT LMMS_HAVE_PORTAUDIO)
+IF(WANT_PORTAUDIO)
+	FIND_PACKAGE(Portaudio)
+	IF(PORTAUDIO_FOUND)
+		SET(LMMS_HAVE_PORTAUDIO TRUE)
+		SET(STATUS_PORTAUDIO "OK")
+	ELSE(PORTAUDIO_FOUND)
+		SET(STATUS_PORTAUDIO "not found, please install portaudio19-dev (or similiar, version >= 1.9) "
+			"if you require PortAudio support")
+	ENDIF(PORTAUDIO_FOUND)
+ENDIF(WANT_PORTAUDIO)
 
 
 # check for PulseAudio
@@ -455,9 +446,10 @@ IF(LMMS_BUILD_WIN32)
 					${MINGW_PREFIX}/bin/libvorbisenc-2.dll
 					${MINGW_PREFIX}/bin/libvorbisfile-3.dll
 					${MINGW_PREFIX}/bin/libogg-0.dll
-					${MINGW_PREFIX}/bin/libfluidsynth-1.dll
+					${MINGW_PREFIX}/bin/libfluidsynth.dll
 					${MINGW_PREFIX}/bin/libfftw3f-3.dll
 					${MINGW_PREFIX}/bin/libFLAC-8.dll
+					${MINGW_PREFIX}/bin/libportaudio-2.dll
 					${MINGW_PREFIX}/bin/SDL.dll
 					${MINGW_PREFIX}/bin/libglib-2.0-0.dll
 					${MINGW_PREFIX}/bin/libgthread-2.0-0.dll
@@ -595,7 +587,7 @@ MESSAGE(
 "* ALSA                        : ${STATUS_ALSA}\n"
 "* JACK                        : ${STATUS_JACK}\n"
 "* OSS                         : ${STATUS_OSS}\n"
-#"* PortAudio                   : ${STATUS_PORTAUDIO}\n"
+"* PortAudio                   : ${STATUS_PORTAUDIO}\n"
 "* PulseAudio                  : ${STATUS_PULSEAUDIO}\n"
 "* SDL                         : ${STATUS_SDL}\n"
 )
@@ -659,12 +651,12 @@ SET(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
 IF(VERSION_SUFFIX)
 	SET(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}-${VERSION_SUFFIX}")
 ENDIF(VERSION_SUFFIX)
-SET(CPACK_PACKAGE_INSTALL_DIRECTORY "LMMS ${VERSION}")
+SET(CPACK_PACKAGE_INSTALL_DIRECTORY "LMMS")
 IF(WIN32)
 SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data/nsis_branding.bmp")
 SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data/lmms.ico")
 SET(CPACK_NSIS_INSTALLED_ICON_NAME "lmms.exe")
-SET(CPACK_NSIS_DISPLAY_NAME "Linux MultiMedia Studio (LMMS)")
+SET(CPACK_NSIS_DISPLAY_NAME "LMMS ${VERSION}")
 SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\lmms.sourceforge.net")
 SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\lmms.sourceforge.net")
 SET(CPACK_NSIS_CONTACT "lmms-devel@lists.sourceforge.net")

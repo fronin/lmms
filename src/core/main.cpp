@@ -25,6 +25,7 @@
 #include "lmmsconfig.h"
 #include "lmmsversion.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QLocale>
 #include <QtCore/QProcess>
@@ -33,6 +34,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QBitmap>
 #include <QtGui/QDesktopWidget>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPainter>
 #include <QtGui/QSplashScreen>
 
@@ -414,6 +416,17 @@ int main( int argc, char * * argv )
 		// srandom() calls in their init procedure
 		srand( getpid() + time( 0 ) );
 
+		// recover a file?
+		QString recoveryFile = QDir(configManager::inst()->workingDir()).absoluteFilePath("recover.mmp");
+		if( QFileInfo(recoveryFile).exists() &&
+			QMessageBox::question( engine::mainWindow(), MainWindow::tr( "Project recovery" ),
+						MainWindow::tr( "It looks like the last session did not end properly. "
+										"Do you want to recover the project of this session?" ),
+						QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
+		{
+			file_to_load = recoveryFile;
+		}
+
 		// we try to load given file
 		if( !file_to_load.isEmpty() )
 		{
@@ -481,7 +494,7 @@ int main( int argc, char * * argv )
 		}
 		else
 		{
-			engine::getSong()->saveProjectAs( file_to_save );
+			engine::getSong()->saveProjectFile( file_to_save );
 			return( 0 );
 		}
 	}

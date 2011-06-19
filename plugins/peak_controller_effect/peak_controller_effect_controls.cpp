@@ -1,7 +1,8 @@
 /*
- * peak_controller_effect_controls.cpp - controls for PeakController effect
+ * peak_controller_effect_controls.cpp - controls for peakController effect
  *
  * Copyright (c) 2008 Paul Giblock <drfaygo/at/gmail/dot/com>
+ * Copyright (c) 2009-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -36,8 +37,9 @@ PeakControllerEffectControls( PeakControllerEffect * _eff ) :
 	m_effect( _eff ),
 	m_baseModel( 0.5, 0.0, 1.0, 0.001, this, tr( "Base value" ) ),
 	m_amountModel( 1.0, -1.0, 1.0, 0.005, this, tr( "Modulation amount" ) ),
-	m_decayModel( 0.1, 0.01, 5.0, 0.0001, this, tr( "Release decay" ) ),
-	m_muteModel( FALSE, this, tr( "Mute output" ) )
+	m_attackModel( 0, 0, 0.999, 0.001, this, tr( "Attack" ) ),
+	m_decayModel( 0, 0, 0.999, 0.001, this, tr( "Release" ) ),
+	m_muteModel( false, this, tr( "Mute output" ) )
 {
 }
 
@@ -45,10 +47,13 @@ PeakControllerEffectControls( PeakControllerEffect * _eff ) :
 
 void PeakControllerEffectControls::loadSettings( const QDomElement & _this )
 {
-	m_baseModel.setValue( _this.attribute( "base" ).toFloat() );
-	m_amountModel.setValue( _this.attribute( "amount" ).toFloat() );
-	m_muteModel.setValue( _this.attribute( "mute" ).toFloat() );
-	
+	m_baseModel.loadSettings( _this, "base" );
+	m_amountModel.loadSettings( _this, "amount" );
+	m_muteModel.loadSettings( _this, "mute" );
+
+	m_attackModel.loadSettings( _this, "attack" );
+	m_decayModel.loadSettings( _this, "decay" );
+
 	int effectId = _this.attribute( "effectId" ).toInt();
 	if( effectId > PeakController::s_lastEffectId )
 	{
@@ -69,10 +74,14 @@ void PeakControllerEffectControls::loadSettings( const QDomElement & _this )
 void PeakControllerEffectControls::saveSettings( QDomDocument & _doc, 
 							QDomElement & _this )
 {
-	_this.setAttribute( "base", m_baseModel.value() );
-	_this.setAttribute( "amount", m_amountModel.value() );
-	_this.setAttribute( "mute", m_muteModel.value() );
 	_this.setAttribute( "effectId", m_effect->m_effectId );
+
+	m_baseModel.saveSettings( _doc, _this, "base" );
+	m_amountModel.saveSettings( _doc, _this, "amount" );
+	m_muteModel.saveSettings( _doc, _this, "mute" );
+
+	m_attackModel.saveSettings( _doc, _this, "attack" );
+	m_decayModel.saveSettings( _doc, _this, "decay" );
 }
 
 

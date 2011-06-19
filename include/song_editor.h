@@ -2,7 +2,7 @@
  * song_editor.h - declaration of class songEditor, a window where you can
  *                 setup your songs
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2004-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -86,6 +86,8 @@ private slots:
 
 	void zoomingChanged();
 
+	void adjustUiAfterProjectLoad();
+
 
 private:
 	virtual void keyPressEvent( QKeyEvent * _ke );
@@ -127,6 +129,7 @@ private:
 	positionLine * m_positionLine;
 
 	bool m_scrollBack;
+	bool m_smoothScroll;
 
 } ;
 

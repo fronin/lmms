@@ -91,7 +91,7 @@ public:
     /// Current phases and phase deltas for bass and treble rotors
     uint32_t phase_l, dphase_l, phase_h, dphase_h;
     dsp::simple_delay<1024, float> delay;
-    dsp::biquad_d2<float> crossover1l, crossover1r, crossover2l, crossover2r;
+    dsp::biquad_d2<float> crossover1l, crossover1r, crossover2l, crossover2r, damper1l, damper1r;
     dsp::simple_delay<8, float> phaseshift;
     uint32_t srate;
     int vibrato_mode;
@@ -128,7 +128,7 @@ public:
     /// Increase or decrease aspeed towards raspeed, with required negative and positive rate
     bool incr_towards(float &aspeed, float raspeed, float delta_decc, float delta_acc);
     uint32_t process(uint32_t offset, uint32_t nsamples, uint32_t inputs_mask, uint32_t outputs_mask);
-    virtual void control_change(int ctl, int val);
+    virtual void control_change(int channel, int ctl, int val);
 };
 
 /// A multitap stereo chorus thing

@@ -28,7 +28,7 @@
 #include <lv2.h>
 #include <calf/giface.h>
 #include <calf/lv2_event.h>
-#include <calf/lv2_persist2.h>
+#include <calf/lv2_persist.h>
 #include <calf/lv2_progress.h>
 #include <calf/lv2_uri_map.h>
 #include <string.h>
@@ -96,11 +96,15 @@ struct lv2_instance: public plugin_ctl_iface, public progress_report_iface
         assert(string_type);
         for (unsigned int i = 0; vars[i]; i++)
         {
-            size_t len = 0;
-            uint32_t type = 0;
-            const void *ptr = (*retrieve)(callback_data, vars[i], &len, &type);
-            if (ptr && type == string_type)
+            const uint32_t key   = uri_map->uri_to_id(uri_map, NULL, vars[i]);
+            size_t         len   = 0;
+            uint32_t       type  = 0;
+            uint32_t       flags = 0;
+            const void *ptr = (*retrieve)(callback_data, key, &len, &type, &flags);
+            if (ptr)
             {
+                if (type != string_type)
+                    fprintf(stderr, "Warning: type is %d, expected %d\n", (int)type, (int)string_type);
                 printf("Calling configure on %s\n", vars[i]);
                 configure(vars[i], std::string((const char *)ptr, len).c_str());
             }
@@ -130,14 +134,15 @@ struct lv2_instance: public plugin_ctl_iface, public progress_report_iface
             if (item->type == midi_event_type) 
             {
                 // printf("Midi message %x %x %x %x %d\n", item->data[0], item->data[1], item->data[2], item->data[3], item->size);
+                int channel = item->data[0] & 15;
                 switch(item->data[0] >> 4)
                 {
-                case 8: module->note_off(item->data[1], item->data[2]); break;
-                case 9: module->note_on(item->data[1], item->data[2]); break;
-                case 11: module->control_change(item->data[1], item->data[2]); break;
-                case 12: module->program_change(item->data[1]); break;
-                case 13: module->channel_pressure(item->data[1]); break;
-                case 14: module->pitch_bend(item->data[1] + 128 * item->data[2] - 8192); break;
+                case 8: module->note_off(channel, item->data[1], item->data[2]); break;
+                case 9: module->note_on(channel, item->data[1], item->data[2]); break;
+                case 11: module->control_change(channel, item->data[1], item->data[2]); break;
+                case 12: module->program_change(channel, item->data[1]); break;
+                case 13: module->channel_pressure(channel, item->data[1]); break;
+                case 14: module->pitch_bend(channel, item->data[1] + 128 * item->data[2] - 8192); break;
                 }
             }
             else
@@ -300,18 +305,25 @@ struct lv2_wrapper
         {
             LV2_Persist_Store_Function store;
             void *callback_data;
+            instance *inst;
             uint32_t string_data_type;
             
             virtual void send_configure(const char *key, const char *value)
             {
-                (*store)(callback_data, key, value, strlen(value) + 1, string_data_type);
+                (*store)(callback_data,
+                         inst->uri_map->uri_to_id(inst->uri_map, NULL, key),
+                         value,
+                         strlen(value) + 1,
+                         string_data_type,
+                         LV2_PERSIST_IS_POD|LV2_PERSIST_IS_PORTABLE);
             }
         };
-        // A host that supports a Persist extension should support an URI map extension as well.
+        // A host that supports Persist MUST support URI-Map as well.
         assert(inst->uri_map);
         store_state s;
         s.store = store;
         s.callback_data = callback_data;
+        s.inst = inst;
         s.string_data_type = inst->uri_map->uri_to_id(inst->uri_map, NULL, "http://lv2plug.in/ns/ext/atom#String");
 
         inst->send_configures(&s);
