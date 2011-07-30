@@ -1,7 +1,7 @@
 /*
  * fader.cpp - fader-widget used in mixer - partly taken from Hydrogen
  *
- * Copyright (c) 2008-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2008-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * 
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
@@ -53,8 +53,12 @@
 #include "embed.h"
 #include "engine.h"
 #include "caption_menu.h"
+#include "config_mgr.h"
+#include "text_float.h"
 #include "MainWindow.h"
 
+
+textFloat * fader::s_textFloat = NULL;
 
 
 fader::fader( FloatModel * _model, const QString & _name, QWidget * _parent ) :
@@ -63,13 +67,19 @@ fader::fader( FloatModel * _model, const QString & _name, QWidget * _parent ) :
 	m_model( _model ),
 	m_fPeakValue_L( 0.0 ),
 	m_fPeakValue_R( 0.0 ),
+	m_persistentPeak_L( 0.0 ),
+	m_persistentPeak_R( 0.0 ),
 	m_fMinPeak( 0.01f ),
 	m_fMaxPeak( 1.1 ),
 	m_back( embed::getIconPixmap( "fader_background" ) ),
 	m_leds( embed::getIconPixmap( "fader_leds" ) ),
 	m_knob( embed::getIconPixmap( "fader_knob" ) )
 {
-	setAccessibleName( _name );
+	if( s_textFloat == NULL )
+	{
+		s_textFloat = new textFloat;
+	}
+	setWindowTitle( _name );
 	setAttribute( Qt::WA_OpaquePaintEvent, true );
 	setMinimumSize( 23, 116 );
 	setMaximumSize( 23, 116);
@@ -88,7 +98,7 @@ fader::~fader()
 
 void fader::contextMenuEvent( QContextMenuEvent * _ev )
 {
-	captionMenu contextMenu( accessibleName() );
+	captionMenu contextMenu( windowTitle() );
 	addDefaultActions( &contextMenu );
 	contextMenu.exec( QCursor::pos() );
 	_ev->accept();
@@ -105,6 +115,8 @@ void fader::mouseMoveEvent( QMouseEvent *ev )
 	fVal = fVal + m_model->minValue();
 
 	m_model->setValue( fVal );
+
+	updateTextFloat();
 }
 
 
@@ -115,6 +127,9 @@ void fader::mousePressEvent( QMouseEvent * _me )
 	if( _me->button() == Qt::LeftButton &&
 			! ( _me->modifiers() & Qt::ControlModifier ) )
 	{
+		updateTextFloat();
+		s_textFloat->show();
+
 		mouseMoveEvent( _me );
 		_me->accept();
 	}
@@ -125,6 +140,11 @@ void fader::mousePressEvent( QMouseEvent * _me )
 }
 
 
+
+void fader::mouseReleaseEvent( QMouseEvent * _me )
+{
+	s_textFloat->hide();
+}
 
 
 void fader::wheelEvent ( QWheelEvent *ev )
@@ -139,6 +159,8 @@ void fader::wheelEvent ( QWheelEvent *ev )
 	{
 		m_model->incValue( -5 );
 	}
+	updateTextFloat();
+	s_textFloat->setVisibilityTimeOut( 1000 );
 }
 
 
@@ -146,44 +168,74 @@ void fader::wheelEvent ( QWheelEvent *ev )
 ///
 /// Set peak value (0.0 .. 1.0)
 ///
+void fader::setPeak( float fPeak, float &targetPeak, float &persistentPeak, QTime &lastPeakTime )
+{
+	if( fPeak <  m_fMinPeak )
+	{
+		fPeak = m_fMinPeak;
+	}
+	else if( fPeak > m_fMaxPeak )
+	{
+		fPeak = m_fMaxPeak;
+	}
+
+	if( targetPeak != fPeak)
+	{
+		targetPeak = fPeak;
+		if( targetPeak >= persistentPeak )
+		{
+			persistentPeak = targetPeak;
+			lastPeakTime.restart();
+		}
+		update();
+	}
+
+	if( persistentPeak > 0 && lastPeakTime.elapsed() > 1500 )
+	{
+		persistentPeak = qMax<float>( 0, persistentPeak-0.05 );
+		update();
+	}
+}
+
+
+
 void fader::setPeak_L( float fPeak )
 {
-	if ( fPeak <  m_fMinPeak ) {
-		fPeak = m_fMinPeak;
-	}
-	else if ( fPeak > m_fMaxPeak ) {
-		fPeak = m_fMaxPeak;
-	}
-
-	if ( m_fPeakValue_L != fPeak) {
-		m_fPeakValue_L = fPeak;
-		update();
-	}
+	setPeak( fPeak, m_fPeakValue_L, m_persistentPeak_L, m_lastPeakTime_L );
 }
 
 
 
-
-///
-/// Set peak value (0.0 .. 1.0)
-///
 void fader::setPeak_R( float fPeak )
 {
-	if ( fPeak <  m_fMinPeak ) {
-		fPeak = m_fMinPeak;
-	}
-	else if ( fPeak > m_fMaxPeak ) {
-		fPeak = m_fMaxPeak;
-	}
-
-	if ( m_fPeakValue_R != fPeak ) {
-		m_fPeakValue_R = fPeak;
-		update();
-	}
+	setPeak( fPeak, m_fPeakValue_R, m_persistentPeak_R, m_lastPeakTime_R );
 }
 
 
 
+// update tooltip showing value and adjust position while changing fader value
+void fader::updateTextFloat()
+{
+	if( configManager::inst()->value( "app", "displaydbv" ).toInt() )
+	{
+		s_textFloat->setText( QString("Volume: %1 dBV").
+				arg( 20.0 * log10( model()->value() ), 3, 'f', 2 ) );
+	}
+	else
+	{
+		s_textFloat->setText( QString("Volume: %1 %").arg( m_model->value() * 100 ) );
+	}
+	s_textFloat->moveGlobal( this, QPoint( width() - m_knob.width() - 5, knob_y() - 46 ) );
+}
+
+
+inline int fader::calculateDisplayPeak( float fPeak )
+{
+	int peak = (int)( 116 - ( fPeak / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0 );
+
+	if ( peak > 116 ) return 116;
+	else return peak;
+}
 
 void fader::paintEvent( QPaintEvent * ev)
 {
@@ -197,24 +249,23 @@ void fader::paintEvent( QPaintEvent * ev)
 	// peak leds
 	//float fRange = abs( m_fMaxPeak ) + abs( m_fMinPeak );
 
-	float realPeak_L = m_fPeakValue_L - m_fMinPeak;
-	//int peak_L = 116 - ( realPeak_L / fRange ) * 116.0;
-	int peak_L = (int)( 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) *
-									116.0 );
-
-	if ( peak_L > 116 ) {
-		peak_L = 116;
-	}
+	int peak_L = calculateDisplayPeak( m_fPeakValue_L - m_fMinPeak );
+	int persistentPeak_L = qMax<int>( 3, calculateDisplayPeak( m_persistentPeak_L - m_fMinPeak ) );
 	painter.drawPixmap( QRect( 0, peak_L, 11, 116 - peak_L ), m_leds, QRect( 0, peak_L, 11, 116 - peak_L ) );
 
-
-	float realPeak_R = m_fPeakValue_R - m_fMinPeak;
-	int peak_R = (int)( 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) *
-									116.0 );
-	if ( peak_R > 116 ) {
-		peak_R = 116;
+	if( m_persistentPeak_L > 0.05 )
+	{
+		painter.fillRect( QRect( 2, persistentPeak_L, 4, 1 ), (m_persistentPeak_L < 1.0 )? QColor( 0, 200, 0) : QColor( 200, 0, 0));
 	}
+
+	int peak_R = calculateDisplayPeak( m_fPeakValue_R - m_fMinPeak );
+	int persistentPeak_R = qMax<int>( 3, calculateDisplayPeak( m_persistentPeak_R - m_fMinPeak ) );
 	painter.drawPixmap( QRect( 11, peak_R, 11, 116 - peak_R ), m_leds, QRect( 11, peak_R, 11, 116 - peak_R ) );
+
+	if( m_persistentPeak_R > 0.05 )
+	{
+		painter.fillRect( QRect( 16, persistentPeak_R, 4, 1 ), (m_persistentPeak_R < 1.0 )? QColor( 0, 200, 0) : QColor( 200, 0, 0));
+	}
 
 	// knob
 	static const uint knob_height = 29;
@@ -231,21 +282,6 @@ void fader::paintEvent( QPaintEvent * ev)
 	painter.drawPixmap( QRect( 4, knob_y - knob_height, knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
 }
 
-
-
-
-void fader::setMaxPeak( float fMax )
-{
-	m_fMaxPeak = fMax;
-}
-
-
-
-
-void fader::setMinPeak( float fMin )
-{
-	m_fMinPeak = fMin;
-}
 
 
 

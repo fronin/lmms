@@ -1,10 +1,8 @@
-#ifndef SINGLE_SOURCE_COMPILE
-
 /*
  * config_mgr.cpp - implementation of class configManager
  *
- * Copyright (c) 2005-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ * Copyright (c) 2005-2011 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ *
  * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +21,6 @@
  * Boston, MA 02110-1301 USA.
  *
  */
-
 
 #include <QtXml/QDomElement>
 #include <QtCore/QDir>
@@ -244,7 +241,9 @@ void configManager::loadConfigFile()
 
 	if( cfg_file.open( QIODevice::ReadOnly ) )
 	{
-		if( dom_tree.setContent( &cfg_file ) )
+		QString errorString;
+		int errorLine, errorCol;
+		if( dom_tree.setContent( &cfg_file, false, &errorString, &errorLine, &errorCol ) )
 		{
 			// get the head information from the DOM
 			QDomElement root = dom_tree.documentElement();
@@ -313,6 +312,14 @@ void configManager::loadConfigFile()
 			setDefaultSoundfont( value( "paths", "defaultsf2" ) );
 		#endif
 			setBackgroundArtwork( value( "paths", "backgroundartwork" ) );
+		}
+		else
+		{
+			QMessageBox::warning( NULL, MainWindow::tr( "Configuration file" ),
+									MainWindow::tr( "Error while parsing configuration file at line %1:%2: %3" ).
+													arg( errorLine ).
+													arg( errorCol ).
+													arg( errorString ) );
 		}
 		cfg_file.close();
 	}
@@ -444,10 +451,8 @@ void configManager::saveConfigFile()
 		return;
 	}
 
-	outfile.write( xml.toUtf8().constData(), xml.length() );
+	outfile.write( xml.toUtf8() );
 	outfile.close();
 }
 
 
-
-#endif
