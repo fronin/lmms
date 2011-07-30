@@ -2652,7 +2652,7 @@ void pianoRoll::paintEvent( QPaintEvent * _pe )
 	}
 
 	{
-		assert(Key_C == 0);
+		assert(Key_C == 0); // The following code uses the numerical values of the KEY_ constants, so bail out if something goes wrong.
 		assert(Key_H == 11);
 		
 		struct KeyLabel
