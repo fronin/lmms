@@ -471,6 +471,14 @@ pianoRoll::pianoRoll() :
 					this, SLOT( quantizeChanged() ) );
 
 
+	m_enableNoteLabelsButton = new toolButton( embed::getIconPixmap( "enable_notelabels" ),
+					tr( "Toggle the display of the note names in the editor" ),
+					this, SLOT( repaint() ),
+					m_toolBar );
+	m_enableNoteLabelsButton->setCheckable(true);
+	m_enableNoteLabelsButton->setChecked(true);
+	tb_layout->addWidget( m_pasteButton );
+	
 	tb_layout->addSpacing( 5 );
 	tb_layout->addWidget( m_playButton );
 	tb_layout->addWidget( m_recordButton );
@@ -499,6 +507,8 @@ pianoRoll::pianoRoll() :
 	tb_layout->addWidget( note_len_lbl );
 	tb_layout->addSpacing( 4 );
 	tb_layout->addWidget( m_noteLenComboBox );
+	tb_layout->addSpacing( 10 );
+	tb_layout->addWidget( m_enableNoteLabelsButton );
 	tb_layout->addStretch();
 
 	// setup our actual window
@@ -2650,7 +2660,8 @@ void pianoRoll::paintEvent( QPaintEvent * _pe )
 			}
 		}
 	}
-
+	
+	if( m_enableNoteLabelsButton->isChecked() ) // TODO: replace the condition by a control
 	{
 		assert(Key_C == 0); // The following code uses the numerical values of the KEY_ constants, so bail out if something goes wrong.
 		assert(Key_H == 11);

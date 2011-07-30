@@ -246,6 +246,7 @@ private:
 	ComboBoxModel m_noteLenModel;
 
 
+	toolButton * m_enableNoteLabelsButton;
 
 	pattern * m_pattern;
 	QScrollBar * m_leftRightScroll;
