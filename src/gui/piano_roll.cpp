@@ -75,7 +75,7 @@ extern Keys whiteKeys[];	// defined in piano_widget.cpp
 
 
 // some constants...
-const int INITIAL_PIANOROLL_WIDTH = 840;
+const int INITIAL_PIANOROLL_WIDTH = 900;
 const int INITIAL_PIANOROLL_HEIGHT = 480;
 
 const int SCROLLBAR_SIZE = 16;
